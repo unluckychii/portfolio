@@ -1,0 +1,46 @@
+{
+  "no": "07",
+  "latin": "Hibiscus syriacus",
+  "common": "Rose of Sharon",
+  "image": "/uploads/sheet-07.webp",
+  "pressed": "14 Jun",
+  "place": "Back garden, after rain",
+  "note": "The one this whole book is for.",
+  "tape": "top",
+  "feature": true,
+  "more": {
+    "enabled": true,
+    "label": "View the project",
+    "title": "Rose of Sharon",
+    "intro": "Sample project page. Replace this text, the facts and the gallery from the CMS at /admin.",
+    "facts": [
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "Role",
+        "value": "Collector, photographer"
+      },
+      {
+        "label": "Medium",
+        "value": "Pressed flowers, archival paper"
+      }
+    ],
+    "link": {
+      "label": "",
+      "url": ""
+    },
+    "body": "## About this sheet\n\nWrite the long-form story of the project here. The body supports **bold**, *italic*, [links](https://example.com), lists and headings.\n\n- One point\n- Another point\n\nAdd as many paragraphs as you need.",
+    "gallery": [
+      {
+        "image": "/uploads/sheet-07.webp",
+        "caption": "The finished sheet"
+      },
+      {
+        "image": "/uploads/sheet-12.webp",
+        "caption": "Sample gallery image"
+      }
+    ]
+  }
+}

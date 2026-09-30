@@ -1,0 +1,14 @@
+{
+  "no": "05",
+  "latin": "Composite sheet",
+  "common": "Lily, viola, crocus",
+  "image": "/uploads/sheet-05.webp",
+  "pressed": "12 Jun",
+  "place": "Kitchen table",
+  "note": "Everything left after the dinner.",
+  "tape": "corners",
+  "feature": false,
+  "more": {
+    "enabled": false
+  }
+}

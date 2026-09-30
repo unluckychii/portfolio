@@ -1,0 +1,87 @@
+# Decap CMS — edits here are committed to the repo, then the site rebuilds.
+# Log in at /admin with a GitHub account that has write access to the repo.
+backend:
+  name: github
+  repo: unluckychii/portfolio
+  branch: main # the branch the live site is built from
+
+# `npx decap-server` + `npm run dev` lets you edit locally without logging in
+local_backend: true
+
+media_folder: public/uploads # where uploaded images are stored in the repo
+public_folder: /uploads # how the site refers to them
+
+site_url: /
+display_url: /
+logo_url: ''
+
+collections:
+  - name: sheets
+    label: Sheets
+    label_singular: Sheet
+    description: >-
+      Each sheet is one pressed photograph on the desk. Sheets are shown in order
+      of their number. Turn on "View more" to add a project page behind a button on
+      the back of the sheet.
+    folder: content/sheets
+    format: json
+    extension: json
+    create: true
+    delete: true
+    identifier_field: 'no'
+    slug: '{{fields.no}}'
+    summary: 'No. {{no}} · {{latin}} ({{common}})'
+    sortable_fields: ['no', latin, common]
+    editor:
+      preview: false
+    fields:
+      - { label: Number, name: 'no', widget: string, pattern: ['^\d{2,3}$', 'Two digits, e.g. 07'], hint: 'Sets the order on the desk, e.g. 07' }
+      - { label: Photograph, name: image, widget: image, required: false, hint: 'Portrait works best (about 4:5).' }
+      - { label: Latin name, name: latin, widget: string }
+      - { label: Common name, name: common, widget: string, hint: 'Also used as the image description for screen readers.' }
+      - { label: Pressed (date), name: pressed, widget: string, required: false, hint: 'e.g. 14 Jun' }
+      - { label: Found (place), name: place, widget: string, required: false }
+      - { label: Note, name: note, widget: text, required: false, hint: 'Short line shown in quotes on the back of the sheet (hidden on phones).' }
+      - label: Tape
+        name: tape
+        widget: select
+        default: top
+        options:
+          - { label: Across the top, value: top }
+          - { label: Two corners, value: corners }
+          - { label: Down the side, value: side }
+      - { label: Finale sheet, name: feature, widget: boolean, default: false, required: false, hint: 'The scroll ends by diving into this sheet. Mark exactly one.' }
+      - label: View more (project page)
+        name: more
+        widget: object
+        collapsed: false
+        required: false
+        fields:
+          - { label: Show a "View more" button on the back, name: enabled, widget: boolean, default: false, required: false }
+          - { label: Button text, name: label, widget: string, default: View the project, required: false }
+          - { label: Page title, name: title, widget: string, required: false, hint: 'Defaults to the common name.' }
+          - { label: Intro, name: intro, widget: text, required: false }
+          - label: Project facts
+            name: facts
+            widget: list
+            required: false
+            summary: '{{fields.label}}: {{fields.value}}'
+            fields:
+              - { label: Label, name: label, widget: string, hint: 'e.g. Client, Year, Role' }
+              - { label: Value, name: value, widget: string }
+          - label: External link
+            name: link
+            widget: object
+            required: false
+            fields:
+              - { label: Link text, name: label, widget: string, required: false }
+              - { label: URL, name: url, widget: string, required: false, pattern: ['^(https?://.*)?$', 'Must start with http:// or https://'] }
+          - { label: Body, name: body, widget: markdown, required: false, buttons: [bold, italic, link, heading-two, heading-three, quote, bulleted-list, numbered-list] , editor_components: [] }
+          - label: Gallery
+            name: gallery
+            widget: list
+            required: false
+            summary: '{{fields.caption}}'
+            fields:
+              - { label: Image, name: image, widget: image }
+              - { label: Caption, name: caption, widget: string, required: false }

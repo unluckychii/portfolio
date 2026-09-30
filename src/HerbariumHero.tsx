@@ -3,7 +3,7 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Lenis from 'lenis'
 import { DeskEngine, type Mode } from './DeskEngine'
-import { FEATURE, SPECIMENS } from './specimens'
+import { FEATURE, SPECIMENS, TOTAL, projectHref } from './specimens'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -49,13 +49,15 @@ export default function HerbariumHero() {
   useEffect(() => {
     let alive = true
     SPECIMENS.forEach((s, i) => {
-      const img = new Image()
-      img.onload = () => alive && setLoaded((n) => n + 1)
-      img.onerror = () => {
+      const fail = () => {
         if (!alive) return
         setBroken((b) => new Set(b).add(i)) // the sheet still shows, just without its photo
         setLoaded((n) => n + 1)
       }
+      if (!s.src) return fail() // no image set in the CMS
+      const img = new Image()
+      img.onload = () => alive && setLoaded((n) => n + 1)
+      img.onerror = fail
       img.src = s.src
     })
     return () => {
@@ -122,6 +124,7 @@ export default function HerbariumHero() {
     }
     const down = (e: PointerEvent) => {
       if (e.button > 0) return
+      if ((e.target as Element).closest('a')) return // links on a sheet's back open normally
       const p = local(e)
       if (engineRef.current?.grab(e.target as Element, e.pointerId, p.x, p.y)) {
         stage.setPointerCapture(e.pointerId)
@@ -264,12 +267,12 @@ export default function HerbariumHero() {
               <div
                 key={s.no}
                 data-card
-                className={`hb-card${flipped.has(i) ? ' is-flipped' : ''}${i === FEATURE ? ' is-feature' : ''}`}
+                className={`hb-card${flipped.has(i) ? ' is-flipped' : ''}${i === FEATURE ? ' is-feature' : ''}${s.more.enabled ? ' has-more' : ''}`}
               >
                 <div className="hb-card__inner">
                   <div className="hb-card__face hb-card__front">
                     <div className="hb-card__photo">
-                      {!broken.has(i) && <img src={s.src} alt={`Pressed specimen: ${s.common}`} draggable={false} />}
+                      {!broken.has(i) && s.src && <img src={s.src} alt={`Pressed specimen: ${s.common}`} draggable={false} />}
                     </div>
                     <div className="hb-card__label">
                       <span className="hb-card__no">No. {s.no}</span>
@@ -278,14 +281,19 @@ export default function HerbariumHero() {
                     <i className={`hb-tape hb-tape--${s.tape}`} aria-hidden="true" />
                   </div>
                   <div className="hb-card__face hb-card__back" aria-hidden={!flipped.has(i)}>
-                    <span className="hb-card__kicker">Catalogue entry · {s.no}/12</span>
+                    <span className="hb-card__kicker">Catalogue entry · {s.no}/{TOTAL}</span>
                     <span className="hb-card__latin">{s.latin}</span>
                     <span className="hb-card__common">{s.common}</span>
                     <dl>
                       <dt>Pressed</dt><dd>{s.pressed}</dd>
                       <dt>Found</dt><dd>{s.place}</dd>
                     </dl>
-                    <p className="hb-card__note">“{s.note}”</p>
+                    {s.note && <p className="hb-card__note">“{s.note}”</p>}
+                    {s.more.enabled && (
+                      <a className="hb-card__more" href={projectHref(s)} tabIndex={flipped.has(i) ? 0 : -1} draggable={false}>
+                        {s.more.label} <span aria-hidden="true">→</span>
+                      </a>
+                    )}
                   </div>
                 </div>
                 <button
@@ -306,7 +314,7 @@ export default function HerbariumHero() {
           <header className="hb-top">
             <span>Oversight Supply</span>
             <span className="hb-top__c">Herbarium <em>Vol. III</em></span>
-            <span className="hb-top__r">Sheets read <b>{count}</b>/12</span>
+            <span className="hb-top__r">Sheets read <b>{count}</b>/{TOTAL}</span>
           </header>
 
           <div className="hb-aside">
@@ -324,7 +332,7 @@ export default function HerbariumHero() {
           </div>
 
           <div className="hb-index" aria-hidden="true">
-            <p className="hb-index__kicker">Index of specimens · 12 sheets</p>
+            <p className="hb-index__kicker">Index of specimens · {SPECIMENS.length} sheets</p>
             <p className="hb-index__title">One summer, <em>filed flat.</em></p>
           </div>
 
@@ -339,7 +347,7 @@ export default function HerbariumHero() {
 
           {!ready && (
             <div className="hb-loader" role="status">
-              Pressing sheets {String(loaded).padStart(2, '0')}/12
+              Pressing sheets {String(loaded).padStart(2, '0')}/{TOTAL}
             </div>
           )}
         </div>

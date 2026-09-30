@@ -1,0 +1,9 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# project pages (/sheets/07) are rendered by the app
+[[redirects]]
+  from = "/sheets/*"
+  to = "/index.html"
+  status = 200

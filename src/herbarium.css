@@ -146,6 +146,38 @@ html.lenis, html.lenis body { height: auto; }
 .hb-card__back dt { color: var(--hb-dim); text-transform: uppercase; letter-spacing: 0.1em; }
 .hb-card__back dd { margin: 0; }
 .hb-card__note { margin: 0.4em 0 0; padding-top: 0.7em; border-top: 1px solid var(--hb-rule); font: italic 400 2em/1.12 var(--hb-serif); }
+.hb-card__more {
+  align-self: flex-start;
+  margin-top: 0.4em;
+  max-width: 100%;
+  padding: 0.75em 1em;
+  border-radius: 999px;
+  background: var(--hb-lime);
+  color: var(--hb-ink);
+  font: 500 1.2em/1 var(--hb-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  -webkit-user-drag: none;
+}
+.hb-card__more:hover { background: var(--hb-ink); color: var(--hb-sheet); }
+.hb-card__more:focus-visible { outline: 1px solid var(--hb-ink); outline-offset: 2px; }
+/* a back with a button: keep every line fixed and let only the note give way */
+.hb-card.has-more .hb-card__back > * { flex-shrink: 0; }
+.hb-card.has-more .hb-card__kicker, .hb-card.has-more .hb-card__back dd { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hb-card.has-more .hb-card__latin { font-size: 2.6em; }
+.hb-card.has-more .hb-card__note {
+  flex-shrink: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
 
 /* keyboard access without a hit area: the desk handles pointer taps */
 .hb-card__key {
