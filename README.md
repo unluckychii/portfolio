@@ -19,6 +19,18 @@ npm run dev
 - Turning on **View more** adds a button to the back of that sheet, linking to
   `/sheets/<number>`: title, intro, project facts, an external link, a markdown body and a gallery.
 
+## The desk (`/desk`)
+
+A 3D work desk built with three.js: a monitor, a coffee cup, a stack of books, a pigeon, a lamp
+and a plant, all modelled in code (no model files). Drag to look around, hover an object to see
+its name, click it to fly the camera in and open its page (`/desk/monitor`, `/desk/coffee`,
+`/desk/books`, `/desk/pigeon`). The lamp switches on and off. The list along the bottom opens the
+same pages from the keyboard or on touch screens.
+
+- Page text lives in `content/desk/*.json` and is edited in the CMS under **Desk objects**.
+- The scene is in `src/desk/DeskScene.ts`; the page panel and routing in `src/desk/Desk3D.tsx`.
+- three.js only loads on `/desk`, so the herbarium at `/` stays as light as before.
+
 ## Editing with the CMS
 
 The editor is at **`/admin`**. Saves are committed to the `main` branch, which rebuilds the site.

@@ -85,3 +85,37 @@ collections:
             fields:
               - { label: Image, name: image, widget: image }
               - { label: Caption, name: caption, widget: string, required: false }
+
+  - name: desk
+    label: Desk objects
+    label_singular: Desk object
+    description: >-
+      The pages behind the objects on the 3D desk at /desk. There is one entry per
+      object (monitor, coffee, books, pigeon); the objects themselves are fixed.
+    folder: content/desk
+    format: json
+    extension: json
+    create: false
+    delete: false
+    identifier_field: id
+    summary: '{{label}} · {{hint}}'
+    sortable_fields: [order, label]
+    editor:
+      preview: false
+    fields:
+      - { label: Object, name: id, widget: hidden }
+      - { label: Order in the list, name: order, widget: number, value_type: int, min: 1 }
+      - { label: Name on hover, name: label, widget: string, hint: 'e.g. The coffee cup' }
+      - { label: Hint, name: hint, widget: string, required: false, hint: 'One word under the name, e.g. About' }
+      - { label: Kicker, name: kicker, widget: string, required: false, hint: 'Small line above the page title' }
+      - { label: Page title, name: title, widget: string }
+      - { label: Intro, name: intro, widget: text, required: false }
+      - { label: Body, name: body, widget: markdown, required: false, buttons: [bold, italic, link, heading-two, heading-three, quote, bulleted-list, numbered-list], editor_components: [] }
+      - label: Links
+        name: links
+        widget: list
+        required: false
+        summary: '{{fields.label}}'
+        fields:
+          - { label: Link text, name: label, widget: string }
+          - { label: URL, name: url, widget: string, hint: 'https://…, mailto:…, or a page on this site like /' }

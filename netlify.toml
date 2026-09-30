@@ -7,3 +7,14 @@
   from = "/sheets/*"
   to = "/index.html"
   status = 200
+
+# the 3D desk and the pages behind its objects (/desk/coffee) are rendered by the app
+[[redirects]]
+  from = "/desk"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/desk/*"
+  to = "/index.html"
+  status = 200

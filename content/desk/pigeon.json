@@ -1,0 +1,13 @@
+{
+  "id": "pigeon",
+  "order": 4,
+  "label": "The pigeon",
+  "hint": "Contact",
+  "kicker": "Carrier service",
+  "title": "Send a message",
+  "intro": "Sample page. The pigeon takes messages, but email is faster.",
+  "body": "## Get in touch\n\nOpen to new projects, collaborations and conversations. Write a line about what kind of messages you'd like to get.",
+  "links": [
+    { "label": "Email me", "url": "mailto:hello@example.com" }
+  ]
+}

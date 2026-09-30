@@ -1,0 +1,13 @@
+{
+  "id": "monitor",
+  "order": 1,
+  "label": "The monitor",
+  "hint": "Work",
+  "kicker": "On the screen",
+  "title": "Selected work",
+  "intro": "Sample page. Replace this text and the links from the CMS at /admin.",
+  "body": "## What I'm working on\n\nA short paragraph about the kind of work you make and who it is for.\n\n- **Herbarium** — pressed sheets on a paper desk, a scroll-driven hero.\n- **Project two** — one line about it.\n- **Project three** — one line about it.",
+  "links": [
+    { "label": "Open the Herbarium", "url": "/" }
+  ]
+}
