@@ -4,7 +4,7 @@ import { DeskScene, type Cover, type Pickable } from './DeskScene'
 import { DESK_OBJECTS, deskHref, isDeskId, type DeskId } from './objects'
 
 const idFromPath = () => {
-  const m = window.location.pathname.match(/^\/desk\/([^/]+)\/?$/)
+  const m = window.location.pathname.match(/^\/([^/]+)\/?$/)
   const id = m ? decodeURIComponent(m[1]) : undefined
   return isDeskId(id) ? id : null
 }
@@ -107,7 +107,7 @@ export default function Desk3D() {
   }, [show, hide])
 
   useEffect(() => {
-    document.title = current ? `${current.title} — The desk` : 'The desk — Oversight Supply'
+    document.title = current ? `${current.title} — Oversight Supply` : 'Oversight Supply'
     if (current) panelRef.current?.focus({ preventScroll: true })
   }, [current])
 
@@ -132,7 +132,14 @@ export default function Desk3D() {
       </div>
 
       <header className="dk-top">
-        <a href="/" className="dk-top__l">
+        <a
+          href="/"
+          className="dk-top__l"
+          onClick={(e) => {
+            e.preventDefault()
+            if (open) hide(true)
+          }}
+        >
           Oversight Supply
         </a>
         <span className="dk-top__c">

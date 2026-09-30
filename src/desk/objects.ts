@@ -1,6 +1,6 @@
 /**
  * Pages behind the objects on the 3D desk. Content lives in /content/desk/*.json
- * and is edited through the CMS at /admin (Decap), like the herbarium sheets.
+ * and is edited through the CMS at /admin (Decap).
  */
 
 export type DeskId = 'monitor' | 'coffee' | 'books' | 'pigeon'
@@ -50,4 +50,4 @@ export const DESK_OBJECTS: DeskObject[] = IDS.map((id) => normalise(byId.get(id)
 
 export const isDeskId = (v: string | undefined): v is DeskId => !!v && (IDS as string[]).includes(v)
 
-export const deskHref = (id?: DeskId) => (id ? `/desk/${id}` : '/desk')
+export const deskHref = (id?: DeskId) => (id ? `/${id}` : '/')

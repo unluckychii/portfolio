@@ -1,4 +1,20 @@
-/* The desk — a 3D work desk; tokens come from herbarium.css */
+/* The desk — a 3D work desk */
+:root {
+  --hb-bg: #e7e1cf;
+  --hb-sheet: #f6f2e6;
+  --hb-ink: #1d2117;
+  --hb-soft: rgba(29, 33, 23, 0.62);
+  --hb-rule: rgba(29, 33, 23, 0.16);
+  --hb-lime: #d6f06b;
+  --hb-serif: 'Instrument Serif', 'Times New Roman', serif;
+  --hb-sans: 'Inter Variable', 'Inter', system-ui, sans-serif;
+  --hb-mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; background: var(--hb-bg); color: var(--hb-ink); }
+body { font-family: var(--hb-sans); -webkit-font-smoothing: antialiased; }
+
 .dk-root {
   position: fixed;
   inset: 0;
