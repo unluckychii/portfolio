@@ -1,13 +1,11 @@
 {
   "no": "07",
-  "latin": "Hibiscus syriacus",
-  "common": "Rose of Sharon",
-  "image": "/uploads/sheet-07.webp",
   "pressed": "14 Jun",
-  "place": "Back garden, after rain",
-  "note": "The one this whole book is for.",
   "tape": "top",
-  "feature": true,
+  "latin": "Hibiscus syriacus",
+  "place": "Back garden, after rain",
+  "common": "Rose of Sharon",
+  "note": "The one this whole book is for.",
   "more": {
     "enabled": true,
     "label": "View the project",
@@ -42,5 +40,7 @@
         "caption": "Sample gallery image"
       }
     ]
-  }
+  },
+  "feature": true,
+  "image": "/uploads/9ae4cd6d-9471-4dc3-a21d-768ebc9384ba.jpg"
 }
