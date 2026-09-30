@@ -9,6 +9,15 @@ const idFromPath = () => {
   return isDeskId(id) ? id : null
 }
 
+/** update the address bar; some embedding frames refuse it, and the desk works without it */
+const go = (path: string) => {
+  try {
+    history.pushState(null, '', path)
+  } catch {
+    /* keep going without a URL change */
+  }
+}
+
 /** how much of the screen the page covers: a column on the right, or the lower 62% on phones (see desk3d.css) */
 const panelCover = (): Cover => {
   const w = window.innerWidth
@@ -38,13 +47,13 @@ export default function Desk3D() {
     if (id === 'pigeon') engine?.pigeonHop()
     engine?.focus(id, panelCover())
     setOpen(id)
-    if (push && window.location.pathname !== deskHref(id)) history.pushState(null, '', deskHref(id))
+    if (push && window.location.pathname !== deskHref(id)) go(deskHref(id))
   }, [])
 
   const hide = useCallback((push: boolean) => {
     engineRef.current?.release()
     setOpen(null)
-    if (push && window.location.pathname !== deskHref()) history.pushState(null, '', deskHref())
+    if (push && window.location.pathname !== deskHref()) go(deskHref())
     returnFocus.current?.focus({ preventScroll: true })
   }, [])
 
