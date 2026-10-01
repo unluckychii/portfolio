@@ -355,6 +355,18 @@ function buildBooks() {
 
 type PigeonRig = { head: THREE.Group; wings: THREE.Mesh[]; body: THREE.Group }
 
+/**
+ * A glTF loader that decodes textures with an <img> element. Its default decoder
+ * fetch()es a blob: URL, which hosts with a strict Content-Security-Policy refuse,
+ * and the models then show up with no colour.
+ */
+function gltfLoader() {
+  return new GLTFLoader().register((parser) => {
+    parser.textureLoader = new THREE.TextureLoader(parser.options.manager).setCrossOrigin('anonymous')
+    return { name: 'desk_img_element_textures' }
+  })
+}
+
 /** the pigeon model in public/models: a rigged bird with its own idle animation */
 const PIGEON_MODEL = `${import.meta.env.BASE_URL}models/pigeon.glb`
 /** the model is 0.63 tall; this brings it to the size of the other things on the desk */
@@ -367,7 +379,7 @@ const LAPTOP_SCALE = 0.25
 
 /** the laptop, with the code-editor screen laid over its display */
 async function loadLaptopModel(screen: ScreenCanvas) {
-  const gltf = await new GLTFLoader().loadAsync(LAPTOP_MODEL)
+  const gltf = await gltfLoader().loadAsync(LAPTOP_MODEL)
   const model = gltf.scene
   model.traverse((o) => {
     const m = o as THREE.Mesh
@@ -398,7 +410,7 @@ type ModelPigeonRig = {
 }
 
 async function loadPigeonModel(): Promise<ModelPigeonRig> {
-  const gltf = await new GLTFLoader().loadAsync(PIGEON_MODEL)
+  const gltf = await gltfLoader().loadAsync(PIGEON_MODEL)
   const model = gltf.scene
   model.scale.setScalar(PIGEON_SCALE)
   model.traverse((o) => {
