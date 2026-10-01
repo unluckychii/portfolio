@@ -17,6 +17,9 @@ npm run dev
   a markdown body and links). Edit them in the CMS under **Desk objects**, or by hand.
 - The scene is in `src/desk/DeskScene.ts`; the page panel and routing in `src/desk/Desk3D.tsx`.
 - Uploaded images go to `public/uploads/`.
+- The painting on the wall is Caravaggio's *Narcissus* (c. 1597–99, public domain), in
+  `public/art/narcissus.webp`. To hang something else, replace that file and update the image size
+  next to `PAINTING` in `src/desk/DeskScene.ts` so it isn't stretched.
 - The laptop is a 3D model, `public/models/laptop.glb`: "MacBook Air M2" by rtql8d on Sketchfab,
   CC BY 4.0. The licence requires the credit line shown in the corner of the page; keep it if the
   model stays. Its wallpaper was removed (the site draws its own screen) and its textures converted

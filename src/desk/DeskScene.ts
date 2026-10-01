@@ -14,7 +14,7 @@ export type Pickable = DeskId | 'lamp'
 export type Cover = { x: number; y: number }
 
 const HOME_POS = new THREE.Vector3(0.35, 1.55, 2.75)
-const HOME_TARGET = new THREE.Vector3(0, 0.22, 0)
+const HOME_TARGET = new THREE.Vector3(0, 0.46, 0)
 const DESK_W = 3.2
 const DESK_D = 1.5
 const LEG_H = 0.74
@@ -202,15 +202,30 @@ function buildDesk(scene: THREE.Scene) {
   skirting.position.set(0, floor.position.y + 0.06, -1.24)
   scene.add(floor, wall, skirting)
 
-  // a framed print on the wall
-  const frame = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.8, 0.03), std('#1d2117', 0.5))
-  frame.position.set(-0.95, 1.25, -1.23)
-  const print = new THREE.Mesh(new THREE.PlaneGeometry(0.52, 0.7), std('#f6f2e6', 0.9))
-  print.position.set(-0.95, 1.25, -1.213)
-  const dot = new THREE.Mesh(new THREE.CircleGeometry(0.12, 40), std('#d6f06b', 0.9))
-  dot.position.set(-0.95, 1.32, -1.211)
-  scene.add(frame, print, dot)
+  // a framed painting on the wall, centred behind the laptop: Caravaggio's Narcissus (public domain)
+  const art = new THREE.Group()
+  const frame = new THREE.Mesh(new THREE.BoxGeometry(ART_W + 0.18, ART_H + 0.18, 0.035), std('#1d2117', 0.45))
+  const mat = new THREE.Mesh(new THREE.PlaneGeometry(ART_W + 0.1, ART_H + 0.1), std('#f6f2e6', 0.9))
+  mat.position.z = 0.0181
+  const canvasMat = std('#2a1d14', 0.75) // dark until the picture arrives
+  const painting = new THREE.Mesh(new THREE.PlaneGeometry(ART_W, ART_H), canvasMat)
+  painting.position.z = 0.0185
+  new THREE.TextureLoader().load(PAINTING, (tex) => {
+    tex.colorSpace = THREE.SRGBColorSpace
+    tex.anisotropy = 8
+    canvasMat.map = tex
+    canvasMat.color.set(0xffffff)
+    canvasMat.needsUpdate = true
+  })
+  art.add(frame, mat, painting)
+  art.position.set(0, 0.74, -1.23)
+  scene.add(shadowed(art))
 }
+
+/** the painting on the wall, and its size in scene units (the image is 1057 × 1280) */
+const PAINTING = `${import.meta.env.BASE_URL}art/narcissus.webp`
+const ART_H = 0.9
+const ART_W = ART_H * (1057 / 1280)
 
 function buildMonitor(screen: ScreenCanvas) {
   const g = new THREE.Group()
