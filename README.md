@@ -24,6 +24,9 @@ npm run dev
   CC BY 4.0. The licence requires the credit line shown in the corner of the page; keep it if the
   model stays. Its wallpaper was removed (the site draws its own screen) and its textures converted
   to WebP. If the file can't load, the desk shows a built-in monitor and keyboard instead.
+- The coffee cup is a 3D model, `public/models/coffee.glb`: "Coffee Cup" by Lasse Harm
+  (GreenLineStudio) on Sketchfab, CC BY 4.0, also credited in the corner of the page. If it can't
+  load, the desk shows a built-in mug instead.
 - The pigeon is a 3D model, `public/models/pigeon.glb` (rigged, with its own idle animation). To swap
   it, replace that file with another `.glb`, then adjust `PIGEON_SCALE` in `src/desk/DeskScene.ts`
   if the size is off. If the file is missing or fails to load, the desk shows its built-in pigeon.

@@ -416,6 +416,26 @@ async function loadLaptopModel(screen: ScreenCanvas) {
   return g
 }
 
+/** a takeaway cup (CC BY 4.0, Lasse Harm on Sketchfab — credited on the page) in public/models */
+const COFFEE_MODEL = `${import.meta.env.BASE_URL}models/coffee.glb`
+/** the model is 3.72 tall, standing on y = -1; this makes it about 0.2 tall */
+const COFFEE_SCALE = 0.055
+
+async function loadCoffeeModel() {
+  const gltf = await gltfLoader().loadAsync(COFFEE_MODEL)
+  const model = gltf.scene
+  model.traverse((o) => {
+    const m = o as THREE.Mesh
+    if (!m.isMesh) return
+    m.castShadow = true
+    m.receiveShadow = true
+  })
+  model.scale.setScalar(COFFEE_SCALE)
+  model.position.y = 1 * COFFEE_SCALE // its base sits at y = -1
+  model.rotation.y = -0.4
+  return model
+}
+
 type ModelPigeonRig = {
   body: THREE.Group
   mixer: THREE.AnimationMixer
@@ -707,6 +727,7 @@ export class DeskScene {
     this.add('pigeon', buildPigeon(), new THREE.Vector3(-0.52, 0.32, 0.42), 0.95, 0)
     this.usePigeonModel()
     this.useLaptopModel()
+    this.useCoffeeModel()
     this.add('lamp', buildLamp(), new THREE.Vector3(1.1, 0.82, -0.35), 1.2, 0.01)
     this.scene.add(buildPlant())
 
@@ -969,6 +990,20 @@ export class DeskScene {
       old.traverse((o) => (o as THREE.Mesh).geometry?.dispose())
       pigeon.group.add(rig.body)
       pigeon.group.userData.model = rig
+    })
+  }
+
+  /** the takeaway cup replaces the mug and saucer; the steam stays and rises from its lid */
+  private useCoffeeModel() {
+    this.useModel('coffee', loadCoffeeModel, (item, cup) => {
+      const steam = item.group.userData.steam as THREE.Group
+      for (const old of [...item.group.children]) {
+        if (old === steam) continue
+        item.group.remove(old)
+        old.traverse((o) => (o as THREE.Mesh).geometry?.dispose())
+      }
+      item.group.add(cup)
+      steam.position.y = 0.2
     })
   }
 

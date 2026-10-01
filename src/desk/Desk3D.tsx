@@ -191,21 +191,37 @@ export default function Desk3D() {
         ))}
       </nav>
 
-      {/* required by the CC BY 4.0 licence of the laptop model */}
+      {/* required by the CC BY 4.0 licences of the laptop and cup models */}
       <p className="dk-credit">
-        Laptop:{' '}
-        <a href="https://sketchfab.com/3d-models/macbook-air-m2-786fa23d402a4f90ae36c4168997f9cc" target="_blank" rel="noopener noreferrer">
-          MacBook Air M2
-        </a>{' '}
-        by{' '}
-        <a href="https://sketchfab.com/rtql8d" target="_blank" rel="noopener noreferrer">
-          rtql8d
-        </a>
-        ,{' '}
-        <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">
-          CC BY 4.0
-        </a>
-        , modified
+        <span>
+          Laptop:{' '}
+          <a href="https://sketchfab.com/3d-models/macbook-air-m2-786fa23d402a4f90ae36c4168997f9cc" target="_blank" rel="noopener noreferrer">
+            MacBook Air M2
+          </a>{' '}
+          by{' '}
+          <a href="https://sketchfab.com/rtql8d" target="_blank" rel="noopener noreferrer">
+            rtql8d
+          </a>
+          ,{' '}
+          <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">
+            CC BY 4.0
+          </a>
+          , modified
+        </span>
+        <span>
+          Cup:{' '}
+          <a href="https://sketchfab.com/3d-models/coffee-cup-8acd10b3f80344d79202d8c2dbfa6e61" target="_blank" rel="noopener noreferrer">
+            Coffee Cup
+          </a>{' '}
+          by{' '}
+          <a href="https://sketchfab.com/GreenLineStudio" target="_blank" rel="noopener noreferrer">
+            Lasse Harm
+          </a>
+          ,{' '}
+          <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">
+            CC BY 4.0
+          </a>
+        </span>
       </p>
 
       <aside

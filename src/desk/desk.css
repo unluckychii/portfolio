@@ -126,6 +126,7 @@ body { font-family: var(--hb-sans); -webkit-font-smoothing: antialiased; }
   color: var(--hb-soft);
   text-align: right;
 }
+.dk-credit span { display: block; }
 .dk-credit a { color: inherit; text-underline-offset: 2px; }
 .dk-credit a:hover, .dk-credit a:focus-visible { background: var(--hb-lime); color: var(--hb-ink); outline: none; }
 .dk-root[data-open] .dk-credit { visibility: hidden; }
