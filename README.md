@@ -1,8 +1,8 @@
 # Oversight Supply — the desk
 
-A 3D work desk built with three.js (React 19 + Vite): a monitor, a coffee cup, a stack of books,
+A 3D work desk built with three.js (React 19 + Vite): a laptop, a coffee cup, a stack of books,
 a pigeon, a lamp and a plant, all modelled in code (no model files). Drag to look around, hover an
-object to see its name, click it to fly the camera in and open its page (`/monitor`, `/coffee`,
+object to see its name, click it to fly the camera in and open its page (`/laptop`, `/coffee`,
 `/books`, `/pigeon`). The lamp switches on and off. The list along the bottom opens the same pages
 from the keyboard or on touch screens.
 
@@ -17,6 +17,10 @@ npm run dev
   a markdown body and links). Edit them in the CMS under **Desk objects**, or by hand.
 - The scene is in `src/desk/DeskScene.ts`; the page panel and routing in `src/desk/Desk3D.tsx`.
 - Uploaded images go to `public/uploads/`.
+- The laptop is a 3D model, `public/models/laptop.glb`: "MacBook Air M2" by rtql8d on Sketchfab,
+  CC BY 4.0. The licence requires the credit line shown in the corner of the page; keep it if the
+  model stays. Its wallpaper was removed (the site draws its own screen) and its textures converted
+  to WebP. If the file can't load, the desk shows a built-in monitor and keyboard instead.
 - The pigeon is a 3D model, `public/models/pigeon.glb` (rigged, with its own idle animation). To swap
   it, replace that file with another `.glb`, then adjust `PIGEON_SCALE` in `src/desk/DeskScene.ts`
   if the size is off. If the file is missing or fails to load, the desk shows its built-in pigeon.

@@ -114,6 +114,26 @@ body { font-family: var(--hb-sans); -webkit-font-smoothing: antialiased; }
 .dk-list__name { font: 400 18px/1 var(--hb-serif); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .dk-root[data-open] .dk-list { opacity: 0; pointer-events: none; transform: translateY(12px); }
 
+/* model credits, as the licences ask */
+.dk-credit {
+  position: absolute;
+  right: clamp(16px, 3vw, 44px);
+  bottom: clamp(14px, 2.4vw, 28px);
+  z-index: 3;
+  max-width: 24ch;
+  margin: 0;
+  font: 500 9.5px/1.5 var(--hb-mono);
+  letter-spacing: 0.06em;
+  color: var(--hb-soft);
+  text-align: right;
+}
+.dk-credit a { color: inherit; text-underline-offset: 2px; }
+.dk-credit a:hover, .dk-credit a:focus-visible { background: var(--hb-lime); color: var(--hb-ink); outline: none; }
+.dk-root[data-open] .dk-credit { visibility: hidden; }
+@media (max-width: 899px) {
+  .dk-credit { top: 44px; bottom: auto; right: 16px; max-width: none; }
+}
+
 /* --------------------------------------------------------------- page */
 .dk-panel {
   position: absolute;

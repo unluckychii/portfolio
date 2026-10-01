@@ -66,7 +66,7 @@ function puffTexture() {
   return new THREE.CanvasTexture(c)
 }
 
-/** the monitor's screen: a small code editor, redrawn to blink the cursor */
+/** the laptop's screen (or the stand-in monitor's): a small code editor, redrawn to blink the cursor */
 class ScreenCanvas {
   canvas = document.createElement('canvas')
   texture: THREE.CanvasTexture
@@ -85,7 +85,7 @@ class ScreenCanvas {
 
   constructor() {
     this.canvas.width = 1024
-    this.canvas.height = 576
+    this.canvas.height = 664 // the laptop's display is about 3:2
     this.texture = new THREE.CanvasTexture(this.canvas)
     this.texture.colorSpace = THREE.SRGBColorSpace
     this.texture.anisotropy = 8
@@ -360,6 +360,35 @@ const PIGEON_MODEL = `${import.meta.env.BASE_URL}models/pigeon.glb`
 /** the model is 0.63 tall; this brings it to the size of the other things on the desk */
 const PIGEON_SCALE = 0.5
 
+/** a MacBook Air (CC BY 4.0, rtql8d on Sketchfab — credited on the page) in public/models */
+const LAPTOP_MODEL = `${import.meta.env.BASE_URL}models/laptop.glb`
+/** the model is 3.04 wide; this makes it about 0.76 across the desk */
+const LAPTOP_SCALE = 0.25
+
+/** the laptop, with the code-editor screen laid over its display */
+async function loadLaptopModel(screen: ScreenCanvas) {
+  const gltf = await new GLTFLoader().loadAsync(LAPTOP_MODEL)
+  const model = gltf.scene
+  model.traverse((o) => {
+    const m = o as THREE.Mesh
+    if (!m.isMesh) return
+    m.castShadow = true
+    m.receiveShadow = true
+  })
+  // the display, just in front of the glass (model units: the lid stands at z = -1.08)
+  const face = new THREE.Mesh(
+    new THREE.PlaneGeometry(2.86, 1.86),
+    new THREE.MeshBasicMaterial({ map: screen.texture, toneMapped: false }),
+  )
+  face.position.set(0, 1.04, -1.074)
+  model.add(face)
+  model.scale.setScalar(LAPTOP_SCALE)
+  model.position.y = 0.136 * LAPTOP_SCALE // its feet sit below the origin
+  const g = new THREE.Group()
+  g.add(model)
+  return g
+}
+
 type ModelPigeonRig = {
   body: THREE.Group
   mixer: THREE.AnimationMixer
@@ -600,6 +629,8 @@ export class DeskScene {
   /** view offset as a fraction of the screen (the page covers the rest) */
   private shift = new THREE.Vector2()
   private homeScale = 1
+  /** what the open page covers, kept so a late-loading model can be reframed */
+  private cover: Cover = { x: 0, y: 0 }
   private disposers: (() => void)[] = []
   private disposed = false
 
@@ -643,11 +674,12 @@ export class DeskScene {
     this.lights()
     buildDesk(this.scene)
     const puff = puffTexture()
-    this.add('monitor', buildMonitor(this.screen), new THREE.Vector3(0, 0.98, -0.3), 1.9, 0.012)
+    this.add('laptop', buildMonitor(this.screen), new THREE.Vector3(0, 0.98, -0.3), 1.9, 0.012)
     this.add('coffee', buildCoffee(puff), new THREE.Vector3(0.98, 0.26, 0.18), 0.85, 0.03)
     this.add('books', buildBooks(), new THREE.Vector3(-1.05, 0.27, 0.05), 1.0, 0.025)
     this.add('pigeon', buildPigeon(), new THREE.Vector3(-0.52, 0.32, 0.42), 0.95, 0)
     this.usePigeonModel()
+    this.useLaptopModel()
     this.add('lamp', buildLamp(), new THREE.Vector3(1.1, 0.82, -0.35), 1.2, 0.01)
     this.scene.add(buildPlant())
 
@@ -766,6 +798,7 @@ export class DeskScene {
   focus(id: DeskId, cover: Cover, done?: () => void) {
     const item = this.items.find((i) => i.id === id)
     if (!item) return
+    this.cover = cover
     this.focused = item
     this.controls.enabled = false
     const dir = new THREE.Vector3().subVectors(HOME_POS, HOME_TARGET).normalize()
@@ -882,23 +915,49 @@ export class DeskScene {
     rig.bulb.emissiveIntensity = rig.on ? 2.2 : 0
   }
 
-  /** swap the hand-built pigeon for the model; if it can't load, the hand-built one stays */
-  private usePigeonModel() {
-    const pigeon = this.items.find((i) => i.id === 'pigeon')!
-    pigeon.group.visible = false // no flash of the stand-in while the model loads
-    loadPigeonModel()
-      .then((rig) => {
+  /**
+   * Swap a hand-built object for a model. The object stays hidden while the
+   * model loads; if it can't load, the hand-built one is shown instead.
+   */
+  private useModel<T>(id: Pickable, load: () => Promise<T>, apply: (item: DeskItem, loaded: T) => void) {
+    const item = this.items.find((i) => i.id === id)!
+    item.group.visible = false
+    load()
+      .then((loaded) => {
         if (this.disposed) return
-        const old = (pigeon.group.userData.rig as PigeonRig).body
-        pigeon.group.remove(old)
-        old.traverse((o) => (o as THREE.Mesh).geometry?.dispose())
-        pigeon.group.add(rig.body)
-        pigeon.group.userData.model = rig
+        apply(item, loaded)
+        // already looking at it (opened straight from /laptop): reframe for the new shape
+        if (this.focused === item && item.id !== 'lamp') this.focus(item.id, this.cover)
       })
-      .catch((err) => console.warn('Pigeon model failed to load, using the built-in one.', err))
+      .catch((err) => console.warn(`The ${id} model failed to load, using the built-in one.`, err))
       .finally(() => {
-        pigeon.group.visible = true
+        item.group.visible = true
       })
+  }
+
+  private usePigeonModel() {
+    this.useModel('pigeon', loadPigeonModel, (pigeon, rig) => {
+      const old = (pigeon.group.userData.rig as PigeonRig).body
+      pigeon.group.remove(old)
+      old.traverse((o) => (o as THREE.Mesh).geometry?.dispose())
+      pigeon.group.add(rig.body)
+      pigeon.group.userData.model = rig
+    })
+  }
+
+  /** the laptop model replaces the stand-in monitor, keyboard and mouse */
+  private useLaptopModel() {
+    this.useModel('laptop', () => loadLaptopModel(this.screen), (item, laptop) => {
+      for (const old of [...item.group.children]) {
+        item.group.remove(old)
+        old.traverse((o) => (o as THREE.Mesh).geometry?.dispose())
+      }
+      laptop.position.z = 0.25 // the monitor stood further back
+      laptop.rotation.y = -0.06
+      item.group.add(laptop)
+      item.anchor.set(0, 0.62, -0.15)
+      item.dist = 1.3
+    })
   }
 
   pigeonHop() {

@@ -21,7 +21,7 @@ collections:
     label_singular: Desk object
     description: >-
       The pages behind the objects on the 3D desk (the home page). There is one entry per
-      object (monitor, coffee, books, pigeon); the objects themselves are fixed.
+      object (laptop, coffee, books, pigeon); the objects themselves are fixed.
     folder: content/desk
     format: json
     extension: json

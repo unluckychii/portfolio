@@ -3,7 +3,7 @@
  * and is edited through the CMS at /admin (Decap).
  */
 
-export type DeskId = 'monitor' | 'coffee' | 'books' | 'pigeon'
+export type DeskId = 'laptop' | 'coffee' | 'books' | 'pigeon'
 export type DeskLink = { label: string; url: string }
 
 export type DeskObject = {
@@ -24,7 +24,7 @@ type DeskFile = Partial<Omit<DeskObject, 'links'>> & { links?: Partial<DeskLink>
 
 const files = import.meta.glob<DeskFile>('../../content/desk/*.json', { eager: true, import: 'default' })
 
-const IDS: DeskId[] = ['monitor', 'coffee', 'books', 'pigeon']
+const IDS: DeskId[] = ['laptop', 'coffee', 'books', 'pigeon']
 
 const normalise = (f: DeskFile, id: DeskId): DeskObject => ({
   id,

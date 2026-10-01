@@ -4,7 +4,7 @@
 
 # the pages behind the objects on the desk (/coffee) are rendered by the app
 [[redirects]]
-  from = "/monitor"
+  from = "/laptop"
   to = "/index.html"
   status = 200
 

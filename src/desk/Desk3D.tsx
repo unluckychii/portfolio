@@ -191,6 +191,23 @@ export default function Desk3D() {
         ))}
       </nav>
 
+      {/* required by the CC BY 4.0 licence of the laptop model */}
+      <p className="dk-credit">
+        Laptop:{' '}
+        <a href="https://sketchfab.com/3d-models/macbook-air-m2-786fa23d402a4f90ae36c4168997f9cc" target="_blank" rel="noopener noreferrer">
+          MacBook Air M2
+        </a>{' '}
+        by{' '}
+        <a href="https://sketchfab.com/rtql8d" target="_blank" rel="noopener noreferrer">
+          rtql8d
+        </a>
+        ,{' '}
+        <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">
+          CC BY 4.0
+        </a>
+        , modified
+      </p>
+
       <aside
         ref={panelRef}
         className="dk-panel"

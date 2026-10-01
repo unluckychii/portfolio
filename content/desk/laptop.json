@@ -1,7 +1,7 @@
 {
-  "id": "monitor",
+  "id": "laptop",
   "order": 1,
-  "label": "The monitor",
+  "label": "The laptop",
   "hint": "Work",
   "kicker": "On the screen",
   "title": "Selected work",
