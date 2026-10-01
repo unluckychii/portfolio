@@ -5,6 +5,7 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js'
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { DeskId } from './objects'
 
 /** everything the pointer can pick: the four pages plus the lamp switch */
@@ -354,6 +355,45 @@ function buildBooks() {
 
 type PigeonRig = { head: THREE.Group; wings: THREE.Mesh[]; body: THREE.Group }
 
+/** the pigeon model in public/models: a rigged bird with its own idle animation */
+const PIGEON_MODEL = `${import.meta.env.BASE_URL}models/pigeon.glb`
+/** the model is 0.63 tall; this brings it to the size of the other things on the desk */
+const PIGEON_SCALE = 0.5
+
+type ModelPigeonRig = {
+  body: THREE.Group
+  mixer: THREE.AnimationMixer
+  /** base of the neck: turned towards the camera on hover */
+  neck: THREE.Object3D | undefined
+  yaw: number
+}
+
+async function loadPigeonModel(): Promise<ModelPigeonRig> {
+  const gltf = await new GLTFLoader().loadAsync(PIGEON_MODEL)
+  const model = gltf.scene
+  model.scale.setScalar(PIGEON_SCALE)
+  model.traverse((o) => {
+    const m = o as THREE.Mesh
+    if (!m.isMesh) return
+    m.castShadow = true
+    m.receiveShadow = true
+    // the export lights the bird with its own colours; let the desk's lamps light it instead
+    for (const mat of Array.isArray(m.material) ? m.material : [m.material]) {
+      const std = mat as THREE.MeshStandardMaterial
+      if (!std.isMeshStandardMaterial) continue
+      std.emissive.set(0x000000)
+      std.emissiveMap = null
+      std.side = THREE.FrontSide
+      std.needsUpdate = true
+    }
+  })
+  const body = new THREE.Group()
+  body.add(model)
+  const mixer = new THREE.AnimationMixer(model)
+  for (const clip of gltf.animations) mixer.clipAction(clip).play()
+  return { body, mixer, neck: model.getObjectByName('Chicken_Neck_01_01SHJnt'), yaw: 0 }
+}
+
 function buildPigeon() {
   const g = new THREE.Group()
   const grey = std('#8d95a3', 0.8)
@@ -538,7 +578,7 @@ export class DeskScene {
   private forced: Pickable | null = null
   private focused: DeskItem | null = null
   private screen = new ScreenCanvas()
-  private clock = new THREE.Clock()
+  private timer = new THREE.Timer()
   private raf = 0
   private blinkTimer = 0
   private down: { x: number; y: number; t: number } | null = null
@@ -561,6 +601,7 @@ export class DeskScene {
   private shift = new THREE.Vector2()
   private homeScale = 1
   private disposers: (() => void)[] = []
+  private disposed = false
 
   constructor(
     host: HTMLElement,
@@ -570,7 +611,7 @@ export class DeskScene {
     const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' })
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     renderer.shadowMap.enabled = true
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap
+    renderer.shadowMap.type = THREE.PCFShadowMap
     renderer.toneMapping = THREE.ACESFilmicToneMapping
     renderer.toneMappingExposure = 1.05
     this.renderer = renderer
@@ -606,6 +647,7 @@ export class DeskScene {
     this.add('coffee', buildCoffee(puff), new THREE.Vector3(0.98, 0.26, 0.18), 0.85, 0.03)
     this.add('books', buildBooks(), new THREE.Vector3(-1.05, 0.27, 0.05), 1.0, 0.025)
     this.add('pigeon', buildPigeon(), new THREE.Vector3(-0.52, 0.32, 0.42), 0.95, 0)
+    this.usePigeonModel()
     this.add('lamp', buildLamp(), new THREE.Vector3(1.1, 0.82, -0.35), 1.2, 0.01)
     this.scene.add(buildPlant())
 
@@ -705,7 +747,7 @@ export class DeskScene {
       let o: THREE.Object3D | null = h.object
       if ((o as THREE.Sprite).isSprite) continue // steam is not solid
       while (o && !o.userData.pick) o = o.parent
-      if (o) return this.items.find((i) => i.group === o) ?? null
+      if (o && o.visible) return this.items.find((i) => i.group === o) ?? null
     }
     return null
   }
@@ -840,14 +882,34 @@ export class DeskScene {
     rig.bulb.emissiveIntensity = rig.on ? 2.2 : 0
   }
 
+  /** swap the hand-built pigeon for the model; if it can't load, the hand-built one stays */
+  private usePigeonModel() {
+    const pigeon = this.items.find((i) => i.id === 'pigeon')!
+    pigeon.group.visible = false // no flash of the stand-in while the model loads
+    loadPigeonModel()
+      .then((rig) => {
+        if (this.disposed) return
+        const old = (pigeon.group.userData.rig as PigeonRig).body
+        pigeon.group.remove(old)
+        old.traverse((o) => (o as THREE.Mesh).geometry?.dispose())
+        pigeon.group.add(rig.body)
+        pigeon.group.userData.model = rig
+      })
+      .catch((err) => console.warn('Pigeon model failed to load, using the built-in one.', err))
+      .finally(() => {
+        pigeon.group.visible = true
+      })
+  }
+
   pigeonHop() {
     this.hop = 0.55
   }
 
   private loop = () => {
     this.raf = requestAnimationFrame(this.loop)
-    const dt = Math.min(this.clock.getDelta(), 0.05)
-    const t = this.clock.elapsedTime
+    this.timer.update()
+    const dt = Math.min(this.timer.getDelta(), 0.05)
+    const t = this.timer.getElapsed()
 
     if (this.tween) this.stepTween(dt)
     else if (this.controls.enabled) this.controls.update()
@@ -891,8 +953,10 @@ export class DeskScene {
 
   private animatePigeon(t: number, dt: number) {
     const pigeon = this.items.find((i) => i.id === 'pigeon')!
-    const rig = pigeon.group.userData.rig as PigeonRig
     const hovered = this.hovered === pigeon || this.focused === pigeon
+    const model = pigeon.group.userData.model as ModelPigeonRig | undefined
+    if (model) return this.animateModelPigeon(pigeon, model, hovered, dt)
+    const rig = pigeon.group.userData.rig as PigeonRig
 
     // head: a peck every few seconds, a curious tilt towards the camera when hovered
     let pitch = 0
@@ -931,6 +995,31 @@ export class DeskScene {
     }
   }
 
+  private animateModelPigeon(pigeon: DeskItem, rig: ModelPigeonRig, hovered: boolean, dt: number) {
+    if (!this.reduced) rig.mixer.update(dt)
+
+    // a hop when clicked
+    if (this.hop > 0) {
+      this.hop = Math.max(0, this.hop - dt)
+      rig.body.position.y = Math.sin((1 - this.hop / 0.55) * Math.PI) * 0.09
+    } else rig.body.position.y = 0
+
+    // on hover, turn the neck towards the camera, on top of whatever the animation is doing
+    let want = 0
+    if (hovered) {
+      const local = pigeon.group.worldToLocal(this.camera.position.clone())
+      want = Math.max(-1, Math.min(1, Math.atan2(local.x, local.z) * 0.8))
+    }
+    rig.yaw += (want - rig.yaw) * Math.min(1, dt * 6)
+    const neck = rig.neck
+    if (!neck?.parent || Math.abs(rig.yaw) < 1e-3) return
+    // a turn about the world's up axis, expressed in the neck's own space
+    pigeon.group.updateMatrixWorld(true)
+    const parentQ = neck.parent.getWorldQuaternion(new THREE.Quaternion())
+    const turn = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), rig.yaw)
+    neck.quaternion.premultiply(parentQ.clone().invert().multiply(turn).multiply(parentQ))
+  }
+
   private placeLabel() {
     const el = this.label
     if (!el) return
@@ -949,9 +1038,13 @@ export class DeskScene {
   }
 
   dispose() {
+    this.disposed = true
     cancelAnimationFrame(this.raf)
+    const model = this.items.find((i) => i.id === 'pigeon')?.group.userData.model as ModelPigeonRig | undefined
+    model?.mixer.stopAllAction()
     clearInterval(this.blinkTimer)
     this.disposers.forEach((d) => d())
+    this.timer.dispose()
     this.controls.dispose()
     this.scene.traverse((o) => {
       const m = o as THREE.Mesh
