@@ -120,11 +120,29 @@ body { font-family: var(--hb-sans); -webkit-font-smoothing: antialiased; }
   top: 44px;
   right: clamp(16px, 3vw, 44px);
   z-index: 3;
-  margin: 0;
+  max-width: calc(100% - 32px);
   font: 500 9.5px/1.5 var(--hb-mono);
   letter-spacing: 0.06em;
   color: var(--hb-soft);
   text-align: right;
+}
+.dk-credit summary {
+  display: inline-block;
+  cursor: pointer;
+  list-style: none;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+.dk-credit summary::-webkit-details-marker { display: none; }
+.dk-credit summary::after { content: ' +'; }
+.dk-credit[open] summary::after { content: ' −'; }
+.dk-credit summary:hover, .dk-credit summary:focus-visible { background: var(--hb-lime); color: var(--hb-ink); outline: none; }
+.dk-credit p {
+  margin: 6px 0 0;
+  padding: 8px 10px;
+  background: rgba(246, 242, 230, 0.92);
+  border: 1px solid var(--hb-rule);
+  border-radius: 4px;
 }
 .dk-credit span { display: block; }
 .dk-credit a { color: inherit; text-underline-offset: 2px; }

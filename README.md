@@ -3,7 +3,7 @@
 A 3D work desk built with three.js (React 19 + Vite): a laptop, a coffee cup, a stack of books,
 a pigeon, a lamp and a plant, all modelled in code (no model files). Drag to look around, hover an
 object to see its name, click it to fly the camera in and open its page (`/laptop`, `/coffee`,
-`/books`, `/pigeon`). The lamp switches on and off. The list along the bottom opens the same pages
+`/books`, `/pigeon`). The salt lamp switches on and off. The list along the bottom opens the same pages
 from the keyboard or on touch screens.
 
 ```
@@ -27,6 +27,10 @@ npm run dev
 - The coffee cup is a 3D model, `public/models/coffee.glb`: "Coffee Cup" by Lasse Harm
   (GreenLineStudio) on Sketchfab, CC BY 4.0, also credited in the corner of the page. If it can't
   load, the desk shows a built-in mug instead.
+- The lamp is a 3D model, `public/models/lamp.glb`: "Salt Rock Lamp (Game Ready / 2K PBR)" by
+  Meerschaum Digital on Sketchfab, CC BY 4.0, credited in the corner of the page. Its textures
+  were resized to 1K and converted to WebP. Clicking it switches its glow and its warm light on
+  and off. If it can't load, the desk shows a built-in desk lamp instead.
 - The pigeon is a 3D model, `public/models/pigeon.glb` (rigged, with its own idle animation). To swap
   it, replace that file with another `.glb`, then adjust `PIGEON_SCALE` in `src/desk/DeskScene.ts`
   if the size is off. If the file is missing or fails to load, the desk shows its built-in pigeon.

@@ -436,6 +436,39 @@ async function loadCoffeeModel() {
   return model
 }
 
+/** a salt rock lamp (CC BY 4.0, Meerschaum Digital on Sketchfab — credited on the page) in public/models */
+const LAMP_MODEL = `${import.meta.env.BASE_URL}models/lamp.glb`
+/** the model is 0.32 tall; this makes it about 0.48 */
+const LAMP_SCALE = 1.5
+const LAMP_GLOW = 1.9
+
+/** the salt lamp, lit from inside by a warm point light */
+async function loadLampModel() {
+  const gltf = await gltfLoader().loadAsync(LAMP_MODEL)
+  const model = gltf.scene
+  let rock: THREE.MeshStandardMaterial | undefined
+  model.traverse((o) => {
+    const m = o as THREE.Mesh
+    if (!m.isMesh) return
+    m.castShadow = true
+    m.receiveShadow = true
+    const mat = m.material as THREE.MeshStandardMaterial
+    if (mat.isMeshStandardMaterial) {
+      mat.emissive.set('#ff7f30') // the texture carries the glow's pattern; this makes it amber
+      mat.emissiveIntensity = LAMP_GLOW
+      rock = mat
+    }
+  })
+  if (!rock) throw new Error('The lamp model has no glowing material')
+  model.scale.setScalar(LAMP_SCALE)
+  const light = new THREE.PointLight('#ff9a52', 1.6, 2.4, 1.5)
+  light.position.y = 0.2 // inside the rock
+  const g = new THREE.Group()
+  g.add(model, light)
+  g.userData.rig = { light, bulb: rock, glow: LAMP_GLOW, on: true } satisfies LampRig
+  return g
+}
+
 type ModelPigeonRig = {
   body: THREE.Group
   mixer: THREE.AnimationMixer
@@ -559,7 +592,8 @@ function buildPigeon() {
   return shadowed(g)
 }
 
-type LampRig = { light: THREE.SpotLight; bulb: THREE.MeshStandardMaterial; on: boolean }
+/** what the lamp switch turns on and off: a light, and the glow of the material it shines through */
+type LampRig = { light: THREE.Light; bulb: THREE.MeshStandardMaterial; glow: number; on: boolean }
 
 function buildLamp() {
   const g = new THREE.Group()
@@ -602,7 +636,7 @@ function buildLamp() {
 
   g.position.set(1.25, 0, -0.45)
   g.rotation.y = -0.35
-  g.userData.rig = { light, bulb: bulbMat, on: true } satisfies LampRig
+  g.userData.rig = { light, bulb: bulbMat, glow: 2.2, on: true } satisfies LampRig
   return g
 }
 
@@ -725,11 +759,13 @@ export class DeskScene {
     this.add('coffee', buildCoffee(puff), new THREE.Vector3(0.98, 0.26, 0.18), 0.85, 0.03)
     this.add('books', buildBooks(), new THREE.Vector3(-1.05, 0.27, 0.05), 1.0, 0.025)
     this.add('pigeon', buildPigeon(), new THREE.Vector3(-0.52, 0.32, 0.42), 0.95, 0)
+    this.add('lamp', buildLamp(), new THREE.Vector3(1.1, 0.82, -0.35), 1.2, 0.01)
+    this.scene.add(buildPlant())
+    // swap in the 3D models once every object is on the desk
     this.usePigeonModel()
     this.useLaptopModel()
     this.useCoffeeModel()
-    this.add('lamp', buildLamp(), new THREE.Vector3(1.1, 0.82, -0.35), 1.2, 0.01)
-    this.scene.add(buildPlant())
+    this.useLampModel()
 
     // hover outline, rendered into a multisampled target so edges stay smooth
     const rt = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: 4 })
@@ -960,7 +996,7 @@ export class DeskScene {
     const rig = lamp.group.userData.rig as LampRig
     rig.on = !rig.on
     rig.light.visible = rig.on
-    rig.bulb.emissiveIntensity = rig.on ? 2.2 : 0
+    rig.bulb.emissiveIntensity = rig.on ? rig.glow : 0
   }
 
   /**
@@ -990,6 +1026,31 @@ export class DeskScene {
       old.traverse((o) => (o as THREE.Mesh).geometry?.dispose())
       pigeon.group.add(rig.body)
       pigeon.group.userData.model = rig
+    })
+  }
+
+  /** the salt lamp replaces the desk lamp; clicking it still switches it on and off */
+  private useLampModel() {
+    this.useModel('lamp', loadLampModel, (item, lamp) => {
+      const was = item.group.userData.rig as LampRig
+      for (const old of [...item.group.children]) {
+        item.group.remove(old)
+        old.traverse((o) => {
+          ;(o as THREE.Mesh).geometry?.dispose()
+          if ((o as THREE.Light).isLight) (o as THREE.Light).dispose() // frees the spotlight's shadow map
+        })
+      }
+      item.group.add(lamp)
+      item.group.rotation.y = 0.4
+      const rig = lamp.userData.rig as LampRig
+      if (!was.on) {
+        // keep the switch where the visitor left it
+        rig.on = false
+        rig.light.visible = false
+        rig.bulb.emissiveIntensity = 0
+      }
+      item.group.userData.rig = rig
+      item.anchor.set(1.25, 0.6, -0.45)
     })
   }
 

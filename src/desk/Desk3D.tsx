@@ -72,7 +72,8 @@ export default function Desk3D() {
     let engine: DeskScene
     try {
       engine = new DeskScene(host, labelRef.current)
-    } catch {
+    } catch (err) {
+      console.error('The 3D desk could not start; showing the list of objects instead.', err)
       setNoGl(true) // no WebGL: the list of objects still works
       return
     }
@@ -191,38 +192,56 @@ export default function Desk3D() {
         ))}
       </nav>
 
-      {/* required by the CC BY 4.0 licences of the laptop and cup models */}
-      <p className="dk-credit">
-        <span>
-          Laptop:{' '}
-          <a href="https://sketchfab.com/3d-models/macbook-air-m2-786fa23d402a4f90ae36c4168997f9cc" target="_blank" rel="noopener noreferrer">
-            MacBook Air M2
-          </a>{' '}
-          by{' '}
-          <a href="https://sketchfab.com/rtql8d" target="_blank" rel="noopener noreferrer">
-            rtql8d
-          </a>
-          ,{' '}
-          <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">
-            CC BY 4.0
-          </a>
-          , modified
-        </span>
-        <span>
-          Cup:{' '}
-          <a href="https://sketchfab.com/3d-models/coffee-cup-8acd10b3f80344d79202d8c2dbfa6e61" target="_blank" rel="noopener noreferrer">
-            Coffee Cup
-          </a>{' '}
-          by{' '}
-          <a href="https://sketchfab.com/GreenLineStudio" target="_blank" rel="noopener noreferrer">
-            Lasse Harm
-          </a>
-          ,{' '}
-          <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">
-            CC BY 4.0
-          </a>
-        </span>
-      </p>
+      {/* required by the CC BY 4.0 licences of the laptop, cup and lamp models */}
+      <details className="dk-credit">
+        <summary>3D model credits</summary>
+        <p>
+          <span>
+            Laptop:{' '}
+            <a href="https://sketchfab.com/3d-models/macbook-air-m2-786fa23d402a4f90ae36c4168997f9cc" target="_blank" rel="noopener noreferrer">
+              MacBook Air M2
+            </a>{' '}
+            by{' '}
+            <a href="https://sketchfab.com/rtql8d" target="_blank" rel="noopener noreferrer">
+              rtql8d
+            </a>
+            ,{' '}
+            <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">
+              CC BY 4.0
+            </a>
+            , modified
+          </span>
+          <span>
+            Cup:{' '}
+            <a href="https://sketchfab.com/3d-models/coffee-cup-8acd10b3f80344d79202d8c2dbfa6e61" target="_blank" rel="noopener noreferrer">
+              Coffee Cup
+            </a>{' '}
+            by{' '}
+            <a href="https://sketchfab.com/GreenLineStudio" target="_blank" rel="noopener noreferrer">
+              Lasse Harm
+            </a>
+            ,{' '}
+            <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">
+              CC BY 4.0
+            </a>
+          </span>
+          <span>
+            Lamp:{' '}
+            <a href="https://sketchfab.com/3d-models/salt-rock-lamp-game-ready-2k-pbr-2d7ce5f36be04a2089e74c224e694ad5" target="_blank" rel="noopener noreferrer">
+              Salt Rock Lamp
+            </a>{' '}
+            by{' '}
+            <a href="https://sketchfab.com/meerschaumdigital" target="_blank" rel="noopener noreferrer">
+              Meerschaum Digital
+            </a>
+            ,{' '}
+            <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">
+              CC BY 4.0
+            </a>
+            , modified
+          </span>
+        </p>
+      </details>
 
       <aside
         ref={panelRef}
