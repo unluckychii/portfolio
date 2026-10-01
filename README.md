@@ -31,6 +31,9 @@ npm run dev
   Meerschaum Digital on Sketchfab, CC BY 4.0, credited in the corner of the page. Its textures
   were resized to 1K and converted to WebP. Clicking it switches its glow and its warm light on
   and off. If it can't load, the desk shows a built-in desk lamp instead.
+- The plant is a 3D model, `public/models/plant.glb`: "Assignment 8: Plant" by Teague McGinn on
+  Sketchfab, CC BY 4.0, credited in the corner of the page. Its textures were resized to 512px and
+  converted to WebP. If it can't load, the desk shows a built-in plant instead.
 - The pigeon is a 3D model, `public/models/pigeon.glb` (rigged, with its own idle animation). To swap
   it, replace that file with another `.glb`, then adjust `PIGEON_SCALE` in `src/desk/DeskScene.ts`
   if the size is off. If the file is missing or fails to load, the desk shows its built-in pigeon.

@@ -192,7 +192,7 @@ export default function Desk3D() {
         ))}
       </nav>
 
-      {/* required by the CC BY 4.0 licences of the laptop, cup and lamp models */}
+      {/* required by the CC BY 4.0 licences of the laptop, cup, lamp and plant models */}
       <details className="dk-credit">
         <summary>3D model credits</summary>
         <p>
@@ -233,6 +233,21 @@ export default function Desk3D() {
             by{' '}
             <a href="https://sketchfab.com/meerschaumdigital" target="_blank" rel="noopener noreferrer">
               Meerschaum Digital
+            </a>
+            ,{' '}
+            <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">
+              CC BY 4.0
+            </a>
+            , modified
+          </span>
+          <span>
+            Plant:{' '}
+            <a href="https://sketchfab.com/3d-models/assignment-8-plant-4e4e9400cb95484e874daf37fa1a3f18" target="_blank" rel="noopener noreferrer">
+              Assignment 8: Plant
+            </a>{' '}
+            by{' '}
+            <a href="https://sketchfab.com/mcginn3" target="_blank" rel="noopener noreferrer">
+              Teague McGinn
             </a>
             ,{' '}
             <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">

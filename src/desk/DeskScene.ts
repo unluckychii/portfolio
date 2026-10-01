@@ -469,6 +469,19 @@ async function loadLampModel() {
   return g
 }
 
+/** a potted plant (CC BY 4.0, Teague McGinn on Sketchfab — credited on the page) in public/models */
+const PLANT_MODEL = `${import.meta.env.BASE_URL}models/plant.glb`
+/** the model is 34.6 tall (centimetres); this makes it about 0.55 */
+const PLANT_SCALE = 0.016
+
+async function loadPlantModel() {
+  const gltf = await gltfLoader().loadAsync(PLANT_MODEL)
+  const model = shadowed(gltf.scene)
+  model.scale.setScalar(PLANT_SCALE)
+  model.rotation.y = 0.6
+  return model
+}
+
 type ModelPigeonRig = {
   body: THREE.Group
   mixer: THREE.AnimationMixer
@@ -760,12 +773,14 @@ export class DeskScene {
     this.add('books', buildBooks(), new THREE.Vector3(-1.05, 0.27, 0.05), 1.0, 0.025)
     this.add('pigeon', buildPigeon(), new THREE.Vector3(-0.52, 0.32, 0.42), 0.95, 0)
     this.add('lamp', buildLamp(), new THREE.Vector3(1.1, 0.82, -0.35), 1.2, 0.01)
-    this.scene.add(buildPlant())
+    const plant = buildPlant()
+    this.scene.add(plant)
     // swap in the 3D models once every object is on the desk
     this.usePigeonModel()
     this.useLaptopModel()
     this.useCoffeeModel()
     this.useLampModel()
+    this.usePlantModel(plant)
 
     // hover outline, rendered into a multisampled target so edges stay smooth
     const rt = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: 4 })
@@ -1027,6 +1042,24 @@ export class DeskScene {
       pigeon.group.add(rig.body)
       pigeon.group.userData.model = rig
     })
+  }
+
+  /** the plant is decoration, not a page, so it swaps in on its own */
+  private usePlantModel(plant: THREE.Group) {
+    plant.visible = false
+    loadPlantModel()
+      .then((model) => {
+        if (this.disposed) return
+        for (const old of [...plant.children]) {
+          plant.remove(old)
+          old.traverse((o) => (o as THREE.Mesh).geometry?.dispose())
+        }
+        plant.add(model)
+      })
+      .catch((err) => console.warn('The plant model failed to load, using the built-in one.', err))
+      .finally(() => {
+        plant.visible = true
+      })
   }
 
   /** the salt lamp replaces the desk lamp; clicking it still switches it on and off */
