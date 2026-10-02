@@ -5,6 +5,7 @@ import { BASE, DESK_OBJECTS, deskHref, idFromPathname, type DeskId } from './obj
 import { assetUrl, projectFromPathname, projectHref, type Project } from './projects'
 import { ProjectPage, Shelf } from './Projects'
 import Music from './Music'
+import { useHoverSound } from './hoverSound'
 import Rail from './Rail'
 import { SITE } from './site'
 
@@ -58,6 +59,7 @@ export default function Desk3D() {
   const projectFrom = useRef<HTMLElement | null>(null)
   const [hovered, setHovered] = useState<Pickable | null>(null)
   const [noGl, setNoGl] = useState(false)
+  useHoverSound(SITE.hoverSound ? assetUrl(SITE.hoverSound) : '', hovered)
 
   const current = DESK_OBJECTS.find((o) => o.id === open) ?? null
 

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { GARMENTS, RAIL_TITLE } from './rail'
-import { RailScene } from './RailScene'
+import { RailScene, TeeViewer } from './RailScene'
 
 /** a wire hanger, its hook at the top centre */
 function Hanger() {
@@ -16,6 +16,58 @@ function Hanger() {
         strokeLinejoin="round"
       />
     </svg>
+  )
+}
+
+/**
+ * The piece up close, in 3D: it can be dragged round to see the back. Falls back to
+ * the flat photo if 3D can't start.
+ */
+function CloseUp({ index }: { index: number }) {
+  const host = useRef<HTMLDivElement>(null)
+  const viewer = useRef<TeeViewer | null>(null)
+  const [flat, setFlat] = useState(false)
+  const first = useRef(index) // the shirt the viewer starts on
+
+  useEffect(() => {
+    const el = host.current
+    if (!el) return
+    let v: TeeViewer
+    try {
+      v = new TeeViewer(el, GARMENTS.map((g) => ({ src: g.image, front: g.front })), first.current)
+    } catch (err) {
+      console.warn('The 3D close-up could not start; showing the photo.', err)
+      setFlat(true)
+      return
+    }
+    v.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    v.ready.catch((err) => {
+      console.warn('The 3D close-up could not load; showing the photo.', err)
+      setFlat(true)
+    })
+    viewer.current = v
+    return () => {
+      v.dispose()
+      viewer.current = null
+    }
+  }, [])
+
+  useEffect(() => {
+    viewer.current?.show(index)
+  }, [index])
+
+  if (flat)
+    return (
+      <span className="rl-zoom__piece">
+        <Hanger />
+        <img src={GARMENTS[index].image} alt={GARMENTS[index].name} />
+      </span>
+    )
+  return (
+    <div className="rl-zoom__view">
+      <div ref={host} className="rl-zoom__3d" role="img" aria-label={`${GARMENTS[index].name}, in 3D`} />
+      <span className="rl__note rl-zoom__hint">Drag to turn it round</span>
+    </div>
   )
 }
 
@@ -164,12 +216,16 @@ export default function Rail() {
                 <span aria-hidden="true">←</span>
               </button>
             )}
-            <figure className="rl-zoom__fig" key={zoom} onClick={(e) => e.stopPropagation()}>
-              <span className="rl-zoom__piece">
-                <Hanger />
-                <img src={piece.image} alt={piece.name} />
-              </span>
-              <figcaption>
+            <figure className="rl-zoom__fig" onClick={(e) => e.stopPropagation()}>
+              {mode === '3d' ? (
+                <CloseUp index={zoom!} />
+              ) : (
+                <span className="rl-zoom__piece" key={zoom}>
+                  <Hanger />
+                  <img src={piece.image} alt={piece.name} />
+                </span>
+              )}
+              <figcaption key={zoom}>
                 <span className="rl-zoom__count">
                   {String(zoom! + 1).padStart(2, '0')} / {String(GARMENTS.length).padStart(2, '0')}
                 </span>
