@@ -1,8 +1,8 @@
 {
   "id": "books",
   "order": 3,
-  "label": "Work",
-  "hint": "Projects",
+  "label": "Projects",
+  "hint": "Work",
   "kicker": "The stack",
   "title": "Projects",
   "intro": "Sample page. The books that are always within reach of the desk.",
