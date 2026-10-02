@@ -147,6 +147,7 @@ collections:
         format: json
         fields:
           - { label: Site name, name: name, widget: string, hint: 'Shown in the browser tab' }
+          - { label: Favicon, name: favicon, widget: image, required: false, hint: 'The little icon in the browser tab and on phone home screens. A square PNG with a transparent background, at least 192 × 192' }
           - { label: Header title, name: heading, widget: string, required: false, hint: 'Top-left of the page, linking home; the last word is set in italics. Leave empty to show the site name instead' }
           - { label: Hint (mouse), name: hint, widget: string, hint: 'Top-right on computers' }
           - { label: Hint (touch screens), name: hintTouch, widget: string, hint: 'Top-right on phones and tablets' }
@@ -155,6 +156,8 @@ collections:
           - { label: Next link label, name: next, widget: string, hint: 'Above the next object at the end of each page' }
           - { label: Lamp name, name: lampName, widget: string, hint: 'Shown when hovering the lamp' }
           - { label: Lamp hint, name: lampHint, widget: string, required: false }
+          - { label: Speakers name, name: speakersName, widget: string, hint: 'Shown when hovering the speakers either side of the laptop' }
+          - { label: Speakers hint, name: speakersHint, widget: string, required: false, hint: 'Clicking the speakers plays or pauses the music' }
           - { label: Laptop screen, name: laptopScreen, widget: image, required: false, hint: 'Picture shown on the laptop. Landscape, about 3:2 (e.g. 1500 × 1000); it is cropped to fill the screen. Leave empty to show the code editor.' }
           - { label: Music, name: music, widget: file, required: false, hint: 'Background music: an MP3 (a few MB at most), played quietly on a loop. It starts with the first click on the page, and the music button in the header pauses it. Leave empty to hide the button.' }
           - { label: Hover sound, name: hoverSound, widget: file, required: false, hint: 'A short sound (WAV or MP3, under a second is best) played when an object on the desk is hovered. Browsers only allow it after the first click on the page, and muting the music silences it too. Leave empty for no sound.' }

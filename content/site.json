@@ -1,6 +1,7 @@
 {
   "name": "Aaron's Desk",
   "heading": "The desk",
+  "favicon": "/uploads/favicon.png",
   "hint": "Drag to look around · click an object",
   "hintTouch": "Drag · tap an object",
   "hintNo3d": "Pick an object",
@@ -8,6 +9,8 @@
   "next": "Next",
   "lampName": "The lamp",
   "lampHint": "Click to switch",
+  "speakersName": "The speakers",
+  "speakersHint": "Click to play or pause the music",
   "laptopScreen": "",
   "music": "/uploads/8am.mp3",
   "hoverSound": "/uploads/hover.wav",

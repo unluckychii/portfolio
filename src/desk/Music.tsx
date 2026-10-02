@@ -1,6 +1,19 @@
 import { useEffect, useRef, useState } from 'react'
 
 const PREF = 'desk-music' // remembers a visitor who turned the music off
+
+/** events between the music button and the rest of the page (the speakers on the desk) */
+const TOGGLE = 'desk-music-toggle'
+const STATE = 'desk-music-state'
+/** play or pause the music, as the header button does */
+export const toggleMusic = () => window.dispatchEvent(new Event(TOGGLE))
+/** hear when the music starts or stops */
+export function onMusicState(fn: (playing: boolean) => void) {
+  const h = (e: Event) => fn((e as CustomEvent<boolean>).detail)
+  window.addEventListener(STATE, h)
+  return () => window.removeEventListener(STATE, h)
+}
+const announce = (playing: boolean) => window.dispatchEvent(new CustomEvent(STATE, { detail: playing }))
 const VOLUME = 0.35
 
 const readPref = () => {
@@ -26,6 +39,8 @@ const writePref = (v: 'on' | 'off') => {
 export default function Music({ src }: { src: string }) {
   const audio = useRef<HTMLAudioElement | null>(null)
   const [playing, setPlaying] = useState(false)
+  /** when the first click on the page started the music */
+  const autoStarted = useRef(0)
 
   useEffect(() => {
     const a = new Audio(src)
@@ -33,8 +48,14 @@ export default function Music({ src }: { src: string }) {
     a.volume = VOLUME
     a.preload = 'auto'
     audio.current = a
-    const onPlay = () => setPlaying(true)
-    const onPause = () => setPlaying(false)
+    const onPlay = () => {
+      setPlaying(true)
+      announce(true)
+    }
+    const onPause = () => {
+      setPlaying(false)
+      announce(false)
+    }
     a.addEventListener('play', onPlay)
     a.addEventListener('pause', onPause)
 
@@ -42,6 +63,7 @@ export default function Music({ src }: { src: string }) {
     const start = (e: Event) => {
       if ((e.target as Element | null)?.closest?.('.dk-music')) return
       stopWaiting()
+      autoStarted.current = performance.now()
       a.play().catch(() => {})
     }
     const events = ['pointerdown', 'keydown', 'touchstart'] as const
@@ -71,6 +93,18 @@ export default function Music({ src }: { src: string }) {
       a.pause()
     }
   }
+
+  // the speakers on the desk; a first click on them has just started the music, so it shouldn't stop it again
+  const toggleRef = useRef(toggle)
+  toggleRef.current = toggle
+  useEffect(() => {
+    const h = () => {
+      if (performance.now() - autoStarted.current < 1000) return
+      toggleRef.current()
+    }
+    window.addEventListener(TOGGLE, h)
+    return () => window.removeEventListener(TOGGLE, h)
+  }, [])
 
   return (
     <button
