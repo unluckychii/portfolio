@@ -1,8 +1,8 @@
 {
   "id": "laptop",
   "order": 1,
-  "label": "The Mac",
-  "hint": "Current Work",
+  "label": "Current",
+  "hint": "the Mac",
   "kicker": "On the screen",
   "title": "Current work",
   "intro": "Sample page. Replace this text and the links from the CMS at /admin.",
