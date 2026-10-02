@@ -7,6 +7,7 @@ import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js'
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { DeskId } from './objects'
+import { currentHour, isDark, lightAt } from './daylight'
 
 /** everything the pointer can pick: the four pages, the lamp switch and the speakers (music on/off) */
 export type Pickable = DeskId | 'lamp' | 'speakers'
@@ -921,9 +922,43 @@ export class DeskScene {
     this.loop()
   }
 
+  private hemi!: THREE.HemisphereLight
+  private sun!: THREE.DirectionalLight
+  /** when the light was last matched to the clock */
+  private lightCheck = 0
+  /** dark enough that the page's text over the desk should be light */
+  private darkListener: (dark: boolean) => void = () => {}
+  private dark: boolean | null = null
+  set onDarkChange(fn: (dark: boolean) => void) {
+    this.darkListener = fn
+    if (this.dark !== null) fn(this.dark) // the light was set before anyone was listening
+  }
+
+  /** light the room for the visitor's time of day: bright by day, warm at sunset, dim at night */
+  private daylight() {
+    const l = lightAt(currentHour())
+    this.sun.intensity = l.sun
+    this.sun.color.set(l.sunColor)
+    this.sun.position.set(...l.sunPos)
+    this.hemi.intensity = l.hemi
+    this.hemi.color.set(l.sky)
+    this.hemi.groundColor.set(l.ground)
+    this.scene.environmentIntensity = l.env
+    ;(this.scene.background as THREE.Color).set(l.air)
+    this.scene.fog!.color.set(l.air)
+    this.renderer.toneMappingExposure = l.exposure
+    const dark = isDark(l)
+    if (dark !== this.dark) {
+      this.dark = dark
+      this.darkListener(dark)
+    }
+  }
+
   private lights() {
     const hemi = new THREE.HemisphereLight('#fff6e6', '#8a7a5c', 0.9)
     const sun = new THREE.DirectionalLight('#fff1dc', 2.2)
+    this.hemi = hemi
+    this.sun = sun
     sun.position.set(-2.5, 4, 2.5)
     sun.castShadow = true
     sun.shadow.mapSize.set(2048, 2048)
@@ -1309,6 +1344,12 @@ export class DeskScene {
     if (this.paused) return
     const dt = Math.min(this.timer.getDelta(), 0.05)
     const t = this.timer.getElapsed()
+
+    // the light follows the clock; once a minute is plenty
+    if (t - this.lightCheck > 60 || this.lightCheck === 0) {
+      this.lightCheck = t || 0.001
+      this.daylight()
+    }
 
     if (this.tween) this.stepTween(dt)
     else if (this.controls.enabled) this.controls.update()

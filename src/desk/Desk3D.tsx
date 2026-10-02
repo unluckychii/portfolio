@@ -60,6 +60,8 @@ export default function Desk3D() {
   const projectFrom = useRef<HTMLElement | null>(null)
   const [hovered, setHovered] = useState<Pickable | null>(null)
   const [noGl, setNoGl] = useState(false)
+  /** night (or dusk): the desk is dark, so the text over it turns light */
+  const [dark, setDark] = useState(false)
   useHoverSound(SITE.hoverSound ? assetUrl(SITE.hoverSound) : '', hovered)
 
   const current = DESK_OBJECTS.find((o) => o.id === open) ?? null
@@ -126,6 +128,7 @@ export default function Desk3D() {
     engineRef.current = engine
     engine.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     engine.onHover = setHovered
+    engine.onDarkChange = setDark
     engine.onDismiss = () => hide(true) // a click on the desk beside the open page
     if (SITE.laptopScreen) engine.showScreenImage(assetUrl(SITE.laptopScreen))
     engine.resize(host.clientWidth, host.clientHeight)
@@ -189,7 +192,7 @@ export default function Desk3D() {
   const label = hovered ? LABELS[hovered] : null
 
   return (
-    <div className="dk-root" data-open={open ? '' : undefined} data-project={project ? '' : undefined}>
+    <div className="dk-root" data-dark={dark ? '' : undefined} data-open={open ? '' : undefined} data-project={project ? '' : undefined}>
       <div ref={hostRef} className="dk-canvas" aria-hidden="true" />
 
       <div ref={labelRef} className="dk-label" aria-hidden="true">

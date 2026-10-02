@@ -63,6 +63,11 @@ body { font-family: var(--hb-sans); -webkit-font-smoothing: antialiased; }
 /* while a page is open only the music button floats over it */
 .dk-root[data-open] .dk-top__r > :not(.dk-music) { display: none; }
 .dk-root[data-project] .dk-top__l { visibility: hidden; }
+/* after dark the wall behind the header is dim, so its text turns light */
+.dk-root[data-dark] .dk-top__l, .dk-root[data-dark] .dk-top__r, .dk-root[data-dark] .dk-credit summary { color: #efe9da; }
+.dk-root[data-dark] .dk-top__l:hover, .dk-root[data-dark] .dk-top__l:focus-visible,
+.dk-root[data-dark] .dk-credit summary:hover, .dk-root[data-dark] .dk-credit summary:focus-visible { color: var(--hb-ink); }
+.dk-root[data-dark] .dk-music { color: var(--hb-ink); }
 .dk-music__bars { display: none; align-items: flex-end; gap: 2px; height: 12px; }
 .dk-music[data-playing] .dk-music__bars { display: inline-flex; }
 .dk-music__bars i { width: 2px; height: 100%; background: currentColor; transform-origin: bottom; animation: dk-bar 0.9s ease-in-out infinite; }
