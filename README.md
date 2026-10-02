@@ -59,6 +59,22 @@ npm run dev           # terminal 2
 ```
 Open http://localhost:5173/admin/index.html. Changes are written straight to the files here.
 
+## Publishing (GitHub Pages)
+
+The live site is https://unluckychii.github.io/portfolio/. `.github/workflows/pages.yml` builds it
+and publishes it on every push to `main`, including CMS saves, usually within two minutes. The
+progress is under the repo's **Actions** tab.
+
+One-time settings on GitHub:
+
+1. **Settings → Pages → Build and deployment → Source: GitHub Actions.** (With "Deploy from a
+   branch", Pages publishes the unbuilt source files and the site shows nothing.)
+2. **Settings → General → Default branch: `main`**, so the CMS, the workflow and the site all
+   use the same branch.
+
+The site is built with the `/portfolio/` prefix there (`BASE_PATH` in the workflow); locally and
+on Netlify it lives at `/`.
+
 ### Online editing on Netlify (one-time setup)
 
 1. Merge this work into `main` and create a Netlify site from the repo. `netlify.toml`

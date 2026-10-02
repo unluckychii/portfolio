@@ -50,4 +50,15 @@ export const DESK_OBJECTS: DeskObject[] = IDS.map((id) => normalise(byId.get(id)
 
 export const isDeskId = (v: string | undefined): v is DeskId => !!v && (IDS as string[]).includes(v)
 
-export const deskHref = (id?: DeskId) => (id ? `/${id}` : '/')
+/** where the site lives: "/" locally, "/portfolio/" on GitHub Pages (see vite.config.ts) */
+const BASE = import.meta.env.BASE_URL.startsWith('/') ? import.meta.env.BASE_URL : '/'
+
+export const deskHref = (id?: DeskId) => (id ? `${BASE}${id}` : BASE)
+
+/** the object a page address points at, e.g. /portfolio/coffee → coffee */
+export const idFromPathname = (pathname: string): DeskId | null => {
+  if (!pathname.startsWith(BASE)) return null
+  const m = pathname.slice(BASE.length).match(/^([^/]+)\/?$/)
+  const id = m ? decodeURIComponent(m[1]) : undefined
+  return isDeskId(id) ? id : null
+}

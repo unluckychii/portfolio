@@ -1,14 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { marked } from 'marked'
 import { DeskScene, type Cover, type Pickable } from './DeskScene'
-import { DESK_OBJECTS, deskHref, isDeskId, type DeskId } from './objects'
+import { DESK_OBJECTS, deskHref, idFromPathname, type DeskId } from './objects'
 import { SITE } from './site'
 
-const idFromPath = () => {
-  const m = window.location.pathname.match(/^\/([^/]+)\/?$/)
-  const id = m ? decodeURIComponent(m[1]) : undefined
-  return isDeskId(id) ? id : null
-}
+const idFromPath = () => idFromPathname(window.location.pathname)
 
 /** update the address bar; some embedding frames refuse it, and the desk works without it */
 const go = (path: string) => {
@@ -155,7 +151,7 @@ export default function Desk3D() {
 
       <header className="dk-top">
         <a
-          href="/"
+          href={deskHref()}
           className="dk-top__l"
           onClick={(e) => {
             e.preventDefault()
