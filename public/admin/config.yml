@@ -147,6 +147,7 @@ collections:
         format: json
         fields:
           - { label: Site name, name: name, widget: string, hint: 'Shown in the browser tab' }
+          - { label: Favicon, name: favicon, widget: image, required: false, hint: 'The little icon in the browser tab and on phone home screens. A square PNG with a transparent background, at least 192 × 192' }
           - { label: Header title, name: heading, widget: string, required: false, hint: 'Top-left of the page, linking home; the last word is set in italics. Leave empty to show the site name instead' }
           - { label: Hint (mouse), name: hint, widget: string, hint: 'Top-right on computers' }
           - { label: Hint (touch screens), name: hintTouch, widget: string, hint: 'Top-right on phones and tablets' }
