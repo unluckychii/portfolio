@@ -259,3 +259,208 @@ body { font-family: var(--hb-sans); -webkit-font-smoothing: antialiased; }
 @media (prefers-reduced-motion: reduce) {
   .dk-panel, .dk-list, .dk-label { transition: none; }
 }
+
+/* ------------------------------------------------------- the shelf of projects */
+/* each book is a cover and a spine in CSS 3D, turned to show its spine; inspired by press.stripe.com */
+.pj-shelf {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 36px 20px;
+}
+.pj-shelf__item {
+  display: grid;
+  justify-items: start;
+  gap: 4px;
+  color: var(--hb-ink);
+  text-decoration: none;
+  outline: none;
+}
+.pj-shelf__title { margin-top: 14px; font: 400 23px/1.05 var(--hb-serif); text-wrap: balance; }
+.pj-shelf__sub { font-size: 13px; line-height: 1.4; color: var(--hb-soft); }
+.pj-shelf__item:hover .pj-shelf__title,
+.pj-shelf__item:focus-visible .pj-shelf__title { background: var(--hb-lime); }
+
+.pb {
+  --h: 220px; /* book height */
+  --t: calc(var(--h) * 0.13); /* thickness */
+  position: relative;
+  display: block;
+  padding-left: var(--t);
+  perspective: 1200px;
+}
+.pb--hero { --h: min(58vh, 460px); }
+.pb__book {
+  position: relative;
+  display: block;
+  height: var(--h);
+  transform-style: preserve-3d;
+  transform: rotateY(28deg);
+  transition: transform 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.pb__cover {
+  position: relative;
+  display: block;
+  height: 100%;
+  width: auto;
+  max-width: none;
+  border-radius: 1px 3px 3px 1px;
+  transform: translateZ(calc(var(--t) / 2));
+  box-shadow: inset 4px 0 6px -3px rgba(0, 0, 0, 0.35);
+}
+.pb__cover--plain {
+  aspect-ratio: 2 / 3;
+  padding: 14px;
+  background: var(--hb-ink);
+  color: var(--hb-sheet);
+  font: 400 20px/1.05 var(--hb-serif);
+}
+.pb__spine {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--t);
+  height: 100%;
+  object-fit: cover;
+  transform: translateX(-50%) rotateY(-90deg);
+  filter: brightness(0.82);
+}
+.pb__spine--plain { background: #3a3a33; }
+/* the back cover, so the book never shows through when it turns */
+.pb__book::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #2b2a26;
+  transform: translateZ(calc(var(--t) / -2));
+}
+/* its shadow on the table */
+.pb::after {
+  content: '';
+  position: absolute;
+  left: 8%;
+  right: -6%;
+  bottom: -14px;
+  height: 22px;
+  background: radial-gradient(closest-side, rgba(29, 33, 23, 0.32), transparent);
+  z-index: -1;
+}
+.pj-shelf__item:hover .pb__book,
+.pj-shelf__item:focus-visible .pb__book { transform: rotateY(10deg) translateY(-8px); }
+
+/* ---------------------------------------------------------- a project's case study */
+.cs {
+  position: fixed;
+  inset: 0;
+  z-index: 6;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 clamp(16px, 4vw, 56px) 72px;
+  background: var(--hb-sheet);
+  color: var(--hb-ink);
+  outline: none;
+  animation: cs-in 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes cs-in { from { opacity: 0; transform: translateY(24px); } }
+.cs__bar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: clamp(14px, 1.8vw, 22px) 0 12px;
+  background: var(--hb-sheet);
+  border-bottom: 1px solid var(--hb-rule);
+}
+.cs__back {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--hb-ink);
+  font: 500 10.5px/1.4 var(--hb-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.cs__back:hover, .cs__back:focus-visible { background: var(--hb-lime); outline: none; }
+
+.cs__hero,
+.cs__intro,
+.cs__body,
+.cs__gallery,
+.cs__next { max-width: 1120px; margin-inline: auto; }
+.cs__hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(28px, 5vw, 72px);
+  padding-block: clamp(28px, 5vw, 64px);
+}
+.cs__book {
+  display: grid;
+  place-items: center;
+  padding: clamp(28px, 5vw, 64px) 16px;
+  border-radius: 6px;
+  background: radial-gradient(120% 90% at 50% 30%, #f1ebdb, #e2dac4);
+}
+.cs__lede { display: grid; gap: 18px; justify-items: start; min-width: 0; }
+.cs__lede .dk-kicker { margin: 0; }
+.cs__title { margin: 0; font: 400 clamp(46px, 6vw, 92px)/0.9 var(--hb-serif); letter-spacing: -0.03em; text-wrap: balance; }
+.cs__sub { margin: 0; font: italic 400 clamp(19px, 1.7vw, 24px)/1.3 var(--hb-serif); color: var(--hb-soft); }
+.cs__facts { display: flex; flex-wrap: wrap; gap: 14px 32px; margin: 4px 0 0; padding-top: 16px; border-top: 1px solid var(--hb-rule); }
+.cs__facts dt { font: 500 9.5px/1.4 var(--hb-mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--hb-soft); }
+.cs__facts dd { margin: 4px 0 0; font-size: 15px; }
+
+.cs__intro {
+  margin-block: clamp(8px, 2vw, 24px) 0;
+  padding-top: clamp(28px, 4vw, 48px);
+  border-top: 1px solid var(--hb-rule);
+  font: 400 clamp(22px, 2.4vw, 32px)/1.3 var(--hb-serif);
+  text-wrap: pretty;
+}
+.cs__intro { max-width: min(1120px, 34em); margin-inline: auto; }
+.cs__body { max-width: 68ch; margin-top: 24px; border-top: 0; }
+
+.cs__gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(16px, 2vw, 28px);
+  margin-top: clamp(32px, 5vw, 64px);
+}
+.cs__plate { margin: 0; display: grid; gap: 10px; }
+.cs__plate:first-child { grid-column: 1 / -1; }
+.cs__plate:only-child { max-width: 720px; justify-self: center; }
+.cs__plate img { display: block; width: 100%; height: auto; border-radius: 4px; background: #e2dac4; }
+.cs__plate figcaption { font: 500 10.5px/1.5 var(--hb-mono); letter-spacing: 0.06em; color: var(--hb-soft); }
+
+.cs__next {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-top: clamp(40px, 6vw, 80px);
+  padding-top: 32px;
+  border-top: 1px solid var(--hb-rule);
+  color: var(--hb-ink);
+  text-decoration: none;
+}
+.cs__next .pb { --h: 120px; }
+.cs__next > span:last-child { display: grid; gap: 6px; }
+.cs__next .dk-kicker { margin: 0; }
+.cs__next-title { font: 400 clamp(28px, 3vw, 40px)/1 var(--hb-serif); }
+.cs__next:hover .pb__book, .cs__next:focus-visible .pb__book { transform: rotateY(10deg) translateY(-4px); }
+.cs__next:hover .cs__next-title, .cs__next:focus-visible .cs__next-title { background: var(--hb-lime); }
+.cs__next:focus-visible { outline: none; }
+
+@media (max-width: 759px) {
+  .pj-shelf { gap: 28px 12px; }
+  .pb { --h: 170px; }
+  .pb--hero { --h: 300px; }
+  .cs__hero { grid-template-columns: 1fr; }
+  .cs__gallery { grid-template-columns: 1fr; }
+  .cs__title { font-size: 46px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pb__book { transition: none; }
+  .cs { animation: none; }
+}

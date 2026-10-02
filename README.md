@@ -15,6 +15,12 @@ npm run dev
 
 - Each object's page is one JSON file in `content/desk/` (name on hover, hint, title, intro,
   a markdown body and links). Edit them in the CMS under **Desk objects**, or by hand.
+- Clicking the books opens the Projects page as a shelf of book covers (styled after
+  press.stripe.com); each book opens a case study at `/books/<address>`. Each project is one JSON
+  file in `content/projects/` (title, subtitle, cover, spine, year, client, role, intro, write-up,
+  images, link). Edit them in the CMS under **Projects**, where you can also add new ones; covers
+  and images upload to `public/uploads/books/`. The four starting covers and spines were rendered
+  from the 3D books.
 - The site name ("Aaron's Desk") and the interface text around the desk (header, hints, the back
   and next labels, the lamp's name tag, the credits button) are in `content/site.json`. Edit them
   in the CMS under **Site settings**, or by hand. Anything left out falls back to a default.
@@ -37,6 +43,10 @@ npm run dev
 - The plant is a 3D model, `public/models/plant.glb`: "Assignment 8: Plant" by Teague McGinn on
   Sketchfab, CC BY 4.0, credited in the corner of the page. Its textures were resized to 512px and
   converted to WebP. If it can't load, the desk shows a built-in plant instead.
+- The books are a 3D model, `public/models/books.glb` (four upright books with custom covers;
+  textures resized to 1024px so the cover text stays readable, as WebP). The desk scales and centres the model to fit,
+  so a replacement `.glb` just needs to stand upright. They come from a Sketchfab model whose
+  source and licence still need recording (and a credit line, if it is CC BY).
 - The pigeon is a 3D model, `public/models/pigeon.glb` (rigged, with its own idle animation). To swap
   it, replace that file with another `.glb`, then adjust `PIGEON_SCALE` in `src/desk/DeskScene.ts`
   if the size is off. If the file is missing or fails to load, the desk shows its built-in pigeon.
@@ -46,6 +56,7 @@ npm run dev
 The editor is at **`/admin`** (https://unluckychii.github.io/portfolio/admin/), with two sections:
 
 - **Desk objects**: the page behind each object (title, intro, body, links) and its name tag.
+- **Projects**: the case studies on the book shelf, with their covers and images.
 - **Site settings**: the site name and the interface labels.
 
 It runs [Sveltia CMS](https://github.com/sveltia/sveltia-cms), a drop-in replacement for Decap CMS

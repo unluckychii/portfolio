@@ -1,0 +1,23 @@
+{
+  "slug": "flying-high",
+  "order": 3,
+  "title": "Flying High",
+  "subtitle": "A project subtitle in one line",
+  "cover": "/uploads/books/flying-high-cover.webp",
+  "spine": "/uploads/books/flying-high-spine.webp",
+  "year": "2026",
+  "client": "Client name",
+  "role": "Lead UX designer",
+  "intro": "Sample case study. A sentence or two on the problem, who it was for and what changed. Replace it, the details and the images in the CMS under Projects.",
+  "body": "## The brief\n\nWhat the client needed, and the constraints you worked within.\n\n## The approach\n\nHow you got from the brief to the solution: research, ideas you tried, decisions you made.\n\n## The outcome\n\nWhat shipped, and what it changed. Numbers help, if you have them.",
+  "gallery": [
+    {
+      "image": "/uploads/books/flying-high-cover.webp",
+      "caption": "Sample image: replace with screens, sketches or photos from the project"
+    }
+  ],
+  "link": {
+    "label": "",
+    "url": ""
+  }
+}

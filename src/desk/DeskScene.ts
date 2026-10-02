@@ -482,6 +482,26 @@ async function loadPlantModel() {
   return model
 }
 
+/** four upright books with their cover textures (public/models/books.glb) */
+const BOOKS_MODEL = `${import.meta.env.BASE_URL}models/books.glb`
+/** height on the desk; the model is scaled to it, whatever units it was exported in */
+const BOOKS_HEIGHT = 0.42
+
+async function loadBooksModel() {
+  const gltf = await gltfLoader().loadAsync(BOOKS_MODEL)
+  const model = shadowed(gltf.scene)
+  // centre it over its spot with its base on the desk
+  const box = new THREE.Box3().setFromObject(model)
+  const size = box.getSize(new THREE.Vector3())
+  const centre = box.getCenter(new THREE.Vector3())
+  const s = BOOKS_HEIGHT / size.y
+  model.scale.multiplyScalar(s)
+  model.position.set(-centre.x * s, -box.min.y * s, -centre.z * s)
+  const g = new THREE.Group()
+  g.add(model)
+  return g
+}
+
 type ModelPigeonRig = {
   body: THREE.Group
   mixer: THREE.AnimationMixer
@@ -780,6 +800,7 @@ export class DeskScene {
     this.useLaptopModel()
     this.useCoffeeModel()
     this.useLampModel()
+    this.useBooksModel()
     this.usePlantModel(plant)
 
     // hover outline, rendered into a multisampled target so edges stay smooth
@@ -1062,6 +1083,19 @@ export class DeskScene {
       })
   }
 
+  /** the upright books replace the stack */
+  private useBooksModel() {
+    this.useModel('books', loadBooksModel, (item, books) => {
+      for (const old of [...item.group.children]) {
+        item.group.remove(old)
+        old.traverse((o) => (o as THREE.Mesh).geometry?.dispose())
+      }
+      item.group.add(books)
+      item.group.rotation.y = 0.35 // spines turned towards the camera
+      item.anchor.set(-1.05, 0.5, 0.05)
+    })
+  }
+
   /** the salt lamp replaces the desk lamp; clicking it still switches it on and off */
   private useLampModel() {
     this.useModel('lamp', loadLampModel, (item, lamp) => {
@@ -1120,9 +1154,13 @@ export class DeskScene {
     this.hop = 0.55
   }
 
+  /** stop drawing while something covers the whole desk (a case study page) */
+  paused = false
+
   private loop = () => {
     this.raf = requestAnimationFrame(this.loop)
     this.timer.update()
+    if (this.paused) return
     const dt = Math.min(this.timer.getDelta(), 0.05)
     const t = this.timer.getElapsed()
 
