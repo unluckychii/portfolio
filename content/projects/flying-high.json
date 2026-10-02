@@ -1,14 +1,14 @@
 {
+  "title": "FIFA World Cup App",
   "slug": "flying-high",
   "order": 3,
-  "title": "Flying High",
-  "subtitle": "A project subtitle in one line",
+  "subtitle": "Flying High",
   "cover": "/uploads/books/flying-high-cover.webp",
   "spine": "/uploads/books/flying-high-spine.webp",
   "year": "2026",
   "client": "Client name",
   "role": "Lead UX designer",
-  "intro": "Sample case study. A sentence or two on the problem, who it was for and what changed. Replace it, the details and the images in the CMS under Projects.",
+  "intro": "Developed for the FIFA World Cup™ 2026 to captivate fans, grow football in North America, and deliver a world-class tournament while driving revenue and fostering global sport participation",
   "body": "## The brief\n\nWhat the client needed, and the constraints you worked within.\n\n## The approach\n\nHow you got from the brief to the solution: research, ideas you tried, decisions you made.\n\n## The outcome\n\nWhat shipped, and what it changed. Numbers help, if you have them.",
   "gallery": [
     {
@@ -17,7 +17,7 @@
     }
   ],
   "link": {
-    "label": "",
-    "url": ""
+    "label": "test",
+    "url": "tester"
   }
 }
