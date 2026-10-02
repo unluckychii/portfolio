@@ -120,7 +120,20 @@ collections:
             fields:
               - { label: Name, name: name, widget: string }
               - { label: Note, name: note, widget: string, required: false, hint: 'One short line, e.g. colour and print' }
-              - { label: Photo, name: image, widget: image, hint: 'Front-facing photo with a transparent background (PNG or WebP) so it hangs cleanly; square or landscape' }
+              - { label: Photo, name: image, widget: image, hint: 'Front-facing product photo with a transparent background (PNG or WebP); square or landscape. Used if 3D is unavailable, and by default its middle is printed on the 3D shirt and its colour used for the rest' }
+              - { label: Design for the 3D shirt, name: design, widget: image, required: false, hint: 'Optional: just the artwork (PNG with a transparent background works best). It is printed on the chest of the 3D shirt instead of the photo' }
+              - { label: Shirt colour, name: colour, widget: color, required: false, hint: 'Optional: the colour of the 3D shirt. Leave empty to take it from the photo' }
+              - label: Print area from the photo
+                name: front
+                widget: object
+                required: false
+                collapsed: true
+                hint: 'Optional, used when there is no design: which part of the photo is printed on the 3D shirt, as fractions of its width and height (0 to 1). Leave empty for the middle of the photo (0.24 to 0.76 across, 0 to 1 down)'
+                fields:
+                  - { label: Left, name: x0, widget: number, value_type: float, min: 0, max: 1, step: 0.01, required: false }
+                  - { label: Right, name: x1, widget: number, value_type: float, min: 0, max: 1, step: 0.01, required: false }
+                  - { label: Top, name: y0, widget: number, value_type: float, min: 0, max: 1, step: 0.01, required: false }
+                  - { label: Bottom, name: y1, widget: number, value_type: float, min: 0, max: 1, step: 0.01, required: false }
 
   - name: site
     label: Site settings

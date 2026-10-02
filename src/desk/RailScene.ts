@@ -17,6 +17,14 @@ const OPEN = 0.6
  * takes the shirt's own colour, sampled from the photo.
  */
 export type FrontCrop = { x0: number; x1: number; y0: number; y1: number }
+/**
+ * How one shirt looks. `src` is the product photo: by default its torso is printed on
+ * the front and its colour sampled for the rest. `design` (artwork, ideally on a
+ * transparent background) is printed on the chest instead, and `colour` overrides the
+ * sampled one.
+ */
+export type ShirtLook = { src: string; front?: FrontCrop; design?: string; colour?: string }
+
 export const DEFAULT_FRONT: FrontCrop = { x0: 0.24, x1: 0.76, y0: 0.0, y1: 1.0 }
 
 /** the shirt's colour: the most common opaque colour along the photo's lower body */
@@ -57,6 +65,30 @@ function frontTexture(img: HTMLImageElement, colour: THREE.Color, FRONT: FrontCr
   t.colorSpace = THREE.SRGBColorSpace
   t.anisotropy = 8
   t.channel = 1 // our own projected coordinates (uv1), so the model's fabric normals keep theirs
+  return t
+}
+
+/** artwork printed on the chest, on the shirt's colour; `aspect` is the panel's width / height */
+function designTexture(art: HTMLImageElement, colour: THREE.Color, aspect: number) {
+  const c = document.createElement('canvas')
+  c.width = 1024
+  c.height = Math.round(1024 / aspect)
+  const g = c.getContext('2d')!
+  g.fillStyle = `#${colour.getHexString(THREE.SRGBColorSpace)}`
+  g.fillRect(0, 0, c.width, c.height)
+  // about half the shirt's width, starting a little below the collar
+  let w = c.width * 0.5
+  let h = (w * art.naturalHeight) / art.naturalWidth
+  const maxH = c.height * 0.42
+  if (h > maxH) {
+    w *= maxH / h
+    h = maxH
+  }
+  g.drawImage(art, (c.width - w) / 2, c.height * 0.2, w, h)
+  const t = new THREE.CanvasTexture(c)
+  t.colorSpace = THREE.SRGBColorSpace
+  t.anisotropy = 8
+  t.channel = 1
   return t
 }
 
@@ -126,7 +158,7 @@ function loadImage(src: string) {
  * the shirt's colour elsewhere. Every shirt's origin is its hanger's hook, and it
  * faces +X (side-on along the rail); turn it -90° about Y to face the viewer.
  */
-async function loadShirts(images: { src: string; front?: FrontCrop }[], withRail: boolean) {
+async function loadShirts(images: ShirtLook[], withRail: boolean) {
   const loader = new GLTFLoader().register((parser) => {
     // decode textures through <img>, which strict Content-Security-Policies allow
     parser.textureLoader = new THREE.TextureLoader(parser.options.manager).setCrossOrigin('anonymous')
@@ -137,6 +169,9 @@ async function loadShirts(images: { src: string; front?: FrontCrop }[], withRail
     loader.loadAsync(TEE_MODEL),
     Promise.all(images.map(({ src }) => loadImage(src))),
   ])
+  // artwork is optional: one that fails to load falls back to the photo
+  const designs = await Promise.all(images.map(({ design }) => (design ? loadImage(design).catch(() => null) : null)))
+  let aspect = 0.8
 
   // the shirt model, recentred so its hanger's hook is the origin
   const template = tee.scene
@@ -151,11 +186,19 @@ async function loadShirts(images: { src: string; front?: FrontCrop }[], withRail
       hook = new THREE.Vector3((b.min.x + b.max.x) / 2, b.max.y, (b.min.z + b.max.z) / 2)
     }
     // lay the design across the front panel, once, before the shirt is copied
-    if (name === 'Face_T_shirt') projectFront(m, new THREE.Box3().setFromObject(m))
+    if (name === 'Face_T_shirt') {
+      const box = new THREE.Box3().setFromObject(m)
+      projectFront(m, box)
+      aspect = (box.max.z - box.min.z) / (box.max.y - box.min.y)
+    }
   })
 
   const shirts = photos.map((img, i) => {
-    const colour = shirtColour(img)
+    const look = images[i]
+    let colour = shirtColour(img)
+    if (look.colour && /^#?[0-9a-f]{3}([0-9a-f]{3})?$/i.test(look.colour.trim()))
+      colour = new THREE.Color().setStyle(`#${look.colour.trim().replace('#', '')}`, THREE.SRGBColorSpace)
+    const art = designs[i]
     const shirt = template.clone(true)
     shirt.traverse((o) => {
       const m = o as THREE.Mesh
@@ -164,7 +207,7 @@ async function loadShirts(images: { src: string; front?: FrontCrop }[], withRail
       if (base.name === 'Face_T_shirt') {
         const mat = base.clone()
         mat.color.set(0xffffff)
-        mat.map = frontTexture(img, colour, images[i].front ?? DEFAULT_FRONT)
+        mat.map = art ? designTexture(art, colour, aspect) : frontTexture(img, colour, look.front ?? DEFAULT_FRONT)
         mat.roughness = 0.85
         m.material = mat
       } else if (base.name === 'Manches_et_dos_T_shirt') {
@@ -207,7 +250,7 @@ export class RailScene {
 
   private host: HTMLElement
 
-  constructor(host: HTMLElement, images: { src: string; front?: FrontCrop }[]) {
+  constructor(host: HTMLElement, images: ShirtLook[]) {
     this.host = host
     const { renderer, scene } = makeStage(host)
     this.renderer = renderer
@@ -221,7 +264,7 @@ export class RailScene {
     this.resize()
   }
 
-  private async build(images: { src: string; front?: FrontCrop }[]) {
+  private async build(images: ShirtLook[]) {
     const { rail, shirts } = await loadShirts(images, true)
     if (this.disposed) return
     if (rail) this.scene.add(rail)
@@ -367,7 +410,7 @@ export class TeeViewer {
   private height = 0.9
   ready: Promise<void>
 
-  constructor(host: HTMLElement, images: { src: string; front?: FrontCrop }[], first: number) {
+  constructor(host: HTMLElement, images: ShirtLook[], first: number) {
     this.host = host
     this.current = first
     const { renderer, scene } = makeStage(host)
@@ -380,7 +423,7 @@ export class TeeViewer {
     this.resize()
   }
 
-  private async build(images: { src: string; front?: FrontCrop }[]) {
+  private async build(images: ShirtLook[]) {
     const { shirts } = await loadShirts(images, false)
     if (this.disposed) return
     this.shirts = shirts

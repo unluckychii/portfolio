@@ -34,7 +34,7 @@ function CloseUp({ index }: { index: number }) {
     if (!el) return
     let v: TeeViewer
     try {
-      v = new TeeViewer(el, GARMENTS.map((g) => ({ src: g.image, front: g.front })), first.current)
+      v = new TeeViewer(el, GARMENTS.map((g) => ({ src: g.image, front: g.front, design: g.design, colour: g.colour })), first.current)
     } catch (err) {
       console.warn('The 3D close-up could not start; showing the photo.', err)
       setFlat(true)
@@ -90,7 +90,7 @@ export default function Rail() {
     if (!host || GARMENTS.length === 0) return
     let s: RailScene
     try {
-      s = new RailScene(host, GARMENTS.map((g) => ({ src: g.image, front: g.front })))
+      s = new RailScene(host, GARMENTS.map((g) => ({ src: g.image, front: g.front, design: g.design, colour: g.colour })))
     } catch (err) {
       console.warn('The 3D clothes rail could not start; showing the flat one.', err)
       setMode('flat')
