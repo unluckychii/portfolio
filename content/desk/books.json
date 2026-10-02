@@ -1,7 +1,7 @@
 {
   "id": "books",
   "order": 3,
-  "label": "The books",
+  "label": "Projects",
   "hint": "Reading",
   "kicker": "The stack",
   "title": "Reading & notes",
