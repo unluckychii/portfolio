@@ -1,18 +1,18 @@
 {
   "name": "Aaron's Desk",
-  "heading": "The desk",
   "favicon": "/uploads/favicon.png",
+  "heading": "The desk",
   "hint": "Drag to look around · click an object",
   "hintTouch": "Drag · tap an object",
   "hintNo3d": "Pick an object",
   "back": "Back",
   "next": "Next",
-  "lampName": "The lamp",
-  "lampHint": "Click to switch",
-  "speakersName": "The speakers",
-  "speakersHint": "Click to play or pause the music",
+  "lampName": "Lamp",
+  "lampHint": "Click to turn On/Off",
+  "speakersName": "Speakers",
+  "speakersHint": "Click to play/pause",
   "laptopScreen": "",
   "music": "/uploads/8am.mp3",
   "hoverSound": "/uploads/hover.wav",
-  "credits": "3D model credits"
+  "credits": "Credits"
 }
