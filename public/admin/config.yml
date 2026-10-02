@@ -1,19 +1,17 @@
-# Decap CMS — edits here are committed to the repo, then the site rebuilds.
-# Log in at /admin with a GitHub account that has write access to the repo.
+# Sveltia CMS (a drop-in replacement for Decap CMS) — edits are committed to the repo,
+# then the GitHub Pages workflow rebuilds the site.
+# Live site: open /admin and sign in with a GitHub access token that can write to the repo.
+# Locally: open /admin on `npm run dev` and pick "Work with Local Repository" (Chrome or Edge).
 backend:
   name: github
   repo: unluckychii/portfolio
   branch: main # the branch the live site is built from
 
-# `npx decap-server` + `npm run dev` lets you edit locally without logging in
-local_backend: true
-
 media_folder: public/uploads # where uploaded images are stored in the repo
 public_folder: /uploads # how the site refers to them
 
-site_url: /
-display_url: /
-logo_url: ''
+site_url: https://unluckychii.github.io/portfolio/
+display_url: https://unluckychii.github.io/portfolio/
 
 collections:
   - name: desk
@@ -28,7 +26,7 @@ collections:
     extension: json
     create: false
     delete: false
-    identifier_field: id
+    identifier_field: label
     summary: '{{label}} · {{hint}}'
     sortable_fields: [order, label]
     editor:

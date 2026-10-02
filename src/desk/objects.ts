@@ -1,6 +1,6 @@
 /**
  * Pages behind the objects on the 3D desk. Content lives in /content/desk/*.json
- * and is edited through the CMS at /admin (Decap).
+ * and is edited through the CMS at /admin (Sveltia CMS).
  */
 
 export type DeskId = 'laptop' | 'coffee' | 'books' | 'pigeon'
