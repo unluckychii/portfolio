@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { marked } from 'marked'
 import { DeskScene, type Cover, type Pickable } from './DeskScene'
 import { BASE, DESK_OBJECTS, deskHref, idFromPathname, type DeskId } from './objects'
-import { projectFromPathname, projectHref, type Project } from './projects'
+import { assetUrl, projectFromPathname, projectHref, type Project } from './projects'
 import { ProjectPage, Shelf } from './Projects'
 import { SITE } from './site'
 
@@ -117,6 +117,7 @@ export default function Desk3D() {
     engineRef.current = engine
     engine.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     engine.onHover = setHovered
+    if (SITE.laptopScreen) engine.showScreenImage(assetUrl(SITE.laptopScreen))
     engine.resize(host.clientWidth, host.clientHeight)
     const first = idFromPath()
     if (first) engine.focusNow(first, panelCover())

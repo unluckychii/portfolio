@@ -71,6 +71,8 @@ class ScreenCanvas {
   canvas = document.createElement('canvas')
   texture: THREE.CanvasTexture
   private cursorOn = true
+  /** a picture chosen in the CMS replaces the code editor */
+  private image: HTMLImageElement | null = null
   private lines: [number, string, string][] = [
     [0, '#c792ea', 'const desk = {'],
     [1, '#9fe0a0', "coffee: 'second cup',"],
@@ -93,11 +95,35 @@ class ScreenCanvas {
   }
 
   blink() {
+    if (this.image) return
     this.cursorOn = !this.cursorOn
     this.draw()
   }
 
+  /** show a picture on the screen instead of the code editor, cropped to fill it */
+  showImage(url: string) {
+    const img = new Image()
+    img.onload = () => {
+      this.image = img
+      this.draw()
+    }
+    img.onerror = () => console.warn(`The laptop screen image could not be loaded: ${url}`)
+    img.src = url
+  }
+
   private draw() {
+    if (this.image) {
+      const g = this.canvas.getContext('2d')!
+      const { width: w, height: h } = this.canvas
+      const s = Math.max(w / this.image.naturalWidth, h / this.image.naturalHeight)
+      const dw = this.image.naturalWidth * s
+      const dh = this.image.naturalHeight * s
+      g.fillStyle = '#000'
+      g.fillRect(0, 0, w, h)
+      g.drawImage(this.image, (w - dw) / 2, (h - dh) / 2, dw, dh)
+      this.texture.needsUpdate = true
+      return
+    }
     const g = this.canvas.getContext('2d')!
     const { width: w, height: h } = this.canvas
     g.fillStyle = '#161b22'
@@ -202,15 +228,29 @@ function buildDesk(scene: THREE.Scene) {
   skirting.position.set(0, floor.position.y + 0.06, -1.24)
   scene.add(floor, wall, skirting)
 
-  // a framed painting on the wall, centred behind the laptop: Caravaggio's Narcissus (public domain)
+  // two framed paintings on the wall, one either side of the laptop (both Caravaggio, public domain)
+  for (const p of PAINTINGS) scene.add(hangPainting(p))
+}
+
+/** the paintings on the wall: image, its size in pixels, and where it hangs (x, y of its centre) */
+const PAINTINGS = [
+  { file: 'art/narcissus.webp', px: [1057, 1280], at: [-0.72, 0.74] },
+  { file: 'art/boy-bitten-by-a-lizard.webp', px: [988, 1280], at: [0.72, 0.74] },
+] as const
+/** every painting is this tall, so the two frames match */
+const ART_H = 0.9
+
+/** a painting in the desk's frame: a dark moulding, a cream mat, and the picture */
+function hangPainting({ file, px, at }: (typeof PAINTINGS)[number]) {
+  const w = ART_H * (px[0] / px[1])
   const art = new THREE.Group()
-  const frame = new THREE.Mesh(new THREE.BoxGeometry(ART_W + 0.18, ART_H + 0.18, 0.035), std('#1d2117', 0.45))
-  const mat = new THREE.Mesh(new THREE.PlaneGeometry(ART_W + 0.1, ART_H + 0.1), std('#f6f2e6', 0.9))
+  const frame = new THREE.Mesh(new THREE.BoxGeometry(w + 0.18, ART_H + 0.18, 0.035), std('#1d2117', 0.45))
+  const mat = new THREE.Mesh(new THREE.PlaneGeometry(w + 0.1, ART_H + 0.1), std('#f6f2e6', 0.9))
   mat.position.z = 0.0181
   const canvasMat = std('#2a1d14', 0.75) // dark until the picture arrives
-  const painting = new THREE.Mesh(new THREE.PlaneGeometry(ART_W, ART_H), canvasMat)
+  const painting = new THREE.Mesh(new THREE.PlaneGeometry(w, ART_H), canvasMat)
   painting.position.z = 0.0185
-  new THREE.TextureLoader().load(PAINTING, (tex) => {
+  new THREE.TextureLoader().load(`${import.meta.env.BASE_URL}${file}`, (tex) => {
     tex.colorSpace = THREE.SRGBColorSpace
     tex.anisotropy = 8
     canvasMat.map = tex
@@ -218,14 +258,9 @@ function buildDesk(scene: THREE.Scene) {
     canvasMat.needsUpdate = true
   })
   art.add(frame, mat, painting)
-  art.position.set(0, 0.74, -1.23)
-  scene.add(shadowed(art))
+  art.position.set(at[0], at[1], -1.23)
+  return shadowed(art)
 }
-
-/** the painting on the wall, and its size in scene units (the image is 1057 × 1280) */
-const PAINTING = `${import.meta.env.BASE_URL}art/narcissus.webp`
-const ART_H = 0.9
-const ART_W = ART_H * (1057 / 1280)
 
 function buildMonitor(screen: ScreenCanvas) {
   const g = new THREE.Group()
@@ -1148,6 +1183,11 @@ export class DeskScene {
       item.anchor.set(0, 0.62, -0.15)
       item.dist = 1.3
     })
+  }
+
+  /** put a picture on the laptop's screen (the stand-in monitor's too) */
+  showScreenImage(url: string) {
+    this.screen.showImage(url)
   }
 
   pigeonHop() {

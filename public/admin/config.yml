@@ -118,4 +118,5 @@ collections:
           - { label: Next link label, name: next, widget: string, hint: 'Above the next object at the end of each page' }
           - { label: Lamp name, name: lampName, widget: string, hint: 'Shown when hovering the lamp' }
           - { label: Lamp hint, name: lampHint, widget: string, required: false }
+          - { label: Laptop screen, name: laptopScreen, widget: image, required: false, hint: 'Picture shown on the laptop. Landscape, about 3:2 (e.g. 1500 × 1000); it is cropped to fill the screen. Leave empty to show the code editor.' }
           - { label: Credits button, name: credits, widget: string, hint: 'Opens the 3D model credits (the licences require them to stay on the page)' }
