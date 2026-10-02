@@ -24,6 +24,8 @@ npm run dev
 - The site name ("Aaron's Desk") and the interface text around the desk (header, hints, the back
   and next labels, the lamp's name tag, the credits button) are in `content/site.json`. Edit them
   in the CMS under **Site settings**, or by hand. Anything left out falls back to a default.
+- The laptop shows a code editor by default. To show a picture instead, upload one under
+  **Site settings → Laptop screen** (landscape, about 3:2; it is cropped to fill the screen).
 - The scene is in `src/desk/DeskScene.ts`; the page panel and routing in `src/desk/Desk3D.tsx`.
 - Uploaded images go to `public/uploads/`.
 - The painting on the wall is Caravaggio's *Narcissus* (c. 1597–99, public domain), in

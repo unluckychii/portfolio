@@ -17,6 +17,8 @@ export type Site = {
   lampName: string
   lampHint: string
   credits: string
+  /** picture on the laptop screen; empty shows the code editor */
+  laptopScreen: string
 }
 
 const DEFAULTS: Site = {
@@ -30,6 +32,7 @@ const DEFAULTS: Site = {
   lampName: 'The lamp',
   lampHint: 'Click to switch',
   credits: '3D model credits',
+  laptopScreen: '',
 }
 
 const f = file as Partial<Record<keyof Site, unknown>>
@@ -50,4 +53,5 @@ export const SITE: Site = {
   lampName: text('lampName'),
   lampHint: text('lampHint', true),
   credits: text('credits'),
+  laptopScreen: text('laptopScreen', true),
 }

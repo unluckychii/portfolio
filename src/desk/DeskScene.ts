@@ -71,6 +71,8 @@ class ScreenCanvas {
   canvas = document.createElement('canvas')
   texture: THREE.CanvasTexture
   private cursorOn = true
+  /** a picture chosen in the CMS replaces the code editor */
+  private image: HTMLImageElement | null = null
   private lines: [number, string, string][] = [
     [0, '#c792ea', 'const desk = {'],
     [1, '#9fe0a0', "coffee: 'second cup',"],
@@ -93,11 +95,35 @@ class ScreenCanvas {
   }
 
   blink() {
+    if (this.image) return
     this.cursorOn = !this.cursorOn
     this.draw()
   }
 
+  /** show a picture on the screen instead of the code editor, cropped to fill it */
+  showImage(url: string) {
+    const img = new Image()
+    img.onload = () => {
+      this.image = img
+      this.draw()
+    }
+    img.onerror = () => console.warn(`The laptop screen image could not be loaded: ${url}`)
+    img.src = url
+  }
+
   private draw() {
+    if (this.image) {
+      const g = this.canvas.getContext('2d')!
+      const { width: w, height: h } = this.canvas
+      const s = Math.max(w / this.image.naturalWidth, h / this.image.naturalHeight)
+      const dw = this.image.naturalWidth * s
+      const dh = this.image.naturalHeight * s
+      g.fillStyle = '#000'
+      g.fillRect(0, 0, w, h)
+      g.drawImage(this.image, (w - dw) / 2, (h - dh) / 2, dw, dh)
+      this.texture.needsUpdate = true
+      return
+    }
     const g = this.canvas.getContext('2d')!
     const { width: w, height: h } = this.canvas
     g.fillStyle = '#161b22'
@@ -1148,6 +1174,11 @@ export class DeskScene {
       item.anchor.set(0, 0.62, -0.15)
       item.dist = 1.3
     })
+  }
+
+  /** put a picture on the laptop's screen (the stand-in monitor's too) */
+  showScreenImage(url: string) {
+    this.screen.showImage(url)
   }
 
   pigeonHop() {
