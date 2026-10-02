@@ -28,6 +28,10 @@ npm run dev
   starting on the visitor's first click, tap or key press (browsers block sound before that), and
   the music button in the header pauses and resumes it. A visitor who pauses it stays paused on
   later visits. With no file set, the button is hidden.
+- The laptop's page has a clothes rail: each piece hangs side-on, turns to face the visitor on hover,
+  and opens up close on click (arrow keys move along the rail, Escape closes). Edit the pieces in
+  the CMS under **Clothes rail** (`content/rail.json`); photos go in `public/uploads/rail/` and look
+  best cut out on a transparent background.
 - The laptop shows a code editor by default. To show a picture instead, upload one under
   **Site settings → Laptop screen** (landscape, about 3:2; it is cropped to fill the screen).
 - The scene is in `src/desk/DeskScene.ts`; the page panel and routing in `src/desk/Desk3D.tsx`.

@@ -98,6 +98,30 @@ collections:
           - { label: Link text, name: label, widget: string, required: false }
           - { label: URL, name: url, widget: string, required: false, hint: 'e.g. the live product or an article about it' }
 
+  - name: rail
+    label: Clothes rail
+    description: The clothes hanging on the rail on the laptop's page. Each piece turns to face the visitor on hover and opens up close on click.
+    media_folder: /public/uploads/rail
+    public_folder: /uploads/rail
+    editor:
+      preview: false
+    files:
+      - name: rail
+        label: Clothes rail
+        file: content/rail.json
+        format: json
+        fields:
+          - { label: Title, name: title, widget: string, required: false, hint: 'Small line above the rail. Leave empty to hide it' }
+          - label: Pieces
+            name: items
+            widget: list
+            summary: '{{fields.name}}'
+            hint: 'Shown on the rail in this order'
+            fields:
+              - { label: Name, name: name, widget: string }
+              - { label: Note, name: note, widget: string, required: false, hint: 'One short line, e.g. colour and print' }
+              - { label: Photo, name: image, widget: image, hint: 'Front-facing photo with a transparent background (PNG or WebP) so it hangs cleanly; square or landscape' }
+
   - name: site
     label: Site settings
     description: The site's name and the interface text around the desk.
