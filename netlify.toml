@@ -2,8 +2,23 @@
   command = "npm run build"
   publish = "dist"
 
-# project pages (/sheets/07) are rendered by the app
+# the pages behind the objects on the desk (/coffee) are rendered by the app
 [[redirects]]
-  from = "/sheets/*"
+  from = "/laptop"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/coffee"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/books"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/pigeon"
   to = "/index.html"
   status = 200

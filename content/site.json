@@ -1,0 +1,12 @@
+{
+  "name": "Aaron's Desk",
+  "heading": "The desk",
+  "hint": "Drag to look around · click an object",
+  "hintTouch": "Drag · tap an object",
+  "hintNo3d": "Pick an object",
+  "back": "Back to the desk",
+  "next": "Next on the desk",
+  "lampName": "The lamp",
+  "lampHint": "Click to switch",
+  "credits": "3D model credits"
+}

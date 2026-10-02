@@ -16,72 +16,59 @@ display_url: /
 logo_url: ''
 
 collections:
-  - name: sheets
-    label: Sheets
-    label_singular: Sheet
+  - name: desk
+    label: Desk objects
+    label_singular: Desk object
     description: >-
-      Each sheet is one pressed photograph on the desk. Sheets are shown in order
-      of their number. Turn on "View more" to add a project page behind a button on
-      the back of the sheet.
-    folder: content/sheets
+      The page that opens when a visitor clicks an object on the desk, and the name tag shown
+      when they hover it. There is one entry per object (laptop, coffee cup, books, pigeon); the
+      objects themselves are fixed.
+    folder: content/desk
     format: json
     extension: json
-    create: true
-    delete: true
-    identifier_field: 'no'
-    slug: '{{fields.no}}'
-    summary: 'No. {{no}} · {{latin}} ({{common}})'
-    sortable_fields: ['no', latin, common]
+    create: false
+    delete: false
+    identifier_field: id
+    summary: '{{label}} · {{hint}}'
+    sortable_fields: [order, label]
     editor:
       preview: false
     fields:
-      - { label: Number, name: 'no', widget: string, pattern: ['^\d{2,3}$', 'Two digits, e.g. 07'], hint: 'Sets the order on the desk, e.g. 07' }
-      - { label: Photograph, name: image, widget: image, required: false, hint: 'Portrait works best (about 4:5).' }
-      - { label: Latin name, name: latin, widget: string }
-      - { label: Common name, name: common, widget: string, hint: 'Also used as the image description for screen readers.' }
-      - { label: Pressed (date), name: pressed, widget: string, required: false, hint: 'e.g. 14 Jun' }
-      - { label: Found (place), name: place, widget: string, required: false }
-      - { label: Note, name: note, widget: text, required: false, hint: 'Short line shown in quotes on the back of the sheet (hidden on phones).' }
-      - label: Tape
-        name: tape
-        widget: select
-        default: top
-        options:
-          - { label: Across the top, value: top }
-          - { label: Two corners, value: corners }
-          - { label: Down the side, value: side }
-      - { label: Finale sheet, name: feature, widget: boolean, default: false, required: false, hint: 'The scroll ends by diving into this sheet. Mark exactly one.' }
-      - label: View more (project page)
-        name: more
-        widget: object
-        collapsed: false
+      - { label: Object, name: id, widget: hidden }
+      - { label: Order in the list, name: order, widget: number, value_type: int, min: 1, hint: 'Position in the list along the bottom of the desk, and the "Next on the desk" order' }
+      - { label: Name, name: label, widget: string, hint: 'Shown on hover and in the list along the bottom, e.g. The coffee cup' }
+      - { label: Hint, name: hint, widget: string, required: false, hint: 'One word shown with the name, e.g. About' }
+      - { label: Kicker, name: kicker, widget: string, required: false, hint: 'Small line above the page title' }
+      - { label: Page title, name: title, widget: string }
+      - { label: Intro, name: intro, widget: text, required: false, hint: 'One or two sentences under the title, in italics' }
+      - { label: Body, name: body, widget: markdown, required: false, buttons: [bold, italic, link, heading-two, heading-three, quote, bulleted-list, numbered-list], editor_components: [] }
+      - label: Links
+        name: links
+        widget: list
         required: false
+        summary: '{{fields.label}}'
         fields:
-          - { label: Show a "View more" button on the back, name: enabled, widget: boolean, default: false, required: false }
-          - { label: Button text, name: label, widget: string, default: View the project, required: false }
-          - { label: Page title, name: title, widget: string, required: false, hint: 'Defaults to the common name.' }
-          - { label: Intro, name: intro, widget: text, required: false }
-          - label: Project facts
-            name: facts
-            widget: list
-            required: false
-            summary: '{{fields.label}}: {{fields.value}}'
-            fields:
-              - { label: Label, name: label, widget: string, hint: 'e.g. Client, Year, Role' }
-              - { label: Value, name: value, widget: string }
-          - label: External link
-            name: link
-            widget: object
-            required: false
-            fields:
-              - { label: Link text, name: label, widget: string, required: false }
-              - { label: URL, name: url, widget: string, required: false, pattern: ['^(https?://.*)?$', 'Must start with http:// or https://'] }
-          - { label: Body, name: body, widget: markdown, required: false, buttons: [bold, italic, link, heading-two, heading-three, quote, bulleted-list, numbered-list] , editor_components: [] }
-          - label: Gallery
-            name: gallery
-            widget: list
-            required: false
-            summary: '{{fields.caption}}'
-            fields:
-              - { label: Image, name: image, widget: image }
-              - { label: Caption, name: caption, widget: string, required: false }
+          - { label: Link text, name: label, widget: string }
+          - { label: URL, name: url, widget: string, hint: 'https://…, mailto:…, or a page on this site like /' }
+
+  - name: site
+    label: Site settings
+    description: The site's name and the interface text around the desk.
+    editor:
+      preview: false
+    files:
+      - name: site
+        label: Site name and labels
+        file: content/site.json
+        format: json
+        fields:
+          - { label: Site name, name: name, widget: string, hint: 'Top-left of the page and the browser tab' }
+          - { label: Header title, name: heading, widget: string, required: false, hint: 'Centre of the header; the last word is set in italics. Leave empty to hide it' }
+          - { label: Hint (mouse), name: hint, widget: string, hint: 'Top-right on computers' }
+          - { label: Hint (touch screens), name: hintTouch, widget: string, hint: 'Top-right on phones and tablets' }
+          - { label: Hint (no 3D), name: hintNo3d, widget: string, hint: 'Shown instead if the browser cannot show the 3D desk' }
+          - { label: Back button, name: back, widget: string, hint: 'At the top of each page' }
+          - { label: Next link label, name: next, widget: string, hint: 'Above the next object at the end of each page' }
+          - { label: Lamp name, name: lampName, widget: string, hint: 'Shown when hovering the lamp' }
+          - { label: Lamp hint, name: lampHint, widget: string, required: false }
+          - { label: Credits button, name: credits, widget: string, hint: 'Opens the 3D model credits (the licences require them to stay on the page)' }
