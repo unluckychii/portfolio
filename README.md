@@ -37,8 +37,8 @@ npm run dev
 - The plant is a 3D model, `public/models/plant.glb`: "Assignment 8: Plant" by Teague McGinn on
   Sketchfab, CC BY 4.0, credited in the corner of the page. Its textures were resized to 512px and
   converted to WebP. If it can't load, the desk shows a built-in plant instead.
-- The books are a 3D model, `public/models/books.glb` (four upright books with their covers;
-  textures resized to 512px and converted to WebP). The desk scales and centres the model to fit,
+- The books are a 3D model, `public/models/books.glb` (four upright books with custom covers;
+  textures resized to 1024px so the cover text stays readable, as WebP). The desk scales and centres the model to fit,
   so a replacement `.glb` just needs to stand upright. They come from a Sketchfab model whose
   source and licence still need recording (and a credit line, if it is CC BY).
 - The pigeon is a 3D model, `public/models/pigeon.glb` (rigged, with its own idle animation). To swap
