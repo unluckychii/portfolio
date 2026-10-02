@@ -19,6 +19,8 @@ export type Site = {
   credits: string
   /** picture on the laptop screen; empty shows the code editor */
   laptopScreen: string
+  /** background music (an audio file); empty hides the music button */
+  music: string
 }
 
 const DEFAULTS: Site = {
@@ -33,6 +35,7 @@ const DEFAULTS: Site = {
   lampHint: 'Click to switch',
   credits: '3D model credits',
   laptopScreen: '',
+  music: '',
 }
 
 const f = file as Partial<Record<keyof Site, unknown>>
@@ -54,4 +57,5 @@ export const SITE: Site = {
   lampHint: text('lampHint', true),
   credits: text('credits'),
   laptopScreen: text('laptopScreen', true),
+  music: text('music', true),
 }

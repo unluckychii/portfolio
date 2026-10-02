@@ -4,6 +4,7 @@ import { DeskScene, type Cover, type Pickable } from './DeskScene'
 import { BASE, DESK_OBJECTS, deskHref, idFromPathname, type DeskId } from './objects'
 import { assetUrl, projectFromPathname, projectHref, type Project } from './projects'
 import { ProjectPage, Shelf } from './Projects'
+import Music from './Music'
 import { SITE } from './site'
 
 /** the object a page address opens; a project's address (/books/<project>) opens the books */
@@ -179,7 +180,7 @@ export default function Desk3D() {
   const label = hovered ? LABELS[hovered] : null
 
   return (
-    <div className="dk-root" data-open={open ? '' : undefined}>
+    <div className="dk-root" data-open={open ? '' : undefined} data-project={project ? '' : undefined}>
       <div ref={hostRef} className="dk-canvas" aria-hidden="true" />
 
       <div ref={labelRef} className="dk-label" aria-hidden="true">
@@ -200,9 +201,9 @@ export default function Desk3D() {
             if (open) hide(true)
           }}
         >
-          {SITE.name}
+          {/* the site name stays in the browser tab; the header shows the heading */}
+          {SITE.heading ? italicLastWord(SITE.heading) : SITE.name}
         </a>
-        {SITE.heading && <span className="dk-top__c">{italicLastWord(SITE.heading)}</span>}
         <span className="dk-top__r">
           {noGl ? (
             SITE.hintNo3d
@@ -212,6 +213,7 @@ export default function Desk3D() {
               <span className="dk-narrow">{SITE.hintTouch}</span>
             </>
           )}
+          {SITE.music && <Music src={assetUrl(SITE.music)} />}
         </span>
       </header>
 

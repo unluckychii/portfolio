@@ -24,6 +24,10 @@ npm run dev
 - The site name ("Aaron's Desk") and the interface text around the desk (header, hints, the back
   and next labels, the lamp's name tag, the credits button) are in `content/site.json`. Edit them
   in the CMS under **Site settings**, or by hand. Anything left out falls back to a default.
+- Background music: upload an MP3 under **Site settings → Music**. It plays quietly on a loop,
+  starting on the visitor's first click, tap or key press (browsers block sound before that), and
+  the music button in the header pauses and resumes it. A visitor who pauses it stays paused on
+  later visits. With no file set, the button is hidden.
 - The laptop shows a code editor by default. To show a picture instead, upload one under
   **Site settings → Laptop screen** (landscape, about 3:2; it is cropped to fill the screen).
 - The scene is in `src/desk/DeskScene.ts`; the page panel and routing in `src/desk/Desk3D.tsx`.
