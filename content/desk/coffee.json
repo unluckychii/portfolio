@@ -1,10 +1,10 @@
 {
   "id": "coffee",
   "order": 2,
-  "label": "The coffee cup",
-  "hint": "About",
+  "label": "Break",
+  "hint": "Cup",
   "kicker": "Second cup",
-  "title": "About me",
+  "title": "Break",
   "intro": "Sample page. Who you are, in the time it takes to finish a coffee.",
   "body": "## Hello\n\nWrite a few sentences about yourself: where you are, what you do, and what you care about in your work.\n\n## A usual day\n\n- Morning: the hard problem, with coffee.\n- Afternoon: meetings, reviews, sketches.\n- Evening: a walk to feed the pigeons.",
   "links": []
