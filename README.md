@@ -43,21 +43,34 @@ npm run dev
 
 ## Editing with the CMS
 
-The editor is at **`/admin`**, with two sections:
+The editor is at **`/admin`** (https://unluckychii.github.io/portfolio/admin/), with two sections:
 
 - **Desk objects**: the page behind each object (title, intro, body, links) and its name tag.
 - **Site settings**: the site name and the interface labels.
 
-Saves are committed to the `main` branch, which rebuilds the site. Until this work is merged into
-`main`, the online editor would be editing `main`'s older files, so merge first.
+It runs [Sveltia CMS](https://github.com/sveltia/sveltia-cms), a drop-in replacement for Decap CMS
+that reads the same `public/admin/config.yml`.
 
-### Local editing (no login)
+### Online: sign in with an access token (one-time setup)
 
-```
-npx decap-server      # terminal 1
-npm run dev           # terminal 2
-```
-Open http://localhost:5173/admin/index.html. Changes are written straight to the files here.
+1. On GitHub, open **Settings → Developer settings → Personal access tokens → Fine-grained tokens →
+   Generate new token** (https://github.com/settings/personal-access-tokens/new).
+2. Name it (e.g. "Desk CMS"), pick an expiry, and under **Repository access** choose **Only select
+   repositories → unluckychii/portfolio**.
+3. Under **Permissions → Repository permissions**, set **Contents** to **Read and write**.
+4. Generate it and copy the token.
+5. Open `/admin` on the live site, choose **Sign In Using Access Token** and paste it. The browser
+   remembers it until you sign out.
+
+Each save is a commit to `main`; the GitHub Pages workflow then republishes the site, usually
+within two minutes. When the token expires, generate a new one the same way.
+
+### Locally: edit the files on this computer
+
+With `npm run dev` running, open http://localhost:5173/admin/index.html in **Chrome or Edge**,
+choose **Work with Local Repository** and select the `portfolio` folder. Saves are written straight
+to the files in `content/`; reload the desk to see them, then commit and push to publish.
+(Safari and Firefox can't open local folders; use the online editor there.)
 
 ## Publishing (GitHub Pages)
 
@@ -74,16 +87,5 @@ One-time settings on GitHub:
 
 The site is built with the `/portfolio/` prefix there (`BASE_PATH` in the workflow); locally and
 on Netlify it lives at `/`.
-
-### Online editing on Netlify (one-time setup)
-
-1. Merge this work into `main` and create a Netlify site from the repo. `netlify.toml`
-   already sets the build command, the output folder and the object page routes.
-2. On GitHub: **Settings → Developer settings → OAuth Apps → New OAuth App**.
-   Homepage URL: your Netlify URL. Callback URL: `https://api.netlify.com/auth/done`.
-3. In Netlify: **Site configuration → Access & security → OAuth → Install provider → GitHub**
-   and paste the client ID and secret from step 2.
-4. Go to `https://<your-site>/admin`, log in with GitHub (needs write access to the repo),
-   and edit.
 
 The CMS settings are in `public/admin/config.yml` (repo, branch, fields).
