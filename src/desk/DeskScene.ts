@@ -1154,9 +1154,13 @@ export class DeskScene {
     this.hop = 0.55
   }
 
+  /** stop drawing while something covers the whole desk (a case study page) */
+  paused = false
+
   private loop = () => {
     this.raf = requestAnimationFrame(this.loop)
     this.timer.update()
+    if (this.paused) return
     const dt = Math.min(this.timer.getDelta(), 0.05)
     const t = this.timer.getElapsed()
 

@@ -51,7 +51,7 @@ export const DESK_OBJECTS: DeskObject[] = IDS.map((id) => normalise(byId.get(id)
 export const isDeskId = (v: string | undefined): v is DeskId => !!v && (IDS as string[]).includes(v)
 
 /** where the site lives: "/" locally, "/portfolio/" on GitHub Pages (see vite.config.ts) */
-const BASE = import.meta.env.BASE_URL.startsWith('/') ? import.meta.env.BASE_URL : '/'
+export const BASE = import.meta.env.BASE_URL.startsWith('/') ? import.meta.env.BASE_URL : '/'
 
 export const deskHref = (id?: DeskId) => (id ? `${BASE}${id}` : BASE)
 

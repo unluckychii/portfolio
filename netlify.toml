@@ -22,3 +22,8 @@
   from = "/pigeon"
   to = "/index.html"
   status = 200
+
+[[redirects]]
+  from = "/books/*"
+  to = "/index.html"
+  status = 200

@@ -15,6 +15,12 @@ npm run dev
 
 - Each object's page is one JSON file in `content/desk/` (name on hover, hint, title, intro,
   a markdown body and links). Edit them in the CMS under **Desk objects**, or by hand.
+- Clicking the books opens the Projects page as a shelf of book covers (styled after
+  press.stripe.com); each book opens a case study at `/books/<address>`. Each project is one JSON
+  file in `content/projects/` (title, subtitle, cover, spine, year, client, role, intro, write-up,
+  images, link). Edit them in the CMS under **Projects**, where you can also add new ones; covers
+  and images upload to `public/uploads/books/`. The four starting covers and spines were rendered
+  from the 3D books.
 - The site name ("Aaron's Desk") and the interface text around the desk (header, hints, the back
   and next labels, the lamp's name tag, the credits button) are in `content/site.json`. Edit them
   in the CMS under **Site settings**, or by hand. Anything left out falls back to a default.
@@ -50,6 +56,7 @@ npm run dev
 The editor is at **`/admin`** (https://unluckychii.github.io/portfolio/admin/), with two sections:
 
 - **Desk objects**: the page behind each object (title, intro, body, links) and its name tag.
+- **Projects**: the case studies on the book shelf, with their covers and images.
 - **Site settings**: the site name and the interface labels.
 
 It runs [Sveltia CMS](https://github.com/sveltia/sveltia-cms), a drop-in replacement for Decap CMS

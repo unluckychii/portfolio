@@ -49,6 +49,55 @@ collections:
           - { label: Link text, name: label, widget: string }
           - { label: URL, name: url, widget: string, hint: 'https://…, mailto:…, or a page on this site like /' }
 
+  - name: projects
+    label: Projects
+    label_singular: Project
+    description: >-
+      The case studies on the book shelf. Clicking the books on the desk shows every project as a
+      book; clicking a book opens its own page. Shown in order of their number.
+    folder: content/projects
+    format: json
+    extension: json
+    create: true
+    delete: true
+    identifier_field: title
+    slug: '{{fields.slug}}'
+    summary: '{{order}} · {{title}}'
+    sortable_fields: [order, title]
+    media_folder: /public/uploads/books
+    public_folder: /uploads/books
+    editor:
+      preview: false
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Page address, name: slug, widget: string, pattern: ['^[a-z0-9]+(-[a-z0-9]+)*$', 'Lowercase letters, numbers and dashes, e.g. flying-high'], hint: 'The project page lives at /books/ followed by this, e.g. /books/flying-high. Changing it breaks old links.' }
+      - { label: Order on the shelf, name: order, widget: number, value_type: int, min: 1 }
+      - { label: Subtitle, name: subtitle, widget: string, required: false, hint: 'One line under the title' }
+      - { label: Cover, name: cover, widget: image, hint: 'Front cover, portrait (about 2:3)' }
+      - { label: Spine, name: spine, widget: image, required: false, hint: 'Tall, narrow strip shown on the side of the book (about 1:8)' }
+      - { label: Year, name: year, widget: string, required: false }
+      - { label: Client, name: client, widget: string, required: false }
+      - { label: Role, name: role, widget: string, required: false }
+      - { label: Intro, name: intro, widget: text, required: false, hint: 'A sentence or two, set large under the title' }
+      - { label: Case study, name: body, widget: markdown, required: false, buttons: [bold, italic, link, heading-two, heading-three, quote, bulleted-list, numbered-list], editor_components: [] }
+      - label: Images
+        name: gallery
+        widget: list
+        required: false
+        summary: '{{fields.caption}}'
+        hint: 'The first image is shown full width, the rest two to a row'
+        fields:
+          - { label: Image, name: image, widget: image }
+          - { label: Caption, name: caption, widget: string, required: false }
+      - label: Link
+        name: link
+        widget: object
+        required: false
+        collapsed: true
+        fields:
+          - { label: Link text, name: label, widget: string, required: false }
+          - { label: URL, name: url, widget: string, required: false, hint: 'e.g. the live product or an article about it' }
+
   - name: site
     label: Site settings
     description: The site's name and the interface text around the desk.

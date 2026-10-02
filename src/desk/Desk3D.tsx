@@ -1,10 +1,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { marked } from 'marked'
 import { DeskScene, type Cover, type Pickable } from './DeskScene'
-import { DESK_OBJECTS, deskHref, idFromPathname, type DeskId } from './objects'
+import { BASE, DESK_OBJECTS, deskHref, idFromPathname, type DeskId } from './objects'
+import { projectFromPathname, projectHref, type Project } from './projects'
+import { ProjectPage, Shelf } from './Projects'
 import { SITE } from './site'
 
-const idFromPath = () => idFromPathname(window.location.pathname)
+/** the object a page address opens; a project's address (/books/<project>) opens the books */
+const idFromPath = (): DeskId | null => {
+  const path = window.location.pathname
+  return idFromPathname(path) ?? (path.startsWith(`${BASE}books/`) ? 'books' : null)
+}
+const projectFromPath = () => projectFromPathname(window.location.pathname)
 
 /** update the address bar; some embedding frames refuse it, and the desk works without it */
 const go = (path: string) => {
@@ -44,6 +51,9 @@ export default function Desk3D() {
   const engineRef = useRef<DeskScene | null>(null)
   const returnFocus = useRef<HTMLElement | null>(null)
   const [open, setOpen] = useState<DeskId | null>(idFromPath)
+  const [project, setProject] = useState<Project | null>(projectFromPath)
+  /** the shelf book that opened the case study, to return focus to */
+  const projectFrom = useRef<HTMLElement | null>(null)
   const [hovered, setHovered] = useState<Pickable | null>(null)
   const [noGl, setNoGl] = useState(false)
 
@@ -55,15 +65,34 @@ export default function Desk3D() {
     if (id === 'pigeon') engine?.pigeonHop()
     engine?.focus(id, panelCover())
     setOpen(id)
+    setProject(null)
     if (push && window.location.pathname !== deskHref(id)) go(deskHref(id))
   }, [])
 
   const hide = useCallback((push: boolean) => {
     engineRef.current?.release()
     setOpen(null)
+    setProject(null)
     if (push && window.location.pathname !== deskHref()) go(deskHref())
     returnFocus.current?.focus({ preventScroll: true })
   }, [])
+
+  /* ------------------------------------------- the books' projects */
+  const openProject = useCallback((p: Project, push = true) => {
+    setProject(p)
+    if (push && window.location.pathname !== projectHref(p.slug)) go(projectHref(p.slug))
+  }, [])
+
+  const closeProject = useCallback((push: boolean) => {
+    setProject(null)
+    if (push) go(deskHref('books'))
+    projectFrom.current?.focus({ preventScroll: true })
+  }, [])
+
+  // nothing on the desk shows while a case study covers it
+  useEffect(() => {
+    if (engineRef.current) engineRef.current.paused = !!project
+  }, [project])
 
   const pick = useCallback(
     (id: Pickable) => {
@@ -110,11 +139,15 @@ export default function Desk3D() {
   useEffect(() => {
     const onPop = () => {
       const id = idFromPath()
-      if (id) show(id, false)
-      else hide(false)
+      const p = projectFromPath()
+      if (id && id !== open) show(id, false)
+      else if (!id) hide(false)
+      setProject(p)
     }
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && idFromPath()) hide(true)
+      if (e.key !== 'Escape') return
+      if (projectFromPath()) closeProject(true)
+      else if (idFromPath()) hide(true)
     }
     window.addEventListener('popstate', onPop)
     window.addEventListener('keydown', onKey)
@@ -122,11 +155,19 @@ export default function Desk3D() {
       window.removeEventListener('popstate', onPop)
       window.removeEventListener('keydown', onKey)
     }
-  }, [show, hide])
+  }, [show, hide, closeProject, open])
 
   useEffect(() => {
-    document.title = current ? `${current.title} — ${SITE.name}` : SITE.name
-    if (current) panelRef.current?.focus({ preventScroll: true })
+    document.title = project
+      ? `${project.title} — ${SITE.name}`
+      : current
+        ? `${current.title} — ${SITE.name}`
+        : SITE.name
+  }, [current, project])
+
+  // a newly opened page takes focus; closing a case study hands it back to its book instead
+  useEffect(() => {
+    if (current && !projectFromPath()) panelRef.current?.focus({ preventScroll: true })
   }, [current])
 
   // body is written by the site's editors in the CMS (repo write access), so it is trusted markdown
@@ -282,6 +323,14 @@ export default function Desk3D() {
               {current.title}
             </h1>
             {current.intro && <p className="dk-intro">{current.intro}</p>}
+            {current.id === 'books' && (
+              <Shelf
+                onOpen={(p, from) => {
+                  projectFrom.current = from
+                  openProject(p)
+                }}
+              />
+            )}
             {html.trim() && <div className="dk-body" dangerouslySetInnerHTML={{ __html: html }} />}
             {current.links.length > 0 && (
               <div className="dk-links">
@@ -316,6 +365,15 @@ export default function Desk3D() {
           </div>
         )}
       </aside>
+
+      {project && (
+        <ProjectPage
+          project={project}
+          backLabel={current?.title ? `Back to ${current.title.toLowerCase()}` : SITE.back}
+          onClose={() => closeProject(true)}
+          onOpen={(p) => openProject(p)}
+        />
+      )}
     </div>
   )
 }
