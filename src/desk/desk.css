@@ -29,9 +29,9 @@ body { font-family: var(--hb-sans); -webkit-font-smoothing: antialiased; }
 .dk-top {
   position: absolute;
   inset: 0 0 auto;
-  z-index: 3;
+  z-index: 7; /* above the pages, so the music button stays reachable */
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: 1fr auto;
   align-items: center;
   gap: 12px;
   padding: clamp(14px, 1.8vw, 22px) clamp(16px, 3vw, 44px);
@@ -42,9 +42,33 @@ body { font-family: var(--hb-sans); -webkit-font-smoothing: antialiased; }
 }
 .dk-top > * { pointer-events: auto; }
 .dk-top__l { color: var(--hb-ink); text-decoration: none; justify-self: start; }
-.dk-top__l:hover { background: var(--hb-lime); }
-.dk-top__c em { font-family: var(--hb-serif); font-size: 17px; letter-spacing: 0.02em; text-transform: none; }
-.dk-top__r { justify-self: end; color: var(--hb-soft); text-align: right; }
+.dk-top__l:hover, .dk-top__l:focus-visible { background: var(--hb-lime); outline: none; }
+.dk-top__l em { font-family: var(--hb-serif); font-size: 17px; letter-spacing: 0.02em; text-transform: none; }
+.dk-top__r { justify-self: end; display: flex; align-items: center; gap: 14px; color: var(--hb-soft); text-align: right; }
+
+/* the music button: a note, crossed out when paused, with bars that move while it plays */
+.dk-music {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--hb-rule);
+  border-radius: 999px;
+  background: rgba(246, 242, 230, 0.7);
+  color: var(--hb-ink);
+  cursor: pointer;
+}
+.dk-music:hover, .dk-music:focus-visible { background: var(--hb-lime); outline: none; }
+/* while a page is open only the music button floats over it */
+.dk-root[data-open] .dk-top__r > :not(.dk-music) { display: none; }
+.dk-root[data-project] .dk-top__l { visibility: hidden; }
+.dk-music__bars { display: none; align-items: flex-end; gap: 2px; height: 12px; }
+.dk-music[data-playing] .dk-music__bars { display: inline-flex; }
+.dk-music__bars i { width: 2px; height: 100%; background: currentColor; transform-origin: bottom; animation: dk-bar 0.9s ease-in-out infinite; }
+.dk-music__bars i:nth-child(2) { animation-delay: -0.3s; }
+.dk-music__bars i:nth-child(3) { animation-delay: -0.6s; }
+@keyframes dk-bar { 0%, 100% { transform: scaleY(0.3); } 50% { transform: scaleY(1); } }
 .dk-narrow { display: none; }
 
 /* the name that floats above a hovered object */
@@ -235,8 +259,6 @@ body { font-family: var(--hb-sans); -webkit-font-smoothing: antialiased; }
 
 /* phones: the page slides up from the bottom and the desk stays visible above it */
 @media (max-width: 759px) {
-  .dk-top { grid-template-columns: 1fr auto; }
-  .dk-top__c { display: none; }
   .dk-wide { display: none; }
   .dk-narrow { display: inline; }
   .dk-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: auto; }
@@ -257,6 +279,7 @@ body { font-family: var(--hb-sans); -webkit-font-smoothing: antialiased; }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .dk-music__bars i { animation: none; }
   .dk-panel, .dk-list, .dk-label { transition: none; }
 }
 
