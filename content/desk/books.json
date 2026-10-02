@@ -1,10 +1,10 @@
 {
   "id": "books",
   "order": 3,
-  "label": "Projects",
-  "hint": "Reading",
+  "label": "Work",
+  "hint": "Projects",
   "kicker": "The stack",
-  "title": "Reading & notes",
+  "title": "Projects",
   "intro": "Sample page. The books that are always within reach of the desk.",
   "body": "## Currently reading\n\n- *Book title* — Author. One line on why it matters.\n- *Book title* — Author.\n\n## Always on the desk\n\n1. *Book title* — Author\n2. *Book title* — Author\n3. *Book title* — Author",
   "links": []
