@@ -32,10 +32,13 @@ type ProjectFile = Partial<Omit<Project, 'gallery' | 'link'>> & {
 const files = import.meta.glob<ProjectFile>('../../content/projects/*.json', { eager: true, import: 'default' })
 
 /** "/uploads/x.webp" from the CMS → the address it has on this host (e.g. /portfolio/uploads/x.webp) */
-export const assetUrl = (path: string) => {
-  const prefix = import.meta.env.BASE_URL // "/", "/portfolio/", or "./" for a relative build
-  return path.startsWith('/') && !path.startsWith(prefix) ? prefix + path.slice(1) : path
-}
+const PREFIX = (() => {
+  const base = import.meta.env.BASE_URL // "/", "/portfolio/", or "./" for a relative build
+  // pin a relative base to the page's first address, before opening a project changes it
+  return base.startsWith('.') ? new URL(base, window.location.href).href : base
+})()
+export const assetUrl = (path: string) =>
+  path.startsWith('/') && !path.startsWith(PREFIX) ? PREFIX + path.slice(1) : path
 
 const slugify = (s: string) =>
   s
