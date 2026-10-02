@@ -1,10 +1,10 @@
 {
   "id": "laptop",
   "order": 1,
-  "label": "The laptop",
-  "hint": "Work",
+  "label": "The Mac",
+  "hint": "Current Work",
   "kicker": "On the screen",
-  "title": "Selected work",
+  "title": "Current work",
   "intro": "Sample page. Replace this text and the links from the CMS at /admin.",
   "body": "## What I'm working on\n\nA short paragraph about the kind of work you make and who it is for.\n\n- **Project one** — one line about it.\n- **Project two** — one line about it.\n- **Project three** — one line about it.",
   "links": []
