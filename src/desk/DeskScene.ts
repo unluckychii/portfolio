@@ -482,19 +482,24 @@ async function loadPlantModel() {
   return model
 }
 
-/**
- * Four upright books, converted from a .usdc export (public/models/books.glb).
- * The export came without its textures, so each book has a plain cover colour.
- */
+/** four upright books with their cover textures (public/models/books.glb) */
 const BOOKS_MODEL = `${import.meta.env.BASE_URL}models/books.glb`
-/** the model is 2.96 tall; this makes it about 0.42 */
-const BOOKS_SCALE = 0.142
+/** height on the desk; the model is scaled to it, whatever units it was exported in */
+const BOOKS_HEIGHT = 0.42
 
 async function loadBooksModel() {
   const gltf = await gltfLoader().loadAsync(BOOKS_MODEL)
   const model = shadowed(gltf.scene)
-  model.scale.setScalar(BOOKS_SCALE)
-  return model
+  // centre it over its spot with its base on the desk
+  const box = new THREE.Box3().setFromObject(model)
+  const size = box.getSize(new THREE.Vector3())
+  const centre = box.getCenter(new THREE.Vector3())
+  const s = BOOKS_HEIGHT / size.y
+  model.scale.multiplyScalar(s)
+  model.position.set(-centre.x * s, -box.min.y * s, -centre.z * s)
+  const g = new THREE.Group()
+  g.add(model)
+  return g
 }
 
 type ModelPigeonRig = {
