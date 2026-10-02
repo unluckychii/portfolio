@@ -791,6 +791,8 @@ function buildPlant() {
 export class DeskScene {
   onHover: (id: Pickable | null) => void = () => {}
   onPick: (id: Pickable) => void = () => {}
+  /** a click on the desk around an open object's page: close it */
+  onDismiss: () => void = () => {}
   reduced = false
 
   private renderer: THREE.WebGLRenderer
@@ -962,8 +964,13 @@ export class DeskScene {
     const up = (e: PointerEvent) => {
       const d = this.down
       this.down = null
-      if (!d || this.focused || this.tween) return
+      if (!d) return
       if (Math.hypot(e.clientX - d.x, e.clientY - d.y) > 6 || performance.now() - d.t > 600) return // a drag
+      if (this.focused) {
+        this.onDismiss() // clicked off the open page (even while the camera is still flying in)
+        return
+      }
+      if (this.tween) return
       move(e)
       const hit = this.pick()
       if (hit) this.onPick(hit.id)

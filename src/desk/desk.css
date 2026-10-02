@@ -381,18 +381,25 @@ body { font-family: var(--hb-sans); -webkit-font-smoothing: antialiased; }
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 0 clamp(16px, 4vw, 56px) 72px;
-  background: var(--hb-sheet);
+  /* the desk shows through, blurred, as behind a garment up close */
+  background: rgba(240, 235, 221, 0.78);
+  backdrop-filter: blur(18px) saturate(0.8);
+  -webkit-backdrop-filter: blur(18px) saturate(0.8);
   color: var(--hb-ink);
   outline: none;
-  animation: cs-in 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: cs-fade 0.35s ease-out;
 }
+.cs > * { animation: cs-in 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
+@keyframes cs-fade { from { opacity: 0; } }
 @keyframes cs-in { from { opacity: 0; transform: translateY(24px); } }
 .cs__bar {
   position: sticky;
   top: 0;
   z-index: 1;
   padding: clamp(14px, 1.8vw, 22px) 0 12px;
-  background: var(--hb-sheet);
+  background: rgba(240, 235, 221, 0.8);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--hb-rule);
 }
 .cs__back {
@@ -485,7 +492,7 @@ body { font-family: var(--hb-sans); -webkit-font-smoothing: antialiased; }
 
 @media (prefers-reduced-motion: reduce) {
   .pb__book { transition: none; }
-  .cs { animation: none; }
+  .cs, .cs > * { animation: none; }
 }
 
 /* ------------------------------------------------------------------ the clothes rail */

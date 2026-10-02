@@ -126,6 +126,7 @@ export default function Desk3D() {
     engineRef.current = engine
     engine.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     engine.onHover = setHovered
+    engine.onDismiss = () => hide(true) // a click on the desk beside the open page
     if (SITE.laptopScreen) engine.showScreenImage(assetUrl(SITE.laptopScreen))
     engine.resize(host.clientWidth, host.clientHeight)
     const first = idFromPath()
