@@ -28,9 +28,10 @@ npm run dev
   **Site settings → Laptop screen** (landscape, about 3:2; it is cropped to fill the screen).
 - The scene is in `src/desk/DeskScene.ts`; the page panel and routing in `src/desk/Desk3D.tsx`.
 - Uploaded images go to `public/uploads/`.
-- The painting on the wall is Caravaggio's *Narcissus* (c. 1597–99, public domain), in
-  `public/art/narcissus.webp`. To hang something else, replace that file and update the image size
-  next to `PAINTING` in `src/desk/DeskScene.ts` so it isn't stretched.
+- Two paintings hang either side of the laptop, in matching frames: Caravaggio's *Narcissus*
+  (left) and *Boy Bitten by a Lizard* (right), both public domain, in `public/art/`. To change or
+  move one, edit its entry in `PAINTINGS` in `src/desk/DeskScene.ts` (image file, its size in
+  pixels so it isn't stretched, and where it hangs).
 - The laptop is a 3D model, `public/models/laptop.glb`: "MacBook Air M2" by rtql8d on Sketchfab,
   CC BY 4.0. The licence requires the credit line shown in the corner of the page; keep it if the
   model stays. Its wallpaper was removed (the site draws its own screen) and its textures converted
