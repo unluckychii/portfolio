@@ -4,7 +4,7 @@ import { DeskScene, type Cover, type Pickable } from './DeskScene'
 import { BASE, DESK_OBJECTS, deskHref, idFromPathname, type DeskId } from './objects'
 import { assetUrl, projectFromPathname, projectHref, type Project } from './projects'
 import { ProjectPage, Shelf } from './Projects'
-import Music from './Music'
+import Music, { onMusicState, toggleMusic } from './Music'
 import { useHoverSound } from './hoverSound'
 import Rail from './Rail'
 import { SITE } from './site'
@@ -45,6 +45,7 @@ const panelCover = (): Cover => {
 const LABELS: Record<Pickable, { name: string; hint: string }> = {
   ...Object.fromEntries(DESK_OBJECTS.map((o) => [o.id, { name: o.label, hint: o.hint }])),
   lamp: { name: SITE.lampName, hint: SITE.lampHint },
+  speakers: { name: SITE.speakersName, hint: SITE.music ? SITE.speakersHint : '' },
 } as Record<Pickable, { name: string; hint: string }>
 
 export default function Desk3D() {
@@ -93,6 +94,9 @@ export default function Desk3D() {
     projectFrom.current?.focus({ preventScroll: true })
   }, [])
 
+  // the speakers' cones pump while the music plays
+  useEffect(() => onMusicState((on) => engineRef.current?.setMusicPlaying(on)), [])
+
   // nothing on the desk shows while a case study covers it
   useEffect(() => {
     if (engineRef.current) engineRef.current.paused = !!project
@@ -101,6 +105,7 @@ export default function Desk3D() {
   const pick = useCallback(
     (id: Pickable) => {
       if (id === 'lamp') engineRef.current?.toggleLamp()
+      else if (id === 'speakers') toggleMusic()
       else show(id, true)
     },
     [show],
@@ -292,6 +297,20 @@ export default function Desk3D() {
               CC BY 4.0
             </a>
             , modified
+          </span>
+          <span>
+            Speakers:{' '}
+            <a href="https://sketchfab.com/3d-models/krk-rokit-rp8-g4-ab5a5d56d25e416dad13e6f859f308a5" target="_blank" rel="noopener noreferrer">
+              KRK ROKIT RP8 G4
+            </a>{' '}
+            by{' '}
+            <a href="https://sketchfab.com/jeff.kershaw" target="_blank" rel="noopener noreferrer">
+              jeff.kershaw
+            </a>
+            ,{' '}
+            <a href="https://sketchfab.com/licenses" target="_blank" rel="noopener noreferrer">
+              Sketchfab Standard
+            </a>
           </span>
           <span>
             Plant:{' '}

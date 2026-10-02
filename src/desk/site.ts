@@ -18,6 +18,8 @@ export type Site = {
   next: string
   lampName: string
   lampHint: string
+  speakersName: string
+  speakersHint: string
   credits: string
   /** picture on the laptop screen; empty shows the code editor */
   laptopScreen: string
@@ -38,6 +40,8 @@ const DEFAULTS: Site = {
   next: 'Next on the desk',
   lampName: 'The lamp',
   lampHint: 'Click to switch',
+  speakersName: 'The speakers',
+  speakersHint: 'Click to play or pause the music',
   credits: '3D model credits',
   laptopScreen: '',
   music: '',
@@ -62,6 +66,8 @@ export const SITE: Site = {
   next: text('next'),
   lampName: text('lampName'),
   lampHint: text('lampHint', true),
+  speakersName: text('speakersName'),
+  speakersHint: text('speakersHint', true),
   credits: text('credits'),
   laptopScreen: text('laptopScreen', true),
   music: text('music', true),

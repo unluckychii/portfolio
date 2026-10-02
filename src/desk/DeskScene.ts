@@ -8,8 +8,8 @@ import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { DeskId } from './objects'
 
-/** everything the pointer can pick: the four pages plus the lamp switch */
-export type Pickable = DeskId | 'lamp'
+/** everything the pointer can pick: the four pages, the lamp switch and the speakers (music on/off) */
+export type Pickable = DeskId | 'lamp' | 'speakers'
 /** how much of the screen the page covers, from the right (x) and from the bottom (y) */
 export type Cover = { x: number; y: number }
 
@@ -537,6 +537,58 @@ async function loadBooksModel() {
   return g
 }
 
+/** a KRK Rokit RP8 G4 (Sketchfab Standard licence, jeff.kershaw — credited on the page) in public/models */
+const SPEAKER_MODEL = `${import.meta.env.BASE_URL}models/speaker.glb`
+/** the model is life size (0.45 tall); the desk is drawn bigger than life, so it is too */
+const SPEAKER_SCALE = 1.3
+/** where the pair stands: either side of the laptop, towards the back of the desk */
+const SPEAKER_X = 0.76
+const SPEAKER_Z = -0.42
+/** turned in a little towards the middle of the desk */
+const SPEAKER_TOE = 0.22
+
+/** the woofer cones, which pump while the music plays */
+type SpeakerRig = { cones: { mesh: THREE.Object3D; rest: THREE.Vector3; out: THREE.Vector3 }[] }
+
+/** a stand-in speaker, until the model loads (or if it can't) */
+function buildSpeaker(side: number) {
+  const g = new THREE.Group()
+  const h = 0.45 * SPEAKER_SCALE
+  const box = new THREE.Mesh(new THREE.BoxGeometry(0.3 * SPEAKER_SCALE, h, 0.35 * SPEAKER_SCALE), std('#1b1b1b', 0.5))
+  box.position.y = h / 2
+  const cone = new THREE.Mesh(new THREE.CircleGeometry(0.1 * SPEAKER_SCALE, 32), std('#e8c21c', 0.4))
+  cone.position.set(0, h * 0.35, 0.175 * SPEAKER_SCALE + 0.002)
+  g.add(box, cone)
+  g.position.set(side * SPEAKER_X, 0, SPEAKER_Z)
+  g.rotation.y = -side * SPEAKER_TOE
+  g.userData.rig = { cones: [] } satisfies SpeakerRig
+  return shadowed(g)
+}
+
+async function loadSpeakerModel() {
+  const gltf = await gltfLoader().loadAsync(SPEAKER_MODEL)
+  const model = shadowed(gltf.scene)
+  model.updateMatrixWorld(true)
+  // the cones' rest positions, and which way is "out" for each (the model faces +Z)
+  const cones: SpeakerRig['cones'] = []
+  model.traverse((o) => {
+    const m = o as THREE.Mesh
+    if (!m.isMesh || !/cone/.test((m.material as THREE.Material).name) || !m.parent) return
+    const toParent = new THREE.Matrix4().copy(m.parent.matrixWorld).invert()
+    const out = new THREE.Vector3(0, 0, 1).transformDirection(toParent)
+    const scale = new THREE.Vector3().setFromMatrixScale(toParent)
+    out.multiplyScalar(0.005 * scale.x)
+    cones.push({ mesh: m, rest: m.position.clone(), out })
+  })
+  const box = new THREE.Box3().setFromObject(model)
+  model.position.y = -box.min.y // stand it on the desk
+  const g = new THREE.Group()
+  g.add(model)
+  g.scale.setScalar(SPEAKER_SCALE)
+  g.userData.rig = { cones } satisfies SpeakerRig
+  return g
+}
+
 type ModelPigeonRig = {
   body: THREE.Group
   mixer: THREE.AnimationMixer
@@ -828,6 +880,10 @@ export class DeskScene {
     this.add('books', buildBooks(), new THREE.Vector3(-1.05, 0.27, 0.05), 1.0, 0.025)
     this.add('pigeon', buildPigeon(), new THREE.Vector3(-0.52, 0.32, 0.42), 0.95, 0)
     this.add('lamp', buildLamp(), new THREE.Vector3(1.1, 0.82, -0.35), 1.2, 0.01)
+    for (const side of [-1, 1]) {
+      const top = 0.45 * SPEAKER_SCALE
+      this.add('speakers', buildSpeaker(side), new THREE.Vector3(side * SPEAKER_X, top * 0.8, SPEAKER_Z), 1.2, 0.012)
+    }
     const plant = buildPlant()
     this.scene.add(plant)
     // swap in the 3D models once every object is on the desk
@@ -835,6 +891,7 @@ export class DeskScene {
     this.useLaptopModel()
     this.useCoffeeModel()
     this.useLampModel()
+    this.useSpeakerModels()
     this.useBooksModel()
     this.usePlantModel(plant)
 
@@ -1070,6 +1127,48 @@ export class DeskScene {
     rig.bulb.emissiveIntensity = rig.on ? rig.glow : 0
   }
 
+  /** the speakers' cones pump while the music plays */
+  private music = false
+  setMusicPlaying(on: boolean) {
+    this.music = on
+  }
+
+  private animateSpeakers(t: number) {
+    const beat = this.music && !this.reduced ? Math.pow(Math.abs(Math.sin(t * Math.PI * 2)), 6) : 0 // 120 bpm
+    for (const item of this.items) {
+      if (item.id !== 'speakers') continue
+      for (const c of (item.group.userData.rig as SpeakerRig).cones) c.mesh.position.copy(c.rest).addScaledVector(c.out, beat)
+    }
+  }
+
+  /** both speakers load the one model, then each takes a copy */
+  private useSpeakerModels() {
+    const pair = this.items.filter((i) => i.id === 'speakers')
+    pair.forEach((i) => (i.group.visible = false))
+    loadSpeakerModel()
+      .then((model) => {
+        if (this.disposed) return
+        pair.forEach((item, n) => {
+          for (const old of [...item.group.children]) {
+            item.group.remove(old)
+            old.traverse((o) => (o as THREE.Mesh).geometry?.dispose())
+          }
+          // the first speaker takes the model itself; the other a copy, with its own cones
+          const copy = n === 0 ? model : model.clone(true)
+          const cones = (model.userData.rig as SpeakerRig).cones.map((c) => {
+            const path: number[] = []
+            for (let o: THREE.Object3D = c.mesh; o !== model; o = o.parent!) path.unshift(o.parent!.children.indexOf(o))
+            const mesh = path.reduce<THREE.Object3D>((o, k) => o.children[k], copy)
+            return { mesh, rest: c.rest.clone(), out: c.out.clone() }
+          })
+          item.group.add(copy)
+          item.group.userData.rig = { cones } satisfies SpeakerRig
+        })
+      })
+      .catch((err) => console.warn('The speaker model failed to load, using the built-in ones.', err))
+      .finally(() => pair.forEach((i) => (i.group.visible = true)))
+  }
+
   /**
    * Swap a hand-built object for a model. The object stays hidden while the
    * model loads; if it can't load, the hand-built one is shown instead.
@@ -1082,7 +1181,7 @@ export class DeskScene {
         if (this.disposed) return
         apply(item, loaded)
         // already looking at it (opened straight from /laptop): reframe for the new shape
-        if (this.focused === item && item.id !== 'lamp') this.focus(item.id, this.cover)
+        if (this.focused === item && item.id !== 'lamp' && item.id !== 'speakers') this.focus(item.id, this.cover)
       })
       .catch((err) => console.warn(`The ${id} model failed to load, using the built-in one.`, err))
       .finally(() => {
@@ -1177,11 +1276,11 @@ export class DeskScene {
         item.group.remove(old)
         old.traverse((o) => (o as THREE.Mesh).geometry?.dispose())
       }
-      laptop.position.z = 0.25 // the monitor stood further back
+      laptop.position.z = 0.4 // forward of where the monitor stood, clear of the speakers
       laptop.rotation.y = -0.06
       item.group.add(laptop)
-      item.anchor.set(0, 0.62, -0.15)
-      item.dist = 1.3
+      item.anchor.set(0, 0.42, 0.05)
+      item.dist = 1.5
     })
   }
 
@@ -1226,6 +1325,7 @@ export class DeskScene {
     }
 
     this.animateCoffee(t)
+    this.animateSpeakers(t)
     this.animatePigeon(t, dt)
     this.placeLabel()
     this.composer.render(dt)

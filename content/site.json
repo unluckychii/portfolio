@@ -9,6 +9,8 @@
   "next": "Next",
   "lampName": "The lamp",
   "lampHint": "Click to switch",
+  "speakersName": "The speakers",
+  "speakersHint": "Click to play or pause the music",
   "laptopScreen": "",
   "music": "/uploads/8am.mp3",
   "hoverSound": "/uploads/hover.wav",
