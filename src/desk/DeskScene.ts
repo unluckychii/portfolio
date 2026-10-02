@@ -482,6 +482,21 @@ async function loadPlantModel() {
   return model
 }
 
+/**
+ * Four upright books, converted from a .usdc export (public/models/books.glb).
+ * The export came without its textures, so each book has a plain cover colour.
+ */
+const BOOKS_MODEL = `${import.meta.env.BASE_URL}models/books.glb`
+/** the model is 2.96 tall; this makes it about 0.42 */
+const BOOKS_SCALE = 0.142
+
+async function loadBooksModel() {
+  const gltf = await gltfLoader().loadAsync(BOOKS_MODEL)
+  const model = shadowed(gltf.scene)
+  model.scale.setScalar(BOOKS_SCALE)
+  return model
+}
+
 type ModelPigeonRig = {
   body: THREE.Group
   mixer: THREE.AnimationMixer
@@ -780,6 +795,7 @@ export class DeskScene {
     this.useLaptopModel()
     this.useCoffeeModel()
     this.useLampModel()
+    this.useBooksModel()
     this.usePlantModel(plant)
 
     // hover outline, rendered into a multisampled target so edges stay smooth
@@ -1060,6 +1076,19 @@ export class DeskScene {
       .finally(() => {
         plant.visible = true
       })
+  }
+
+  /** the upright books replace the stack */
+  private useBooksModel() {
+    this.useModel('books', loadBooksModel, (item, books) => {
+      for (const old of [...item.group.children]) {
+        item.group.remove(old)
+        old.traverse((o) => (o as THREE.Mesh).geometry?.dispose())
+      }
+      item.group.add(books)
+      item.group.rotation.y = 0.35 // spines turned towards the camera
+      item.anchor.set(-1.05, 0.5, 0.05)
+    })
   }
 
   /** the salt lamp replaces the desk lamp; clicking it still switches it on and off */
