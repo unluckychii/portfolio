@@ -1,0 +1,26 @@
+{
+  "title": "On the rail",
+  "items": [
+    {
+      "name": "Pidge Tee",
+      "note": "Stone, small chest logo",
+      "image": "/uploads/rail/pidge-tee.webp"
+    },
+    {
+      "name": "Smoking Ain't Cool Tee",
+      "note": "White, front print",
+      "image": "/uploads/rail/smoking-aint-cool-tee.webp"
+    },
+    {
+      "name": "Pigeon Gang Hoodie",
+      "note": "Black, front print",
+      "image": "/uploads/rail/pigeon-gang-hoodie.webp",
+      "front": {
+        "x0": 0.27,
+        "x1": 0.73,
+        "y0": 0.26,
+        "y1": 1
+      }
+    }
+  ]
+}

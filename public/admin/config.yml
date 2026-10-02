@@ -98,6 +98,43 @@ collections:
           - { label: Link text, name: label, widget: string, required: false }
           - { label: URL, name: url, widget: string, required: false, hint: 'e.g. the live product or an article about it' }
 
+  - name: rail
+    label: Clothes rail
+    description: The clothes hanging on the rail on the laptop's page. Each piece turns to face the visitor on hover and opens up close on click.
+    media_folder: /public/uploads/rail
+    public_folder: /uploads/rail
+    editor:
+      preview: false
+    files:
+      - name: rail
+        label: Clothes rail
+        file: content/rail.json
+        format: json
+        fields:
+          - { label: Title, name: title, widget: string, required: false, hint: 'Small line above the rail. Leave empty to hide it' }
+          - label: Pieces
+            name: items
+            widget: list
+            summary: '{{fields.name}}'
+            hint: 'Shown on the rail in this order'
+            fields:
+              - { label: Name, name: name, widget: string }
+              - { label: Note, name: note, widget: string, required: false, hint: 'One short line, e.g. colour and print' }
+              - { label: Photo, name: image, widget: image, hint: 'Front-facing product photo with a transparent background (PNG or WebP); square or landscape. Used if 3D is unavailable, and by default its middle is printed on the 3D shirt and its colour used for the rest' }
+              - { label: Design for the 3D shirt, name: design, widget: image, required: false, hint: 'Optional: just the artwork (PNG with a transparent background works best). It is printed on the chest of the 3D shirt instead of the photo' }
+              - { label: Shirt colour, name: colour, widget: color, required: false, hint: 'Optional: the colour of the 3D shirt. Leave empty to take it from the photo' }
+              - label: Print area from the photo
+                name: front
+                widget: object
+                required: false
+                collapsed: true
+                hint: 'Optional, used when there is no design: which part of the photo is printed on the 3D shirt, as fractions of its width and height (0 to 1). Leave empty for the middle of the photo (0.24 to 0.76 across, 0 to 1 down)'
+                fields:
+                  - { label: Left, name: x0, widget: number, value_type: float, min: 0, max: 1, step: 0.01, required: false }
+                  - { label: Right, name: x1, widget: number, value_type: float, min: 0, max: 1, step: 0.01, required: false }
+                  - { label: Top, name: y0, widget: number, value_type: float, min: 0, max: 1, step: 0.01, required: false }
+                  - { label: Bottom, name: y1, widget: number, value_type: float, min: 0, max: 1, step: 0.01, required: false }
+
   - name: site
     label: Site settings
     description: The site's name and the interface text around the desk.
@@ -120,4 +157,5 @@ collections:
           - { label: Lamp hint, name: lampHint, widget: string, required: false }
           - { label: Laptop screen, name: laptopScreen, widget: image, required: false, hint: 'Picture shown on the laptop. Landscape, about 3:2 (e.g. 1500 × 1000); it is cropped to fill the screen. Leave empty to show the code editor.' }
           - { label: Music, name: music, widget: file, required: false, hint: 'Background music: an MP3 (a few MB at most), played quietly on a loop. It starts with the first click on the page, and the music button in the header pauses it. Leave empty to hide the button.' }
+          - { label: Hover sound, name: hoverSound, widget: file, required: false, hint: 'A short sound (WAV or MP3, under a second is best) played when an object on the desk is hovered. Browsers only allow it after the first click on the page, and muting the music silences it too. Leave empty for no sound.' }
           - { label: Credits button, name: credits, widget: string, hint: 'Opens the 3D model credits (the licences require them to stay on the page)' }

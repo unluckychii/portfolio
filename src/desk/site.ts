@@ -21,6 +21,8 @@ export type Site = {
   laptopScreen: string
   /** background music (an audio file); empty hides the music button */
   music: string
+  /** short sound played when an object on the desk is hovered; empty for none */
+  hoverSound: string
 }
 
 const DEFAULTS: Site = {
@@ -36,6 +38,7 @@ const DEFAULTS: Site = {
   credits: '3D model credits',
   laptopScreen: '',
   music: '',
+  hoverSound: '',
 }
 
 const f = file as Partial<Record<keyof Site, unknown>>
@@ -58,4 +61,5 @@ export const SITE: Site = {
   credits: text('credits'),
   laptopScreen: text('laptopScreen', true),
   music: text('music', true),
+  hoverSound: text('hoverSound', true),
 }
