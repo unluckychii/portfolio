@@ -489,6 +489,19 @@ body { font-family: var(--hb-sans); -webkit-font-smoothing: antialiased; }
 }
 
 /* ------------------------------------------------------------------ the clothes rail */
+/* the 3D rail: a canvas of its own; the flat rail below it is kept for keyboards
+   (its buttons stay focusable, out of sight) and as the fallback if 3D can't start */
+.rl__3d { position: relative; height: clamp(300px, 46vh, 420px); margin: 0 -8px; }
+.rl__3d canvas { display: block; width: 100%; height: 100%; }
+.rl__stage[data-mode='3d'] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  padding: 0;
+}
+.rl { position: relative; }
 /* garments hang side-on and turn to face you on hover (photos are cut out, on transparent) */
 .rl { display: grid; gap: 10px; margin-top: 4px; }
 .rl__title { margin: 0; }

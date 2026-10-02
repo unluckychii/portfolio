@@ -28,10 +28,15 @@ npm run dev
   starting on the visitor's first click, tap or key press (browsers block sound before that), and
   the music button in the header pauses and resumes it. A visitor who pauses it stays paused on
   later visits. With no file set, the button is hidden.
-- The laptop's page has a clothes rail: each piece hangs side-on, turns to face the visitor on hover,
-  and opens up close on click (arrow keys move along the rail, Escape closes). Edit the pieces in
-  the CMS under **Clothes rail** (`content/rail.json`); photos go in `public/uploads/rail/` and look
-  best cut out on a transparent background.
+- The laptop's page has a 3D clothes rail (`public/models/clothes-rail.glb`), with each piece hung
+  on the same t-shirt model (`public/models/tshirt.glb`, on its own wooden hanger). Shirts hang
+  side-on; the hovered one turns to face the visitor with its photo printed on the front, and a
+  click opens the photo up close (arrow keys move along the rail, Escape closes). The torso of each
+  photo becomes the shirt's front and the rest of the shirt takes the photo's own colour; a piece's
+  optional `front` crop in `content/rail.json` picks a different part of its photo (the hoodie uses
+  one to skip its hood). Edit the pieces in the CMS under **Clothes rail**; photos go in
+  `public/uploads/rail/` and work best cut out on a transparent background. If 3D can't start, a
+  flat version of the rail shows instead.
 - The laptop shows a code editor by default. To show a picture instead, upload one under
   **Site settings → Laptop screen** (landscape, about 3:2; it is cropped to fill the screen).
 - The scene is in `src/desk/DeskScene.ts`; the page panel and routing in `src/desk/Desk3D.tsx`.

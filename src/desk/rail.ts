@@ -4,14 +4,24 @@
  */
 import file from '../../content/rail.json'
 import { assetUrl } from './projects'
+import type { FrontCrop } from './RailScene'
 
-export type Garment = { name: string; note: string; image: string }
+/** front: which part of the photo prints on the 3D shirt's front (fractions); optional */
+export type Garment = { name: string; note: string; image: string; front?: FrontCrop }
 
-type RailFile = { title?: string; items?: { name?: string; note?: string; image?: string }[] }
+type RailFile = {
+  title?: string
+  items?: { name?: string; note?: string; image?: string; front?: Partial<FrontCrop> }[]
+}
 const f = file as RailFile
 
 export const RAIL_TITLE = f.title?.trim() ?? ''
 
 export const GARMENTS: Garment[] = (f.items ?? [])
   .filter((g) => g?.image)
-  .map((g, i) => ({ name: g.name?.trim() || `Piece ${i + 1}`, note: g.note?.trim() ?? '', image: assetUrl(g.image!) }))
+  .map((g, i) => ({
+    name: g.name?.trim() || `Piece ${i + 1}`,
+    note: g.note?.trim() ?? '',
+    image: assetUrl(g.image!),
+    front: g.front ? { x0: 0.24, x1: 0.76, y0: 0, y1: 1, ...g.front } : undefined,
+  }))

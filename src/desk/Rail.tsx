@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { GARMENTS, RAIL_TITLE } from './rail'
+import { RailScene } from './RailScene'
 
 /** a wire hanger, its hook at the top centre */
 function Hanger() {
@@ -27,6 +28,40 @@ export default function Rail() {
   const [zoom, setZoom] = useState<number | null>(null)
   const buttons = useRef<(HTMLButtonElement | null)[]>([])
   const closeRef = useRef<HTMLButtonElement>(null)
+  const stage3d = useRef<HTMLDivElement>(null)
+  const scene = useRef<RailScene | null>(null)
+  /** 3D until it fails to start; then the flat rail below stays */
+  const [mode, setMode] = useState<'3d' | 'flat'>('3d')
+
+  useEffect(() => {
+    const host = stage3d.current
+    if (!host || GARMENTS.length === 0) return
+    let s: RailScene
+    try {
+      s = new RailScene(host, GARMENTS.map((g) => ({ src: g.image, front: g.front })))
+    } catch (err) {
+      console.warn('The 3D clothes rail could not start; showing the flat one.', err)
+      setMode('flat')
+      return
+    }
+    s.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    s.onHover = setHover
+    s.onPick = setZoom
+    s.ready.catch((err) => {
+      console.warn('The 3D clothes rail could not load; showing the flat one.', err)
+      setMode('flat')
+    })
+    scene.current = s
+    return () => {
+      s.dispose()
+      scene.current = null
+    }
+  }, [])
+
+  // the scene turns whichever piece is hovered, focused or open up close
+  useEffect(() => {
+    scene.current?.setActive(zoom ?? hover)
+  }, [hover, zoom])
 
   const close = useCallback(() => {
     setZoom((z) => {
@@ -66,7 +101,8 @@ export default function Rail() {
   return (
     <section className="rl" aria-label={RAIL_TITLE || 'Clothes rail'}>
       {RAIL_TITLE && <p className="dk-kicker rl__title">{RAIL_TITLE}</p>}
-      <div className="rl__stage" onMouseLeave={() => setHover(null)}>
+      {mode === '3d' && <div ref={stage3d} className="rl__3d" aria-hidden="true" />}
+      <div className="rl__stage" data-mode={mode} onMouseLeave={() => setHover(null)}>
         <span className="rl__rod" aria-hidden="true" />
         <ul className="rl__items">
           {GARMENTS.map((g, i) => (
