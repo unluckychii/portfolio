@@ -20,8 +20,9 @@ collections:
     label: Desk objects
     label_singular: Desk object
     description: >-
-      The pages behind the objects on the 3D desk (the home page). There is one entry per
-      object (laptop, coffee, books, pigeon); the objects themselves are fixed.
+      The page that opens when a visitor clicks an object on the desk, and the name tag shown
+      when they hover it. There is one entry per object (laptop, coffee cup, books, pigeon); the
+      objects themselves are fixed.
     folder: content/desk
     format: json
     extension: json
@@ -34,12 +35,12 @@ collections:
       preview: false
     fields:
       - { label: Object, name: id, widget: hidden }
-      - { label: Order in the list, name: order, widget: number, value_type: int, min: 1 }
-      - { label: Name on hover, name: label, widget: string, hint: 'e.g. The coffee cup' }
-      - { label: Hint, name: hint, widget: string, required: false, hint: 'One word under the name, e.g. About' }
+      - { label: Order in the list, name: order, widget: number, value_type: int, min: 1, hint: 'Position in the list along the bottom of the desk, and the "Next on the desk" order' }
+      - { label: Name, name: label, widget: string, hint: 'Shown on hover and in the list along the bottom, e.g. The coffee cup' }
+      - { label: Hint, name: hint, widget: string, required: false, hint: 'One word shown with the name, e.g. About' }
       - { label: Kicker, name: kicker, widget: string, required: false, hint: 'Small line above the page title' }
       - { label: Page title, name: title, widget: string }
-      - { label: Intro, name: intro, widget: text, required: false }
+      - { label: Intro, name: intro, widget: text, required: false, hint: 'One or two sentences under the title, in italics' }
       - { label: Body, name: body, widget: markdown, required: false, buttons: [bold, italic, link, heading-two, heading-three, quote, bulleted-list, numbered-list], editor_components: [] }
       - label: Links
         name: links
@@ -49,3 +50,25 @@ collections:
         fields:
           - { label: Link text, name: label, widget: string }
           - { label: URL, name: url, widget: string, hint: 'https://…, mailto:…, or a page on this site like /' }
+
+  - name: site
+    label: Site settings
+    description: The site's name and the interface text around the desk.
+    editor:
+      preview: false
+    files:
+      - name: site
+        label: Site name and labels
+        file: content/site.json
+        format: json
+        fields:
+          - { label: Site name, name: name, widget: string, hint: 'Top-left of the page and the browser tab' }
+          - { label: Header title, name: heading, widget: string, required: false, hint: 'Centre of the header; the last word is set in italics. Leave empty to hide it' }
+          - { label: Hint (mouse), name: hint, widget: string, hint: 'Top-right on computers' }
+          - { label: Hint (touch screens), name: hintTouch, widget: string, hint: 'Top-right on phones and tablets' }
+          - { label: Hint (no 3D), name: hintNo3d, widget: string, hint: 'Shown instead if the browser cannot show the 3D desk' }
+          - { label: Back button, name: back, widget: string, hint: 'At the top of each page' }
+          - { label: Next link label, name: next, widget: string, hint: 'Above the next object at the end of each page' }
+          - { label: Lamp name, name: lampName, widget: string, hint: 'Shown when hovering the lamp' }
+          - { label: Lamp hint, name: lampHint, widget: string, required: false }
+          - { label: Credits button, name: credits, widget: string, hint: 'Opens the 3D model credits (the licences require them to stay on the page)' }

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { marked } from 'marked'
 import { DeskScene, type Cover, type Pickable } from './DeskScene'
 import { DESK_OBJECTS, deskHref, isDeskId, type DeskId } from './objects'
+import { SITE } from './site'
 
 const idFromPath = () => {
   const m = window.location.pathname.match(/^\/([^/]+)\/?$/)
@@ -18,6 +19,17 @@ const go = (path: string) => {
   }
 }
 
+/** "The desk" → The <em>desk</em>, the header's serif flourish */
+const italicLastWord = (text: string) => {
+  const i = text.lastIndexOf(' ')
+  return i < 0 ? <em>{text}</em> : (
+    <>
+      {text.slice(0, i + 1)}
+      <em>{text.slice(i + 1)}</em>
+    </>
+  )
+}
+
 /** how much of the screen the page covers: a column on the right, or the lower 62% on phones (see desk3d.css) */
 const panelCover = (): Cover => {
   const w = window.innerWidth
@@ -26,7 +38,7 @@ const panelCover = (): Cover => {
 
 const LABELS: Record<Pickable, { name: string; hint: string }> = {
   ...Object.fromEntries(DESK_OBJECTS.map((o) => [o.id, { name: o.label, hint: o.hint }])),
-  lamp: { name: 'The lamp', hint: 'Click to switch' },
+  lamp: { name: SITE.lampName, hint: SITE.lampHint },
 } as Record<Pickable, { name: string; hint: string }>
 
 export default function Desk3D() {
@@ -117,7 +129,7 @@ export default function Desk3D() {
   }, [show, hide])
 
   useEffect(() => {
-    document.title = current ? `${current.title} — Oversight Supply` : 'Oversight Supply'
+    document.title = current ? `${current.title} — ${SITE.name}` : SITE.name
     if (current) panelRef.current?.focus({ preventScroll: true })
   }, [current])
 
@@ -150,18 +162,16 @@ export default function Desk3D() {
             if (open) hide(true)
           }}
         >
-          Oversight Supply
+          {SITE.name}
         </a>
-        <span className="dk-top__c">
-          The <em>desk</em>
-        </span>
+        {SITE.heading && <span className="dk-top__c">{italicLastWord(SITE.heading)}</span>}
         <span className="dk-top__r">
           {noGl ? (
-            'Pick an object'
+            SITE.hintNo3d
           ) : (
             <>
-              <span className="dk-wide">Drag to look around · click an object</span>
-              <span className="dk-narrow">Drag · tap an object</span>
+              <span className="dk-wide">{SITE.hint}</span>
+              <span className="dk-narrow">{SITE.hintTouch}</span>
             </>
           )}
         </span>
@@ -194,7 +204,7 @@ export default function Desk3D() {
 
       {/* required by the CC BY 4.0 licences of the laptop, cup, lamp and plant models */}
       <details className="dk-credit">
-        <summary>3D model credits</summary>
+        <summary>{SITE.credits}</summary>
         <p>
           <span>
             Laptop:{' '}
@@ -269,7 +279,7 @@ export default function Desk3D() {
         {current && (
           <div className="dk-panel__inner" key={current.id}>
             <button type="button" className="dk-close" onClick={() => hide(true)}>
-              <span aria-hidden="true">←</span> Back to the desk
+              <span aria-hidden="true">←</span> {SITE.back}
             </button>
             {current.kicker && <p className="dk-kicker">{current.kicker}</p>}
             <h1 id="dk-title" className="dk-title">
@@ -303,7 +313,7 @@ export default function Desk3D() {
                   show(next.id, true)
                 }}
               >
-                <span className="dk-kicker">Next on the desk</span>
+                <span className="dk-kicker">{SITE.next}</span>
                 <span className="dk-next__title">{next.label}</span>
               </a>
             )}

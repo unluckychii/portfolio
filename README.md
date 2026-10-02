@@ -1,7 +1,7 @@
-# Oversight Supply — the desk
+# Aaron's Desk
 
 A 3D work desk built with three.js (React 19 + Vite): a laptop, a coffee cup, a stack of books,
-a pigeon, a lamp and a plant, all modelled in code (no model files). Drag to look around, hover an
+a pigeon, a salt lamp and a plant, with a painting on the wall. Drag to look around, hover an
 object to see its name, click it to fly the camera in and open its page (`/laptop`, `/coffee`,
 `/books`, `/pigeon`). The salt lamp switches on and off. The list along the bottom opens the same pages
 from the keyboard or on touch screens.
@@ -15,6 +15,9 @@ npm run dev
 
 - Each object's page is one JSON file in `content/desk/` (name on hover, hint, title, intro,
   a markdown body and links). Edit them in the CMS under **Desk objects**, or by hand.
+- The site name ("Aaron's Desk") and the interface text around the desk (header, hints, the back
+  and next labels, the lamp's name tag, the credits button) are in `content/site.json`. Edit them
+  in the CMS under **Site settings**, or by hand. Anything left out falls back to a default.
 - The scene is in `src/desk/DeskScene.ts`; the page panel and routing in `src/desk/Desk3D.tsx`.
 - Uploaded images go to `public/uploads/`.
 - The painting on the wall is Caravaggio's *Narcissus* (c. 1597–99, public domain), in
@@ -40,7 +43,13 @@ npm run dev
 
 ## Editing with the CMS
 
-The editor is at **`/admin`**. Saves are committed to the `main` branch, which rebuilds the site.
+The editor is at **`/admin`**, with two sections:
+
+- **Desk objects**: the page behind each object (title, intro, body, links) and its name tag.
+- **Site settings**: the site name and the interface labels.
+
+Saves are committed to the `main` branch, which rebuilds the site. Until this work is merged into
+`main`, the online editor would be editing `main`'s older files, so merge first.
 
 ### Local editing (no login)
 
