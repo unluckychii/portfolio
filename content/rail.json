@@ -5,7 +5,7 @@
       "name": "Pidge Tee",
       "note": "Stone, small chest logo",
       "image": "/uploads/rail/Gemini_Generated_Image_v8qpvqv8qpvqv8qp.png",
-      "design": "",
+      "design": "/uploads/rail/Gemini_Generated_Image_v8qpvqv8qpvqv8qp.png",
       "colour": "#ffffff",
       "front": null
     },
@@ -20,7 +20,7 @@
     {
       "name": "Pigeon Gang Hoodie",
       "note": "Black, front print",
-      "image": "/uploads/rail/pigeon-gang-hoodie.webp",
+      "image": "/uploads/rail/pidge.png",
       "design": "",
       "colour": "",
       "front": {
