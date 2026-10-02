@@ -1,11 +1,11 @@
 {
   "id": "books",
   "order": 3,
-  "label": "Work",
-  "hint": "Projects",
-  "kicker": "The stack",
+  "label": "Projects",
+  "hint": "Work",
+  "kicker": "Selected Works",
   "title": "Projects",
-  "intro": "Sample page. The books that are always within reach of the desk.",
-  "body": "## Currently reading\n\n- *Book title* — Author. One line on why it matters.\n- *Book title* — Author.\n\n## Always on the desk\n\n1. *Book title* — Author\n2. *Book title* — Author\n3. *Book title* — Author",
+  "intro": "Some cools things I'm gratefu to be a part of",
+  "body": "",
   "links": []
 }

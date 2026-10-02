@@ -3,9 +3,9 @@
   "order": 2,
   "label": "Break",
   "hint": "Cup",
-  "kicker": "Second cup",
+  "kicker": "Side Events",
   "title": "Break",
-  "intro": "Sample page. Who you are, in the time it takes to finish a coffee.",
-  "body": "## Hello\n\nWrite a few sentences about yourself: where you are, what you do, and what you care about in your work.\n\n## A usual day\n\n- Morning: the hard problem, with coffee.\n- Afternoon: meetings, reviews, sketches.\n- Evening: a walk to feed the pigeons.",
+  "intro": "Who I am, in the time it takes to finish a coffee.",
+  "body": "## Hello\n\nOutside of work, I make [music](https://open.spotify.com/artist/6KnbNwkGBiAo9ERQoHT2Yr?si=U5mFdNZMSdaUp-fBE8xdOg) and have a [clothing brand](https://pidge.store/)\n\n### Things I like\n\n- Pigeons\n- GREAT coffee\n- East London\n\n### Things I don't like\n\n- Streamers\n- Queueing\n- Coffee Shop Squatters",
   "links": []
 }
