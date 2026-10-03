@@ -10,7 +10,7 @@ export const WALL_Z = -1.25
 /** the model is in centimetres, 55 wide; this makes it about 0.9 across the wall */
 const WINDOW_SCALE = 0.0165
 /** the window's sill sits just above the paintings */
-const WINDOW_BOTTOM = 1.27
+const WINDOW_BOTTOM = 1.32
 /** its centre, left to right */
 const WINDOW_X = 0
 
