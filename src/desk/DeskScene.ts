@@ -569,6 +569,41 @@ async function loadFloorLamp() {
   return g
 }
 
+/** a black cat (CC BY 4.0, Bonvikt on Sketchfab — credited on the page) in public/models */
+const CAT_MODEL = `${import.meta.env.BASE_URL}models/cat.glb`
+/** how tall it stands */
+const CAT_HEIGHT = 0.42
+/** on the floor under the desk's front left corner */
+const CAT_POS = new THREE.Vector3(-1.1, -0.06 - LEG_H, 0.55)
+/** side-on to the camera, looking along the desk */
+const CAT_YAW = 1.25
+
+async function loadCat() {
+  const gltf = await gltfLoader().loadAsync(CAT_MODEL)
+  const model = gltf.scene
+  model.traverse((o) => {
+    const m = o as THREE.Mesh
+    if (!m.isMesh) return
+    // the model is unlit (made to look the same in any light); light it like the rest of the room
+    const old = m.material as THREE.MeshBasicMaterial
+    m.material = new THREE.MeshStandardMaterial({ map: old.map, roughness: 0.85 })
+    old.dispose()
+    m.castShadow = true
+    m.receiveShadow = true
+    m.frustumCulled = false // its bones move it outside the bounds it was exported with
+  })
+  const mixer = new THREE.AnimationMixer(model)
+  const idle = gltf.animations.find((a) => /idle/i.test(a.name)) ?? gltf.animations[0]
+  if (idle) mixer.clipAction(idle).play()
+  // its skeleton is life size (about 0.4 tall to the ear tips), paws at y = 0, facing +Z
+  model.scale.multiplyScalar(CAT_HEIGHT / 0.4)
+  const g = new THREE.Group()
+  g.add(model)
+  g.position.copy(CAT_POS)
+  g.rotation.y = CAT_YAW
+  return { group: g, mixer }
+}
+
 /** four upright books with their cover textures (public/models/books.glb) */
 const BOOKS_MODEL = `${import.meta.env.BASE_URL}models/books.glb`
 /** height on the desk; the model is scaled to it, whatever units it was exported in */
@@ -951,6 +986,13 @@ export class DeskScene {
     this.useSpeakerModels()
     this.useBooksModel()
     this.usePlantModel(plant)
+    loadCat()
+      .then(({ group, mixer }) => {
+        if (this.disposed) return
+        this.scene.add(group)
+        this.catMixer = mixer
+      })
+      .catch((err) => console.warn('The cat model failed to load.', err))
     loadFloorLamp()
       .then((lamp) => {
         if (this.disposed) return
@@ -986,6 +1028,8 @@ export class DeskScene {
   }
 
   private window!: DeskWindow
+  /** the cat's idle animation, once it has loaded */
+  private catMixer: THREE.AnimationMixer | null = null
   /** the floor lamp, switched by the time of day once its model is in */
   private floorLamp: FloorLampRig | null = null
   private hemi!: THREE.HemisphereLight
@@ -1449,6 +1493,7 @@ export class DeskScene {
     this.animateCoffee(t)
     this.animateSpeakers(t)
     this.animatePigeon(t, dt)
+    if (!this.reduced) this.catMixer?.update(dt)
     this.placeLabel()
     this.composer.render(dt)
   }

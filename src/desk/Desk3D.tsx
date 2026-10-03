@@ -254,7 +254,7 @@ export default function Desk3D() {
         ))}
       </nav>
 
-      {/* required by the licences of the laptop, cup, lamp, plant, speaker, window and floor lamp models */}
+      {/* required by the licences of the laptop, cup, lamp, plant, speaker, window, floor lamp and cat models */}
       <details className="dk-credit">
         <summary>{SITE.credits}</summary>
         <p>
@@ -295,6 +295,21 @@ export default function Desk3D() {
             by{' '}
             <a href="https://sketchfab.com/meerschaumdigital" target="_blank" rel="noopener noreferrer">
               Meerschaum Digital
+            </a>
+            ,{' '}
+            <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">
+              CC BY 4.0
+            </a>
+            , modified
+          </span>
+          <span>
+            Cat:{' '}
+            <a href="https://sketchfab.com/3d-models/black-cat-psx-62416ff46cef45599c51dc9bc0b83b43" target="_blank" rel="noopener noreferrer">
+              Black Cat PSX
+            </a>{' '}
+            by{' '}
+            <a href="https://sketchfab.com/Bonvikt" target="_blank" rel="noopener noreferrer">
+              Bonvikt
             </a>
             ,{' '}
             <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">
