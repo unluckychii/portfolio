@@ -254,7 +254,7 @@ export default function Desk3D() {
         ))}
       </nav>
 
-      {/* required by the CC BY 4.0 licences of the laptop, cup, lamp and plant models */}
+      {/* required by the licences of the laptop, cup, lamp, plant, speaker and window models */}
       <details className="dk-credit">
         <summary>{SITE.credits}</summary>
         <p>
@@ -295,6 +295,21 @@ export default function Desk3D() {
             by{' '}
             <a href="https://sketchfab.com/meerschaumdigital" target="_blank" rel="noopener noreferrer">
               Meerschaum Digital
+            </a>
+            ,{' '}
+            <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">
+              CC BY 4.0
+            </a>
+            , modified
+          </span>
+          <span>
+            Window:{' '}
+            <a href="https://sketchfab.com/3d-models/window-e826c513779149d7ab3bde944647573f" target="_blank" rel="noopener noreferrer">
+              Window
+            </a>{' '}
+            by{' '}
+            <a href="https://sketchfab.com/jesseroberts" target="_blank" rel="noopener noreferrer">
+              jesseroberts
             </a>
             ,{' '}
             <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">

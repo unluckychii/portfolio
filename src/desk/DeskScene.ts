@@ -8,14 +8,15 @@ import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { DeskId } from './objects'
 import { currentHour, isDark, lightAt } from './daylight'
+import { DeskWindow, WALL_Z, wallGeometry } from './window'
 
 /** everything the pointer can pick: the four pages, the lamp switch and the speakers (music on/off) */
 export type Pickable = DeskId | 'lamp' | 'speakers'
 /** how much of the screen the page covers, from the right (x) and from the bottom (y) */
 export type Cover = { x: number; y: number }
 
-const HOME_POS = new THREE.Vector3(0.35, 1.55, 2.75)
-const HOME_TARGET = new THREE.Vector3(0, 0.46, 0)
+const HOME_POS = new THREE.Vector3(0.35, 1.55, 4.0)
+const HOME_TARGET = new THREE.Vector3(0, 1.0, 0)
 const DESK_W = 3.2
 const DESK_D = 1.5
 const LEG_H = 0.74
@@ -222,9 +223,11 @@ function buildDesk(scene: THREE.Scene) {
   floor.rotation.x = -Math.PI / 2
   floor.position.y = -0.06 - LEG_H
   floor.receiveShadow = true
-  const wall = new THREE.Mesh(new THREE.PlaneGeometry(30, 12), std('#e7e1cf', 0.95))
-  wall.position.set(0, 4, -1.25)
+  // with the window's opening cut out; it casts shadows so light from outside only comes in through the glass
+  const wall = new THREE.Mesh(wallGeometry(30, 12, 4), std('#e7e1cf', 0.95))
+  wall.position.set(0, 4, WALL_Z)
   wall.receiveShadow = true
+  wall.castShadow = true
   const skirting = new THREE.Mesh(new THREE.BoxGeometry(30, 0.12, 0.02), std('#d6ceb8', 0.8))
   skirting.position.set(0, floor.position.y + 0.06, -1.24)
   scene.add(floor, wall, skirting)
@@ -235,8 +238,8 @@ function buildDesk(scene: THREE.Scene) {
 
 /** the paintings on the wall: image, its size in pixels, and where it hangs (x, y of its centre) */
 const PAINTINGS = [
-  { file: 'art/narcissus.webp', px: [1057, 1280], at: [-0.72, 0.74] },
-  { file: 'art/boy-bitten-by-a-lizard.webp', px: [988, 1280], at: [0.72, 0.74] },
+  { file: 'art/narcissus.webp', px: [1057, 1280], at: [-0.72, 0.7] },
+  { file: 'art/boy-bitten-by-a-lizard.webp', px: [988, 1280], at: [0.72, 0.7] },
 ] as const
 /** every painting is this tall, so the two frames match */
 const ART_H = 0.9
@@ -867,7 +870,7 @@ export class DeskScene {
     this.controls.dampingFactor = 0.08
     this.controls.enablePan = false
     this.controls.minDistance = 1.6
-    this.controls.maxDistance = 4.2
+    this.controls.maxDistance = 4.6
     this.controls.minPolarAngle = 0.35
     this.controls.maxPolarAngle = 1.35
     this.controls.minAzimuthAngle = -1.0
@@ -877,6 +880,8 @@ export class DeskScene {
 
     this.lights()
     buildDesk(this.scene)
+    this.window = new DeskWindow(this.scene, HOME_POS)
+    this.window.load(gltfLoader()).catch((err) => console.warn('The window model failed to load; the opening stays bare.', err))
     const puff = puffTexture()
     this.add('laptop', buildMonitor(this.screen), new THREE.Vector3(0, 0.98, -0.3), 1.9, 0.012)
     this.add('coffee', buildCoffee(puff), new THREE.Vector3(0.98, 0.26, 0.18), 0.85, 0.03)
@@ -915,6 +920,7 @@ export class DeskScene {
     this.listen()
     this.disposers.push(() => {
       env.dispose()
+      this.window.dispose()
       puff.dispose()
       rt.dispose()
     })
@@ -922,6 +928,7 @@ export class DeskScene {
     this.loop()
   }
 
+  private window!: DeskWindow
   private hemi!: THREE.HemisphereLight
   private sun!: THREE.DirectionalLight
   /** when the light was last matched to the clock */
@@ -947,6 +954,7 @@ export class DeskScene {
     ;(this.scene.background as THREE.Color).set(l.air)
     this.scene.fog!.color.set(l.air)
     this.renderer.toneMappingExposure = l.exposure
+    this.window.apply(l)
     const dark = isDark(l)
     if (dark !== this.dark) {
       this.dark = dark
@@ -1146,7 +1154,7 @@ export class DeskScene {
     const halfW = Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2)) * aspect
     const need = 1.45 / halfW
     this.homeScale = Math.max(1, need / HOME_POS.distanceTo(HOME_TARGET))
-    this.controls.maxDistance = 4.2 * this.homeScale
+    this.controls.maxDistance = 4.6 * this.homeScale
     if (!this.focused && !this.tween) {
       this.camera.position.copy(this.homePos())
       this.controls.target.copy(HOME_TARGET)

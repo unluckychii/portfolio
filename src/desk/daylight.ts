@@ -14,32 +14,45 @@ export type Light = {
   /** the colour beyond the room (and of the fog that fades into it) */
   air: string
   exposure: number
+  /** the light falling in through the window: the sun by day, the moon by night */
+  win: number
+  winColor: string
+  /** the sky outside the window, top to horizon */
+  skyTop: string
+  skyLow: string
+  /** how much of the moon and stars show (0 by day, 1 at night) */
+  moon: number
 }
 
 const NIGHT: Light = {
   sun: 0.12, sunColor: '#8ea2d8', sunPos: [2.5, 3.5, 2.0],
   hemi: 0.07, sky: '#46506e', ground: '#2a241c',
   env: 0.035, air: '#1e1d22', exposure: 0.9,
+  win: 9, winColor: '#9db4ff', skyTop: '#070b1c', skyLow: '#1c2442', moon: 1,
 }
 const DAWN: Light = {
   sun: 1.5, sunColor: '#ffc796', sunPos: [-3.5, 2.0, 2.0],
   hemi: 0.6, sky: '#ffe2c8', ground: '#7a6a50',
   env: 0.3, air: '#dccdb6', exposure: 1.0,
+  win: 16, winColor: '#ffc896', skyTop: '#7c9cc8', skyLow: '#f6c59a', moon: 0.15,
 }
 const DAY: Light = {
   sun: 2.2, sunColor: '#fff1dc', sunPos: [-2.5, 4.0, 2.5],
   hemi: 0.9, sky: '#fff6e6', ground: '#8a7a5c',
   env: 0.45, air: '#e7e1cf', exposure: 1.05,
+  win: 22, winColor: '#fff4e2', skyTop: '#6fa6dc', skyLow: '#cfe3f2', moon: 0,
 }
 const GOLDEN: Light = {
   sun: 1.8, sunColor: '#ffad60', sunPos: [3.5, 2.0, 2.0],
   hemi: 0.62, sky: '#ffd8ad', ground: '#7a6248',
   env: 0.32, air: '#ddc5a2', exposure: 1.02,
+  win: 20, winColor: '#ffa857', skyTop: '#7f93c0', skyLow: '#ffb877', moon: 0,
 }
 const DUSK: Light = {
   sun: 0.45, sunColor: '#a493c8', sunPos: [3.0, 2.5, 2.0],
   hemi: 0.22, sky: '#605c80', ground: '#3a3028',
   env: 0.12, air: '#3e3a44', exposure: 0.95,
+  win: 8, winColor: '#b49ad8', skyTop: '#232a52', skyLow: '#8a6b8e', moon: 0.6,
 }
 
 /** the day as keyframes (local hours); the light blends between them */
@@ -77,6 +90,11 @@ export function lightAt(hour: number): Light {
     env: n(a.env, b.env),
     air: mix(a.air, b.air, k),
     exposure: n(a.exposure, b.exposure),
+    win: n(a.win, b.win),
+    winColor: mix(a.winColor, b.winColor, k),
+    skyTop: mix(a.skyTop, b.skyTop, k),
+    skyLow: mix(a.skyLow, b.skyLow, k),
+    moon: n(a.moon, b.moon),
   }
 }
 
