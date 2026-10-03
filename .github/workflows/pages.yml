@@ -28,12 +28,17 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # with a custom domain (a CNAME file) the site is served from its root;
+      # otherwise from https://<user>.github.io/<repo>/
+      - name: Choose the base path
+        run: |
+          if [ -s CNAME ]; then echo "BASE_PATH=/" >> "$GITHUB_ENV"
+          else echo "BASE_PATH=/${{ github.event.repository.name }}/" >> "$GITHUB_ENV"; fi
       - name: Build
         run: npm run build
-        env:
-          # the site is served from https://<user>.github.io/<repo>/
-          BASE_PATH: /${{ github.event.repository.name }}/
-      # Pages has no rewrites: serve the app for direct links like /portfolio/coffee
+      - name: Keep the custom domain
+        run: if [ -s CNAME ]; then cp CNAME dist/CNAME; fi
+      # Pages has no rewrites: serve the app for direct links like /coffee
       - run: cp dist/index.html dist/404.html
       - uses: actions/upload-pages-artifact@v3
         with:
