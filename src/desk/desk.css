@@ -61,7 +61,37 @@ body { font-family: var(--hb-sans); -webkit-font-smoothing: antialiased; }
 }
 .dk-music:hover, .dk-music:focus-visible { background: var(--hb-lime); outline: none; }
 /* while a page is open only the music button floats over it */
-.dk-root[data-open] .dk-top__r > :not(.dk-music) { display: none; }
+.dk-root[data-open] .dk-top__r > :not(.dk-music, .dk-time) { display: none; }
+/* the time-of-day menu, a pill beside the music button */
+.dk-time {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 30px;
+  padding: 0 4px 0 9px;
+  border: 1px solid var(--hb-rule);
+  border-radius: 999px;
+  background: rgba(246, 242, 230, 0.7);
+  color: var(--hb-ink);
+  cursor: pointer;
+}
+.dk-time select {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%231d2117' stroke-width='1.4'/%3E%3C/svg%3E") no-repeat right 6px center;
+  padding: 0 22px 0 0;
+  color: inherit;
+  font: 500 10.5px/1 var(--hb-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.dk-time select:focus-visible { outline: none; }
+.dk-time:focus-within { background: var(--hb-lime); }
+.dk-root[data-dark] .dk-time { color: var(--hb-ink); }
+.dk-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .dk-root[data-project] .dk-top__l { visibility: hidden; }
 /* after dark the wall behind the header is dim, so its text turns light */
 .dk-root[data-dark] .dk-top__l, .dk-root[data-dark] .dk-top__r, .dk-root[data-dark] .dk-credit summary { color: #efe9da; }

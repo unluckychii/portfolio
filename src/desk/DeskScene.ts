@@ -435,12 +435,26 @@ const LAPTOP_SCALE = 0.25
 async function loadLaptopModel(screen: ScreenCanvas) {
   const gltf = await gltfLoader().loadAsync(LAPTOP_MODEL)
   const model = gltf.scene
+  let keys: THREE.MeshStandardMaterial | null = null
   model.traverse((o) => {
     const m = o as THREE.Mesh
     if (!m.isMesh) return
     m.castShadow = true
     m.receiveShadow = true
+    const mat = m.material as THREE.MeshStandardMaterial
+    if (/keyboard/i.test(mat.name) && mat.map) keys = mat
   })
+  // the keyboard's backlight: its letters glow once it's dark
+  if (keys) {
+    const k = keys as THREE.MeshStandardMaterial
+    const glow = backlightMap(k.map!)
+    if (glow) {
+      k.emissiveMap = glow
+      k.emissive.set('#fff1dc')
+      k.emissiveIntensity = 0
+      k.needsUpdate = true
+    }
+  }
   // the display, just in front of the glass (model units: the lid stands at z = -1.08)
   const face = new THREE.Mesh(
     new THREE.PlaneGeometry(2.86, 1.86),
@@ -452,7 +466,37 @@ async function loadLaptopModel(screen: ScreenCanvas) {
   model.position.y = 0.136 * LAPTOP_SCALE // its feet sit below the origin
   const g = new THREE.Group()
   g.add(model)
+  g.userData.keys = keys
   return g
+}
+
+/**
+ * A glow map for the keyboard, from its texture: the light letters on the dark keys
+ * glow, a little light spills round each key's edge, and the rest stays dark.
+ */
+function backlightMap(map: THREE.Texture) {
+  const img = map.image as CanvasImageSource & { width: number; height: number }
+  if (!img?.width) return null
+  const size = Math.min(1024, img.width)
+  const c = document.createElement('canvas')
+  c.width = c.height = size
+  const g = c.getContext('2d', { willReadFrequently: true })
+  if (!g) return null
+  g.drawImage(img, 0, 0, size, size)
+  const data = g.getImageData(0, 0, size, size)
+  const px = data.data
+  for (let i = 0; i < px.length; i += 4) {
+    const lum = 0.299 * px[i] + 0.587 * px[i + 1] + 0.114 * px[i + 2]
+    const v = Math.round(255 * THREE.MathUtils.smoothstep(lum, 62, 150))
+    px[i] = px[i + 1] = px[i + 2] = v
+  }
+  g.putImageData(data, 0, 0)
+  const t = new THREE.CanvasTexture(c)
+  t.flipY = map.flipY
+  t.channel = map.channel
+  t.colorSpace = THREE.SRGBColorSpace
+  t.anisotropy = map.anisotropy
+  return t
 }
 
 /** a takeaway cup (CC BY 4.0, Lasse Harm on Sketchfab — credited on the page) in public/models */
@@ -1045,8 +1089,30 @@ export class DeskScene {
   }
 
   /** light the room for the visitor's time of day: bright by day, warm at sunset, dim at night */
-  private daylight() {
-    const l = lightAt(currentHour())
+  /** the laptop's keyboard, backlit after dark */
+  private keys: THREE.MeshStandardMaterial | null = null
+  /** a time of day picked on the page (null: the visitor's own clock) */
+  private hourPick: number | null = null
+  /** the hour the room is lit for right now, moving towards the picked one */
+  private shownHour: number | null = null
+
+  /** light the room for a chosen hour (0–24), or null to follow the visitor's clock again */
+  setHour(hour: number | null) {
+    this.hourPick = hour
+    this.lightCheck = 0
+  }
+
+  /** the visitor's own time, read when the light was last matched to it */
+  private clockHour = 12
+
+  private daylight(dt = 0) {
+    this.clockHour = currentHour()
+    const want = this.hourPick ?? this.clockHour
+    // glide to a newly picked time, through the hours in between; jump when reduced motion is on
+    if (this.shownHour === null || this.reduced || dt === 0) this.shownHour = want
+    else this.shownHour += (want - this.shownHour) * Math.min(1, dt * 3)
+    if (Math.abs(want - this.shownHour) < 0.01) this.shownHour = want
+    const l = lightAt(this.shownHour)
     this.sun.intensity = l.sun
     this.sun.color.set(l.sunColor)
     this.sun.position.set(...l.sunPos)
@@ -1065,6 +1131,7 @@ export class DeskScene {
       this.floorLamp.fill.intensity = 1.4 * on
       this.floorLamp.bulb.forEach((m) => (m.emissiveIntensity = 0.15 + 2.2 * on))
     }
+    if (this.keys) this.keys.emissiveIntensity = 1.8 * THREE.MathUtils.clamp((0.5 - l.hemi) / 0.25, 0, 1)
     const dark = isDark(l)
     if (dark !== this.dark) {
       this.dark = dark
@@ -1439,6 +1506,8 @@ export class DeskScene {
       laptop.position.z = 0.4 // forward of where the monitor stood, clear of the speakers
       laptop.rotation.y = -0.06
       item.group.add(laptop)
+      this.keys = laptop.userData.keys ?? null
+      this.lightCheck = 0 // light the keys now if it's already dark
       item.anchor.set(0, 0.42, 0.05)
       item.dist = 1.5
     })
@@ -1465,8 +1534,11 @@ export class DeskScene {
 
     // the light follows the clock; once a minute is plenty
     if (t - this.lightCheck > 60 || this.lightCheck === 0) {
+      const first = this.shownHour === null
       this.lightCheck = t || 0.001
-      this.daylight()
+      this.daylight(first ? 0 : dt)
+    } else if (this.shownHour !== null && this.shownHour !== (this.hourPick ?? this.clockHour)) {
+      this.daylight(dt) // still gliding to a picked time (or back to the clock's)
     }
 
     if (this.tween) this.stepTween(dt)

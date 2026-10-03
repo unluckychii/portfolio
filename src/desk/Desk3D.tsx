@@ -5,6 +5,7 @@ import { BASE, DESK_OBJECTS, deskHref, idFromPathname, type DeskId } from './obj
 import { assetUrl, projectFromPathname, projectHref, type Project } from './projects'
 import { ProjectPage, Shelf } from './Projects'
 import Music, { onMusicState, toggleMusic } from './Music'
+import TimePicker, { startingTime } from './TimePicker'
 import { useHoverSound } from './hoverSound'
 import Rail from './Rail'
 import { SITE } from './site'
@@ -62,6 +63,8 @@ export default function Desk3D() {
   const [noGl, setNoGl] = useState(false)
   /** night (or dusk): the desk is dark, so the text over it turns light */
   const [dark, setDark] = useState(false)
+  /** a time of day the visitor picked from the header (null: their own clock) */
+  const [hour, setHour] = useState<number | null>(startingTime)
   useHoverSound(SITE.hoverSound ? assetUrl(SITE.hoverSound) : '', hovered)
 
   const current = DESK_OBJECTS.find((o) => o.id === open) ?? null
@@ -96,6 +99,11 @@ export default function Desk3D() {
     projectFrom.current?.focus({ preventScroll: true })
   }, [])
 
+  // the header's time-of-day menu relights the room
+  useEffect(() => {
+    engineRef.current?.setHour(hour)
+  }, [hour])
+
   // the speakers' cones pump while the music plays
   useEffect(() => onMusicState((on) => engineRef.current?.setMusicPlaying(on)), [])
 
@@ -129,6 +137,7 @@ export default function Desk3D() {
     engine.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     engine.onHover = setHovered
     engine.onDarkChange = setDark
+    engine.setHour(startingTime())
     engine.onDismiss = () => hide(true) // a click on the desk beside the open page
     if (SITE.laptopScreen) engine.showScreenImage(assetUrl(SITE.laptopScreen))
     engine.resize(host.clientWidth, host.clientHeight)
@@ -225,6 +234,7 @@ export default function Desk3D() {
               <span className="dk-narrow">{SITE.hintTouch}</span>
             </>
           )}
+          {!noGl && <TimePicker value={hour} onChange={setHour} />}
           {SITE.music && <Music src={assetUrl(SITE.music)} />}
         </span>
       </header>
