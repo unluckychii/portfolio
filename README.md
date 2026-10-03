@@ -69,7 +69,7 @@ npm run dev
 
 ## Editing with the CMS
 
-The editor is at **`/admin`** (https://unluckychii.github.io/portfolio/admin/), with two sections:
+The editor is at **`/admin`** (https://unluckychi.com/admin/), with two sections:
 
 - **Desk objects**: the page behind each object (title, intro, body, links) and its name tag.
 - **Projects**: the case studies on the book shelf, with their covers and images.
@@ -101,7 +101,7 @@ to the files in `content/`; reload the desk to see them, then commit and push to
 
 ## Publishing (GitHub Pages)
 
-The live site is https://unluckychii.github.io/portfolio/. `.github/workflows/pages.yml` builds it
+The live site is https://unluckychi.com/ (a custom domain, set by the `CNAME` file). `.github/workflows/pages.yml` builds it
 and publishes it on every push to `main`, including CMS saves, usually within two minutes. The
 progress is under the repo's **Actions** tab.
 
@@ -112,7 +112,7 @@ One-time settings on GitHub:
 2. **Settings → General → Default branch: `main`**, so the CMS, the workflow and the site all
    use the same branch.
 
-The site is built with the `/portfolio/` prefix there (`BASE_PATH` in the workflow); locally and
-on Netlify it lives at `/`.
+With the `CNAME` file the site is built for the domain's root (`/`); without it, for
+`https://<user>.github.io/<repo>/` (`BASE_PATH` in the workflow). Locally and on Netlify it lives at `/`.
 
 The CMS settings are in `public/admin/config.yml` (repo, branch, fields).

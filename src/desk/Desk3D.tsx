@@ -5,6 +5,7 @@ import { BASE, DESK_OBJECTS, deskHref, idFromPathname, type DeskId } from './obj
 import { assetUrl, projectFromPathname, projectHref, type Project } from './projects'
 import { ProjectPage, Shelf } from './Projects'
 import Music, { onMusicState, toggleMusic } from './Music'
+import TimePicker, { startingTime } from './TimePicker'
 import { useHoverSound } from './hoverSound'
 import Rail from './Rail'
 import { SITE } from './site'
@@ -60,6 +61,10 @@ export default function Desk3D() {
   const projectFrom = useRef<HTMLElement | null>(null)
   const [hovered, setHovered] = useState<Pickable | null>(null)
   const [noGl, setNoGl] = useState(false)
+  /** night (or dusk): the desk is dark, so the text over it turns light */
+  const [dark, setDark] = useState(false)
+  /** a time of day the visitor picked from the header (null: their own clock) */
+  const [hour, setHour] = useState<number | null>(startingTime)
   useHoverSound(SITE.hoverSound ? assetUrl(SITE.hoverSound) : '', hovered)
 
   const current = DESK_OBJECTS.find((o) => o.id === open) ?? null
@@ -94,6 +99,11 @@ export default function Desk3D() {
     projectFrom.current?.focus({ preventScroll: true })
   }, [])
 
+  // the header's time-of-day menu relights the room
+  useEffect(() => {
+    engineRef.current?.setHour(hour)
+  }, [hour])
+
   // the speakers' cones pump while the music plays
   useEffect(() => onMusicState((on) => engineRef.current?.setMusicPlaying(on)), [])
 
@@ -126,6 +136,8 @@ export default function Desk3D() {
     engineRef.current = engine
     engine.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     engine.onHover = setHovered
+    engine.onDarkChange = setDark
+    engine.setHour(startingTime())
     engine.onDismiss = () => hide(true) // a click on the desk beside the open page
     if (SITE.laptopScreen) engine.showScreenImage(assetUrl(SITE.laptopScreen))
     engine.resize(host.clientWidth, host.clientHeight)
@@ -189,7 +201,7 @@ export default function Desk3D() {
   const label = hovered ? LABELS[hovered] : null
 
   return (
-    <div className="dk-root" data-open={open ? '' : undefined} data-project={project ? '' : undefined}>
+    <div className="dk-root" data-dark={dark ? '' : undefined} data-open={open ? '' : undefined} data-project={project ? '' : undefined}>
       <div ref={hostRef} className="dk-canvas" aria-hidden="true" />
 
       <div ref={labelRef} className="dk-label" aria-hidden="true">
@@ -222,6 +234,7 @@ export default function Desk3D() {
               <span className="dk-narrow">{SITE.hintTouch}</span>
             </>
           )}
+          {!noGl && <TimePicker value={hour} onChange={setHour} />}
           {SITE.music && <Music src={assetUrl(SITE.music)} />}
         </span>
       </header>
@@ -251,7 +264,7 @@ export default function Desk3D() {
         ))}
       </nav>
 
-      {/* required by the CC BY 4.0 licences of the laptop, cup, lamp and plant models */}
+      {/* required by the licences of the laptop, cup, lamp, plant, speaker, window, floor lamp and cat models */}
       <details className="dk-credit">
         <summary>{SITE.credits}</summary>
         <p>
@@ -292,6 +305,51 @@ export default function Desk3D() {
             by{' '}
             <a href="https://sketchfab.com/meerschaumdigital" target="_blank" rel="noopener noreferrer">
               Meerschaum Digital
+            </a>
+            ,{' '}
+            <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">
+              CC BY 4.0
+            </a>
+            , modified
+          </span>
+          <span>
+            Cat:{' '}
+            <a href="https://sketchfab.com/3d-models/black-cat-psx-62416ff46cef45599c51dc9bc0b83b43" target="_blank" rel="noopener noreferrer">
+              Black Cat PSX
+            </a>{' '}
+            by{' '}
+            <a href="https://sketchfab.com/Bonvikt" target="_blank" rel="noopener noreferrer">
+              Bonvikt
+            </a>
+            ,{' '}
+            <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">
+              CC BY 4.0
+            </a>
+            , modified
+          </span>
+          <span>
+            Floor lamp:{' '}
+            <a href="https://sketchfab.com/3d-models/floor-lamp-7044aedec91b4e28916a20b0ce026217" target="_blank" rel="noopener noreferrer">
+              floor lamp
+            </a>{' '}
+            by{' '}
+            <a href="https://sketchfab.com/li82545683" target="_blank" rel="noopener noreferrer">
+              Jack John
+            </a>
+            ,{' '}
+            <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">
+              CC BY 4.0
+            </a>
+            , modified
+          </span>
+          <span>
+            Window:{' '}
+            <a href="https://sketchfab.com/3d-models/window-e826c513779149d7ab3bde944647573f" target="_blank" rel="noopener noreferrer">
+              Window
+            </a>{' '}
+            by{' '}
+            <a href="https://sketchfab.com/jesseroberts" target="_blank" rel="noopener noreferrer">
+              jesseroberts
             </a>
             ,{' '}
             <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">

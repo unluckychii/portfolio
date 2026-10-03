@@ -7,6 +7,8 @@ import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js'
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { DeskId } from './objects'
+import { currentHour, isDark, lightAt } from './daylight'
+import { DeskWindow, WALL_Z, wallGeometry } from './window'
 
 /** everything the pointer can pick: the four pages, the lamp switch and the speakers (music on/off) */
 export type Pickable = DeskId | 'lamp' | 'speakers'
@@ -221,9 +223,11 @@ function buildDesk(scene: THREE.Scene) {
   floor.rotation.x = -Math.PI / 2
   floor.position.y = -0.06 - LEG_H
   floor.receiveShadow = true
-  const wall = new THREE.Mesh(new THREE.PlaneGeometry(30, 12), std('#e7e1cf', 0.95))
-  wall.position.set(0, 4, -1.25)
+  // with the window's opening cut out; it casts shadows so light from outside only comes in through the glass
+  const wall = new THREE.Mesh(wallGeometry(30, 12, 4), std('#e7e1cf', 0.95))
+  wall.position.set(0, 4, WALL_Z)
   wall.receiveShadow = true
+  wall.castShadow = true
   const skirting = new THREE.Mesh(new THREE.BoxGeometry(30, 0.12, 0.02), std('#d6ceb8', 0.8))
   skirting.position.set(0, floor.position.y + 0.06, -1.24)
   scene.add(floor, wall, skirting)
@@ -431,12 +435,26 @@ const LAPTOP_SCALE = 0.25
 async function loadLaptopModel(screen: ScreenCanvas) {
   const gltf = await gltfLoader().loadAsync(LAPTOP_MODEL)
   const model = gltf.scene
+  let keys: THREE.MeshStandardMaterial | null = null
   model.traverse((o) => {
     const m = o as THREE.Mesh
     if (!m.isMesh) return
     m.castShadow = true
     m.receiveShadow = true
+    const mat = m.material as THREE.MeshStandardMaterial
+    if (/keyboard/i.test(mat.name) && mat.map) keys = mat
   })
+  // the keyboard's backlight: its letters glow once it's dark
+  if (keys) {
+    const k = keys as THREE.MeshStandardMaterial
+    const glow = backlightMap(k.map!)
+    if (glow) {
+      k.emissiveMap = glow
+      k.emissive.set('#fff1dc')
+      k.emissiveIntensity = 0
+      k.needsUpdate = true
+    }
+  }
   // the display, just in front of the glass (model units: the lid stands at z = -1.08)
   const face = new THREE.Mesh(
     new THREE.PlaneGeometry(2.86, 1.86),
@@ -448,7 +466,37 @@ async function loadLaptopModel(screen: ScreenCanvas) {
   model.position.y = 0.136 * LAPTOP_SCALE // its feet sit below the origin
   const g = new THREE.Group()
   g.add(model)
+  g.userData.keys = keys
   return g
+}
+
+/**
+ * A glow map for the keyboard, from its texture: the light letters on the dark keys
+ * glow, a little light spills round each key's edge, and the rest stays dark.
+ */
+function backlightMap(map: THREE.Texture) {
+  const img = map.image as CanvasImageSource & { width: number; height: number }
+  if (!img?.width) return null
+  const size = Math.min(1024, img.width)
+  const c = document.createElement('canvas')
+  c.width = c.height = size
+  const g = c.getContext('2d', { willReadFrequently: true })
+  if (!g) return null
+  g.drawImage(img, 0, 0, size, size)
+  const data = g.getImageData(0, 0, size, size)
+  const px = data.data
+  for (let i = 0; i < px.length; i += 4) {
+    const lum = 0.299 * px[i] + 0.587 * px[i + 1] + 0.114 * px[i + 2]
+    const v = Math.round(255 * THREE.MathUtils.smoothstep(lum, 62, 150))
+    px[i] = px[i + 1] = px[i + 2] = v
+  }
+  g.putImageData(data, 0, 0)
+  const t = new THREE.CanvasTexture(c)
+  t.flipY = map.flipY
+  t.channel = map.channel
+  t.colorSpace = THREE.SRGBColorSpace
+  t.anisotropy = map.anisotropy
+  return t
 }
 
 /** a takeaway cup (CC BY 4.0, Lasse Harm on Sketchfab — credited on the page) in public/models */
@@ -515,6 +563,89 @@ async function loadPlantModel() {
   model.scale.setScalar(PLANT_SCALE)
   model.rotation.y = 0.6
   return model
+}
+
+/** a floor lamp (CC BY 4.0, Jack John on Sketchfab — credited on the page) in public/models */
+const FLOOR_LAMP_MODEL = `${import.meta.env.BASE_URL}models/floor-lamp.glb`
+/** the model is 1.3 tall; this makes it about 1.8, standing well above the desk */
+const FLOOR_LAMP_SCALE = 1.4
+/** on the floor, just past the desk's left end, its head leaning over the desk */
+const FLOOR_LAMP_POS = new THREE.Vector3(-1.95, -0.06 - LEG_H, -0.55)
+
+/** what the time of day turns on and off: its light and the glow of its bulb */
+type FloorLampRig = { spot: THREE.SpotLight; fill: THREE.PointLight; bulb: THREE.MeshStandardMaterial[] }
+
+async function loadFloorLamp() {
+  const gltf = await gltfLoader().loadAsync(FLOOR_LAMP_MODEL)
+  const model = shadowed(gltf.scene)
+  const bulb: THREE.MeshStandardMaterial[] = []
+  let head: THREE.Box3 | null = null
+  model.traverse((o) => {
+    const m = o as THREE.Mesh
+    if (!m.isMesh) return
+    const mat = m.material as THREE.MeshStandardMaterial
+    // the bulb's glowing disc under the shade carries the model's own emissive colour
+    if (mat.emissive && mat.emissive.getHex() !== 0) {
+      mat.emissive.set('#ffd29a')
+      mat.toneMapped = false
+      bulb.push(mat)
+      m.castShadow = false
+      head = new THREE.Box3().setFromObject(m)
+    } else if (mat.color.getHex() === 0) {
+      mat.color.set('#1c1b1a') // pure black reads as a hole; a near-black catches the light
+    }
+  })
+  const g = new THREE.Group()
+  g.add(model)
+  // the light hangs just under the shade, pointing down and out over the floor and desk
+  const at = head ? (head as THREE.Box3).getCenter(new THREE.Vector3()) : new THREE.Vector3(-0.2, 1.0, 0.2)
+  at.y -= 0.03
+  const spot = new THREE.SpotLight('#ffcf8f', 0, 6, 1.05, 0.8, 1.6)
+  spot.position.copy(at)
+  spot.target.position.set(at.x, 0, at.z + 0.35)
+  const fill = new THREE.PointLight('#ffc27a', 0, 3.2, 1.6)
+  fill.position.copy(at)
+  g.add(spot, spot.target, fill)
+  g.scale.setScalar(FLOOR_LAMP_SCALE)
+  g.rotation.y = Math.PI / 2 // its head leans towards +Z in the model; turn it over the desk (+X)
+  g.position.copy(FLOOR_LAMP_POS)
+  g.userData.rig = { spot, fill, bulb } satisfies FloorLampRig
+  return g
+}
+
+/** a black cat (CC BY 4.0, Bonvikt on Sketchfab — credited on the page) in public/models */
+const CAT_MODEL = `${import.meta.env.BASE_URL}models/cat.glb`
+/** how tall it stands */
+const CAT_HEIGHT = 0.42
+/** on the floor under the desk's front left corner */
+const CAT_POS = new THREE.Vector3(-1.1, -0.06 - LEG_H, 0.55)
+/** side-on to the camera, looking along the desk */
+const CAT_YAW = 1.25
+
+async function loadCat() {
+  const gltf = await gltfLoader().loadAsync(CAT_MODEL)
+  const model = gltf.scene
+  model.traverse((o) => {
+    const m = o as THREE.Mesh
+    if (!m.isMesh) return
+    // the model is unlit (made to look the same in any light); light it like the rest of the room
+    const old = m.material as THREE.MeshBasicMaterial
+    m.material = new THREE.MeshStandardMaterial({ map: old.map, roughness: 0.85 })
+    old.dispose()
+    m.castShadow = true
+    m.receiveShadow = true
+    m.frustumCulled = false // its bones move it outside the bounds it was exported with
+  })
+  const mixer = new THREE.AnimationMixer(model)
+  const idle = gltf.animations.find((a) => /idle/i.test(a.name)) ?? gltf.animations[0]
+  if (idle) mixer.clipAction(idle).play()
+  // its skeleton is life size (about 0.4 tall to the ear tips), paws at y = 0, facing +Z
+  model.scale.multiplyScalar(CAT_HEIGHT / 0.4)
+  const g = new THREE.Group()
+  g.add(model)
+  g.position.copy(CAT_POS)
+  g.rotation.y = CAT_YAW
+  return { group: g, mixer }
 }
 
 /** four upright books with their cover textures (public/models/books.glb) */
@@ -866,7 +997,7 @@ export class DeskScene {
     this.controls.dampingFactor = 0.08
     this.controls.enablePan = false
     this.controls.minDistance = 1.6
-    this.controls.maxDistance = 4.2
+    this.controls.maxDistance = 5
     this.controls.minPolarAngle = 0.35
     this.controls.maxPolarAngle = 1.35
     this.controls.minAzimuthAngle = -1.0
@@ -876,6 +1007,9 @@ export class DeskScene {
 
     this.lights()
     buildDesk(this.scene)
+    // the window is above the home view; zoomed out, the moon sits in its upper panes
+    this.window = new DeskWindow(this.scene, new THREE.Vector3(0.35, 1.5, 4.2))
+    this.window.load(gltfLoader()).catch((err) => console.warn('The window model failed to load; the opening stays bare.', err))
     const puff = puffTexture()
     this.add('laptop', buildMonitor(this.screen), new THREE.Vector3(0, 0.98, -0.3), 1.9, 0.012)
     this.add('coffee', buildCoffee(puff), new THREE.Vector3(0.98, 0.26, 0.18), 0.85, 0.03)
@@ -896,6 +1030,21 @@ export class DeskScene {
     this.useSpeakerModels()
     this.useBooksModel()
     this.usePlantModel(plant)
+    loadCat()
+      .then(({ group, mixer }) => {
+        if (this.disposed) return
+        this.scene.add(group)
+        this.catMixer = mixer
+      })
+      .catch((err) => console.warn('The cat model failed to load.', err))
+    loadFloorLamp()
+      .then((lamp) => {
+        if (this.disposed) return
+        this.scene.add(lamp)
+        this.floorLamp = lamp.userData.rig as FloorLampRig
+        this.lightCheck = 0 // switch it on now if it's already evening
+      })
+      .catch((err) => console.warn('The floor lamp model failed to load; the corner stays dark.', err))
 
     // hover outline, rendered into a multisampled target so edges stay smooth
     const rt = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: 4 })
@@ -914,6 +1063,7 @@ export class DeskScene {
     this.listen()
     this.disposers.push(() => {
       env.dispose()
+      this.window.dispose()
       puff.dispose()
       rt.dispose()
     })
@@ -921,9 +1071,79 @@ export class DeskScene {
     this.loop()
   }
 
+  private window!: DeskWindow
+  /** the cat's idle animation, once it has loaded */
+  private catMixer: THREE.AnimationMixer | null = null
+  /** the floor lamp, switched by the time of day once its model is in */
+  private floorLamp: FloorLampRig | null = null
+  private hemi!: THREE.HemisphereLight
+  private sun!: THREE.DirectionalLight
+  /** when the light was last matched to the clock */
+  private lightCheck = 0
+  /** dark enough that the page's text over the desk should be light */
+  private darkListener: (dark: boolean) => void = () => {}
+  private dark: boolean | null = null
+  set onDarkChange(fn: (dark: boolean) => void) {
+    this.darkListener = fn
+    if (this.dark !== null) fn(this.dark) // the light was set before anyone was listening
+  }
+
+  /** light the room for the visitor's time of day: bright by day, warm at sunset, dim at night */
+  /** the laptop's keyboard, backlit after dark */
+  private keys: THREE.MeshStandardMaterial | null = null
+  /** a time of day picked on the page (null: the visitor's own clock) */
+  private hourPick: number | null = null
+  /** the hour the room is lit for right now, moving towards the picked one */
+  private shownHour: number | null = null
+
+  /** light the room for a chosen hour (0–24), or null to follow the visitor's clock again */
+  setHour(hour: number | null) {
+    this.hourPick = hour
+    this.lightCheck = 0
+  }
+
+  /** the visitor's own time, read when the light was last matched to it */
+  private clockHour = 12
+
+  private daylight(dt = 0) {
+    this.clockHour = currentHour()
+    const want = this.hourPick ?? this.clockHour
+    // glide to a newly picked time, through the hours in between; jump when reduced motion is on
+    if (this.shownHour === null || this.reduced || dt === 0) this.shownHour = want
+    else this.shownHour += (want - this.shownHour) * Math.min(1, dt * 3)
+    if (Math.abs(want - this.shownHour) < 0.01) this.shownHour = want
+    const l = lightAt(this.shownHour)
+    this.sun.intensity = l.sun
+    this.sun.color.set(l.sunColor)
+    this.sun.position.set(...l.sunPos)
+    this.hemi.intensity = l.hemi
+    this.hemi.color.set(l.sky)
+    this.hemi.groundColor.set(l.ground)
+    this.scene.environmentIntensity = l.env
+    ;(this.scene.background as THREE.Color).set(l.air)
+    this.scene.fog!.color.set(l.air)
+    this.renderer.toneMappingExposure = l.exposure
+    this.window.apply(l)
+    // the floor lamp comes on as the daylight fades, and goes off as it returns
+    if (this.floorLamp) {
+      const on = THREE.MathUtils.clamp((0.5 - l.hemi) / 0.25, 0, 1)
+      this.floorLamp.spot.intensity = 7 * on
+      this.floorLamp.fill.intensity = 1.4 * on
+      this.floorLamp.bulb.forEach((m) => (m.emissiveIntensity = 0.15 + 2.2 * on))
+    }
+    if (this.keys) this.keys.emissiveIntensity = 1.8 * THREE.MathUtils.clamp((0.5 - l.hemi) / 0.25, 0, 1)
+    const dark = isDark(l)
+    if (dark !== this.dark) {
+      this.dark = dark
+      this.darkListener(dark)
+    }
+  }
+
   private lights() {
     const hemi = new THREE.HemisphereLight('#fff6e6', '#8a7a5c', 0.9)
     const sun = new THREE.DirectionalLight('#fff1dc', 2.2)
+    this.hemi = hemi
+    this.sun = sun
     sun.position.set(-2.5, 4, 2.5)
     sun.castShadow = true
     sun.shadow.mapSize.set(2048, 2048)
@@ -1111,7 +1331,7 @@ export class DeskScene {
     const halfW = Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2)) * aspect
     const need = 1.45 / halfW
     this.homeScale = Math.max(1, need / HOME_POS.distanceTo(HOME_TARGET))
-    this.controls.maxDistance = 4.2 * this.homeScale
+    this.controls.maxDistance = 5 * this.homeScale
     if (!this.focused && !this.tween) {
       this.camera.position.copy(this.homePos())
       this.controls.target.copy(HOME_TARGET)
@@ -1286,6 +1506,8 @@ export class DeskScene {
       laptop.position.z = 0.4 // forward of where the monitor stood, clear of the speakers
       laptop.rotation.y = -0.06
       item.group.add(laptop)
+      this.keys = laptop.userData.keys ?? null
+      this.lightCheck = 0 // light the keys now if it's already dark
       item.anchor.set(0, 0.42, 0.05)
       item.dist = 1.5
     })
@@ -1309,6 +1531,15 @@ export class DeskScene {
     if (this.paused) return
     const dt = Math.min(this.timer.getDelta(), 0.05)
     const t = this.timer.getElapsed()
+
+    // the light follows the clock; once a minute is plenty
+    if (t - this.lightCheck > 60 || this.lightCheck === 0) {
+      const first = this.shownHour === null
+      this.lightCheck = t || 0.001
+      this.daylight(first ? 0 : dt)
+    } else if (this.shownHour !== null && this.shownHour !== (this.hourPick ?? this.clockHour)) {
+      this.daylight(dt) // still gliding to a picked time (or back to the clock's)
+    }
 
     if (this.tween) this.stepTween(dt)
     else if (this.controls.enabled) this.controls.update()
@@ -1334,6 +1565,7 @@ export class DeskScene {
     this.animateCoffee(t)
     this.animateSpeakers(t)
     this.animatePigeon(t, dt)
+    if (!this.reduced) this.catMixer?.update(dt)
     this.placeLabel()
     this.composer.render(dt)
   }

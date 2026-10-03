@@ -10,8 +10,8 @@ backend:
 media_folder: public/uploads # where uploaded images are stored in the repo
 public_folder: /uploads # how the site refers to them
 
-site_url: https://unluckychii.github.io/portfolio/
-display_url: https://unluckychii.github.io/portfolio/
+site_url: https://unluckychi.com/
+display_url: https://unluckychi.com/
 
 collections:
   - name: desk
