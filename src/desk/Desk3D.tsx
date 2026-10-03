@@ -254,7 +254,7 @@ export default function Desk3D() {
         ))}
       </nav>
 
-      {/* required by the licences of the laptop, cup, lamp, plant, speaker and window models */}
+      {/* required by the licences of the laptop, cup, lamp, plant, speaker, window and floor lamp models */}
       <details className="dk-credit">
         <summary>{SITE.credits}</summary>
         <p>
@@ -295,6 +295,21 @@ export default function Desk3D() {
             by{' '}
             <a href="https://sketchfab.com/meerschaumdigital" target="_blank" rel="noopener noreferrer">
               Meerschaum Digital
+            </a>
+            ,{' '}
+            <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">
+              CC BY 4.0
+            </a>
+            , modified
+          </span>
+          <span>
+            Floor lamp:{' '}
+            <a href="https://sketchfab.com/3d-models/floor-lamp-7044aedec91b4e28916a20b0ce026217" target="_blank" rel="noopener noreferrer">
+              floor lamp
+            </a>{' '}
+            by{' '}
+            <a href="https://sketchfab.com/li82545683" target="_blank" rel="noopener noreferrer">
+              Jack John
             </a>
             ,{' '}
             <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">

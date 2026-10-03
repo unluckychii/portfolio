@@ -521,6 +521,54 @@ async function loadPlantModel() {
   return model
 }
 
+/** a floor lamp (CC BY 4.0, Jack John on Sketchfab — credited on the page) in public/models */
+const FLOOR_LAMP_MODEL = `${import.meta.env.BASE_URL}models/floor-lamp.glb`
+/** the model is 1.3 tall; this makes it about 1.8, standing well above the desk */
+const FLOOR_LAMP_SCALE = 1.4
+/** on the floor, just past the desk's left end, its head leaning over the desk */
+const FLOOR_LAMP_POS = new THREE.Vector3(-1.95, -0.06 - LEG_H, -0.55)
+
+/** what the time of day turns on and off: its light and the glow of its bulb */
+type FloorLampRig = { spot: THREE.SpotLight; fill: THREE.PointLight; bulb: THREE.MeshStandardMaterial[] }
+
+async function loadFloorLamp() {
+  const gltf = await gltfLoader().loadAsync(FLOOR_LAMP_MODEL)
+  const model = shadowed(gltf.scene)
+  const bulb: THREE.MeshStandardMaterial[] = []
+  let head: THREE.Box3 | null = null
+  model.traverse((o) => {
+    const m = o as THREE.Mesh
+    if (!m.isMesh) return
+    const mat = m.material as THREE.MeshStandardMaterial
+    // the bulb's glowing disc under the shade carries the model's own emissive colour
+    if (mat.emissive && mat.emissive.getHex() !== 0) {
+      mat.emissive.set('#ffd29a')
+      mat.toneMapped = false
+      bulb.push(mat)
+      m.castShadow = false
+      head = new THREE.Box3().setFromObject(m)
+    } else if (mat.color.getHex() === 0) {
+      mat.color.set('#1c1b1a') // pure black reads as a hole; a near-black catches the light
+    }
+  })
+  const g = new THREE.Group()
+  g.add(model)
+  // the light hangs just under the shade, pointing down and out over the floor and desk
+  const at = head ? (head as THREE.Box3).getCenter(new THREE.Vector3()) : new THREE.Vector3(-0.2, 1.0, 0.2)
+  at.y -= 0.03
+  const spot = new THREE.SpotLight('#ffcf8f', 0, 6, 1.05, 0.8, 1.6)
+  spot.position.copy(at)
+  spot.target.position.set(at.x, 0, at.z + 0.35)
+  const fill = new THREE.PointLight('#ffc27a', 0, 3.2, 1.6)
+  fill.position.copy(at)
+  g.add(spot, spot.target, fill)
+  g.scale.setScalar(FLOOR_LAMP_SCALE)
+  g.rotation.y = Math.PI / 2 // its head leans towards +Z in the model; turn it over the desk (+X)
+  g.position.copy(FLOOR_LAMP_POS)
+  g.userData.rig = { spot, fill, bulb } satisfies FloorLampRig
+  return g
+}
+
 /** four upright books with their cover textures (public/models/books.glb) */
 const BOOKS_MODEL = `${import.meta.env.BASE_URL}models/books.glb`
 /** height on the desk; the model is scaled to it, whatever units it was exported in */
@@ -903,6 +951,14 @@ export class DeskScene {
     this.useSpeakerModels()
     this.useBooksModel()
     this.usePlantModel(plant)
+    loadFloorLamp()
+      .then((lamp) => {
+        if (this.disposed) return
+        this.scene.add(lamp)
+        this.floorLamp = lamp.userData.rig as FloorLampRig
+        this.lightCheck = 0 // switch it on now if it's already evening
+      })
+      .catch((err) => console.warn('The floor lamp model failed to load; the corner stays dark.', err))
 
     // hover outline, rendered into a multisampled target so edges stay smooth
     const rt = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: 4 })
@@ -930,6 +986,8 @@ export class DeskScene {
   }
 
   private window!: DeskWindow
+  /** the floor lamp, switched by the time of day once its model is in */
+  private floorLamp: FloorLampRig | null = null
   private hemi!: THREE.HemisphereLight
   private sun!: THREE.DirectionalLight
   /** when the light was last matched to the clock */
@@ -956,6 +1014,13 @@ export class DeskScene {
     this.scene.fog!.color.set(l.air)
     this.renderer.toneMappingExposure = l.exposure
     this.window.apply(l)
+    // the floor lamp comes on as the daylight fades, and goes off as it returns
+    if (this.floorLamp) {
+      const on = THREE.MathUtils.clamp((0.5 - l.hemi) / 0.25, 0, 1)
+      this.floorLamp.spot.intensity = 7 * on
+      this.floorLamp.fill.intensity = 1.4 * on
+      this.floorLamp.bulb.forEach((m) => (m.emissiveIntensity = 0.15 + 2.2 * on))
+    }
     const dark = isDark(l)
     if (dark !== this.dark) {
       this.dark = dark
