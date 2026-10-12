@@ -415,7 +415,8 @@ body { font-family: var(--hb-sans); -webkit-font-smoothing: antialiased; }
   z-index: 6;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 0 clamp(16px, 4vw, 56px) 72px;
+  --cs-pad: clamp(16px, 4vw, 56px);
+  padding: 0 var(--cs-pad) 72px;
   /* the desk shows through, blurred, as behind a garment up close */
   background: rgba(240, 235, 221, 0.78);
   backdrop-filter: blur(18px) saturate(0.8);
@@ -431,7 +432,9 @@ body { font-family: var(--hb-sans); -webkit-font-smoothing: antialiased; }
   position: sticky;
   top: 0;
   z-index: 1;
-  padding: clamp(14px, 1.8vw, 22px) 0 12px;
+  /* edge to edge across the page, past its side padding */
+  margin: 0 calc(-1 * var(--cs-pad));
+  padding: clamp(14px, 1.8vw, 22px) var(--cs-pad) 12px;
   background: rgba(240, 235, 221, 0.8);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);

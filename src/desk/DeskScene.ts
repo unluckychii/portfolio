@@ -715,6 +715,13 @@ const CAT_POS = new THREE.Vector3(-1.1, -0.06 - LEG_H, 0.55)
 /** side-on to the camera, looking along the desk */
 const CAT_YAW = 1.25
 
+/** at night the cat takes the coffee cup's spot on the desk, sitting, and the cup goes */
+const CAT_DESK_SCALE = 0.85
+/** sitting on the desk, turned three-quarters to the camera */
+const CAT_DESK_YAW = -0.7
+
+type CatRig = { group: THREE.Group; mixer: THREE.AnimationMixer; idle: THREE.AnimationAction; sitting: THREE.AnimationAction }
+
 async function loadCat() {
   const gltf = await gltfLoader().loadAsync(CAT_MODEL)
   const model = gltf.scene
@@ -730,15 +737,17 @@ async function loadCat() {
     m.frustumCulled = false // its bones move it outside the bounds it was exported with
   })
   const mixer = new THREE.AnimationMixer(model)
-  const idle = gltf.animations.find((a) => /idle/i.test(a.name)) ?? gltf.animations[0]
-  if (idle) mixer.clipAction(idle).play()
+  const clip = (name: RegExp) => gltf.animations.find((a) => name.test(a.name)) ?? gltf.animations[0]
+  const idle = mixer.clipAction(clip(/idle/i))
+  const sitting = mixer.clipAction(clip(/sit/i))
+  idle.play()
   // its skeleton is life size (about 0.4 tall to the ear tips), paws at y = 0, facing +Z
   model.scale.multiplyScalar(CAT_HEIGHT / 0.4)
   const g = new THREE.Group()
   g.add(model)
   g.position.copy(CAT_POS)
   g.rotation.y = CAT_YAW
-  return { group: g, mixer }
+  return { group: g, mixer, idle, sitting } satisfies CatRig
 }
 
 /** four upright books with their cover textures (public/models/books.glb) */
@@ -1124,10 +1133,11 @@ export class DeskScene {
     this.useBooksModel()
     this.usePlantModel(plant)
     loadCat()
-      .then(({ group, mixer }) => {
+      .then((cat) => {
         if (this.disposed) return
-        this.scene.add(group)
-        this.catMixer = mixer
+        this.scene.add(cat.group)
+        this.cat = cat
+        this.lightCheck = 0 // up onto the desk now if it's already night
       })
       .catch((err) => console.warn('The cat model failed to load.', err))
     loadFloorLamp()
@@ -1166,7 +1176,9 @@ export class DeskScene {
 
   private window!: DeskWindow
   /** the cat's idle animation, once it has loaded */
-  private catMixer: THREE.AnimationMixer | null = null
+  private cat: CatRig | null = null
+  /** the cat is up on the desk, in the coffee cup's place */
+  private catOnDesk = false
   /** the floor lamp, switched by the time of day once its model is in */
   private floorLamp: FloorLampRig | null = null
   private hemi!: THREE.HemisphereLight
@@ -1182,6 +1194,36 @@ export class DeskScene {
   }
 
   /** light the room for the visitor's time of day: bright by day, warm at sunset, dim at night */
+  /**
+   * By day the cat stands under the desk; at night it sits on the desk where the coffee
+   * cup was. It joins the cup's object there, so hovering or clicking it opens the cup's page.
+   */
+  private placeCat(night: boolean) {
+    const cat = this.cat
+    const coffee = this.items.find((i) => i.id === 'coffee')
+    if (!coffee) return
+    // the cup and its steam show only while the cat is away
+    for (const child of coffee.group.children) if (child !== cat?.group) child.visible = !night || !cat
+    if (!cat || night === this.catOnDesk) return
+    this.catOnDesk = night
+    const g = cat.group
+    if (night) {
+      coffee.group.add(g)
+      g.position.set(0, 0, 0)
+      g.rotation.set(0, CAT_DESK_YAW, 0)
+      g.scale.setScalar(CAT_DESK_SCALE)
+      cat.idle.fadeOut(0.3)
+      cat.sitting.reset().fadeIn(0.3).play()
+    } else {
+      this.scene.add(g)
+      g.position.copy(CAT_POS)
+      g.rotation.set(0, CAT_YAW, 0)
+      g.scale.setScalar(1)
+      cat.sitting.fadeOut(0.3)
+      cat.idle.reset().fadeIn(0.3).play()
+    }
+  }
+
   /** the laptop's keyboard, backlit after dark */
   private keys: THREE.MeshStandardMaterial | null = null
   /** a time of day picked on the page (null: the visitor's own clock) */
@@ -1224,6 +1266,7 @@ export class DeskScene {
       this.floorLamp.fill.intensity = 1.4 * on
       this.floorLamp.bulb.forEach((m) => (m.emissiveIntensity = 0.15 + 2.2 * on))
     }
+    this.placeCat(isDark(l))
     if (this.keys) this.keys.emissiveIntensity = 1.8 * THREE.MathUtils.clamp((0.5 - l.hemi) / 0.25, 0, 1)
     const dark = isDark(l)
     if (dark !== this.dark) {
@@ -1580,12 +1623,13 @@ export class DeskScene {
     this.useModel('coffee', loadCoffeeModel, (item, cup) => {
       const steam = item.group.userData.steam as THREE.Group
       for (const old of [...item.group.children]) {
-        if (old === steam) continue
+        if (old === steam || old === this.cat?.group) continue
         item.group.remove(old)
         old.traverse((o) => (o as THREE.Mesh).geometry?.dispose())
       }
       item.group.add(cup)
       steam.position.y = 0.2
+      this.lightCheck = 0 // hide it again straight away if the cat is sitting here
     })
   }
 
@@ -1659,7 +1703,7 @@ export class DeskScene {
     this.animateSpeakers(t)
     this.animatePigeon(t, dt)
     this.screen.tick(performance.now())
-    if (!this.reduced) this.catMixer?.update(dt)
+    if (!this.reduced) this.cat?.mixer.update(dt)
     this.placeLabel()
     this.composer.render(dt)
   }
