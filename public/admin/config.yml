@@ -72,6 +72,8 @@ collections:
       - { label: Title, name: title, widget: string }
       - { label: Page address, name: slug, widget: string, pattern: ['^[a-z0-9]+(-[a-z0-9]+)*$', 'Lowercase letters, numbers and dashes, e.g. flying-high'], hint: 'The project page lives at /books/ followed by this, e.g. /books/flying-high. Changing it breaks old links.' }
       - { label: Order on the shelf, name: order, widget: number, value_type: int, min: 1 }
+      - { label: Password protected, name: locked, widget: boolean, required: false, default: false, hint: 'Ask visitors for a password before showing this case study. The cover and title stay visible.' }
+      - { label: Password, name: password, widget: string, required: false, hint: 'Used when "Password protected" is on. A simple lock, not a safe: the password and content are in the site and this public repo, so do not use it for anything confidential.' }
       - { label: Subtitle, name: subtitle, widget: string, required: false, hint: 'One line under the title' }
       - { label: Cover, name: cover, widget: image, hint: 'Front cover, portrait (about 2:3)' }
       - { label: Spine, name: spine, widget: image, required: false, hint: 'Tall, narrow strip shown on the side of the book (about 1:8)' }
@@ -85,7 +87,7 @@ collections:
         widget: list
         required: false
         summary: '{{fields.caption}}'
-        hint: 'The first image is shown full width, the rest two to a row'
+        hint: 'Shown as a carousel, in this order; clicking one opens it large'
         fields:
           - { label: Image, name: image, widget: image }
           - { label: Caption, name: caption, widget: string, required: false }

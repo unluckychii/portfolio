@@ -22,9 +22,16 @@ export type Project = {
   body: string
   gallery: GalleryImage[]
   link: { label: string; url: string } | null
+  /**
+   * the password a visitor types to open the case study; empty when it's open to all.
+   * A simple lock screen, not encryption: the content still ships with the site.
+   */
+  password: string
 }
 
-type ProjectFile = Partial<Omit<Project, 'gallery' | 'link'>> & {
+type ProjectFile = Partial<Omit<Project, 'gallery' | 'link' | 'password'>> & {
+  locked?: boolean
+  password?: string
   gallery?: Partial<GalleryImage>[]
   link?: { label?: string; url?: string }
 }
@@ -64,6 +71,7 @@ const normalise = (f: ProjectFile, i: number): Project => {
     body: f.body ?? '',
     gallery: (f.gallery ?? []).filter((g) => g?.image).map((g) => ({ image: assetUrl(g.image!), caption: g.caption ?? '' })),
     link: url ? { label: f.link?.label?.trim() || url, url } : null,
+    password: f.locked ? (f.password?.trim() ?? '') : '',
   }
 }
 
