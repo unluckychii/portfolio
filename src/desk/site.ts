@@ -21,7 +21,7 @@ export type Site = {
   speakersName: string
   speakersHint: string
   credits: string
-  /** picture on the laptop screen; empty shows the code editor */
+  /** picture, GIF or video on the laptop screen; empty shows the code editor */
   laptopScreen: string
   /** background music (an audio file); empty hides the music button */
   music: string

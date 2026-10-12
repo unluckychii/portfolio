@@ -139,7 +139,7 @@ export default function Desk3D() {
     engine.onDarkChange = setDark
     engine.setHour(startingTime())
     engine.onDismiss = () => hide(true) // a click on the desk beside the open page
-    if (SITE.laptopScreen) engine.showScreenImage(assetUrl(SITE.laptopScreen))
+    if (SITE.laptopScreen) engine.showScreenMedia(assetUrl(SITE.laptopScreen))
     engine.resize(host.clientWidth, host.clientHeight)
     const first = idFromPath()
     if (first) engine.focusNow(first, panelCover())
