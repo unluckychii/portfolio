@@ -1,0 +1,23 @@
+{
+  "title": "Formula 1 - TCDS",
+  "slug": "tcds",
+  "order": 5,
+  "subtitle": "",
+  "cover": "/uploads/books/Screenshot 2026-10-12 at 15.07.03.png",
+  "spine": "",
+  "year": "2026",
+  "client": "Formula 1",
+  "role": "Lead Designer",
+  "intro": "",
+  "body": "Formula 1 App",
+  "gallery": [
+    {
+      "image": "/uploads/books/Screenshot 2026-10-12 at 15.07.03.png",
+      "caption": ""
+    }
+  ],
+  "link": {
+    "label": "Youtube",
+    "url": "https://www.youtube.com/watch?v=TRez-pZiKpE"
+  }
+}
