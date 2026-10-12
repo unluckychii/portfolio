@@ -14,6 +14,18 @@
     {
       "image": "/uploads/books/rock-the-pidge-cover.webp",
       "caption": "Sample image: replace with screens, sketches or photos from the project"
+    },
+    {
+      "image": "/uploads/books/Screenshot 2026-10-12 at 15.07.03.png",
+      "caption": "Test 2"
+    },
+    {
+      "image": "/uploads/books/flying-high-cover.webp",
+      "caption": "Test 3"
+    },
+    {
+      "image": "/uploads/books/life-in-formula-1-cover.webp",
+      "caption": "Test 4"
     }
   ],
   "link": {
