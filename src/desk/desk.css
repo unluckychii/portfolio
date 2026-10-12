@@ -363,7 +363,9 @@ body { font-family: var(--hb-sans); -webkit-font-smoothing: antialiased; }
   display: block;
   height: 100%;
   width: auto;
-  max-width: none;
+  /* a landscape image (like a screenshot) is cropped to a book's shape rather than stretching it wide */
+  max-width: calc(var(--h) * 0.8);
+  object-fit: cover;
   border-radius: 1px 3px 3px 1px;
   transform: translateZ(calc(var(--t) / 2));
   box-shadow: inset 4px 0 6px -3px rgba(0, 0, 0, 0.35);
@@ -500,6 +502,43 @@ body { font-family: var(--hb-sans); -webkit-font-smoothing: antialiased; }
 }
 .cs__intro { max-width: min(1120px, 34em); margin-inline: auto; }
 .cs__body { max-width: 68ch; margin-top: 24px; border-top: 0; }
+
+/* a password-protected project: a lock screen in place of its content */
+.pj-lock { display: inline-block; margin-left: 6px; vertical-align: -1px; color: var(--hb-soft); }
+.cs-lock {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 440px;
+  margin-top: 8px;
+  padding: clamp(22px, 3vw, 32px) clamp(20px, 3vw, 32px);
+  border: 1px solid var(--hb-rule);
+  border-radius: 8px;
+  background: rgba(246, 242, 230, 0.75);
+  text-align: center;
+}
+.cs-lock > svg { width: 22px; height: 22px; color: var(--hb-ink); }
+.cs-lock__title { margin: 4px 0 0; font: italic 400 clamp(22px, 2.4vw, 28px)/1.15 var(--hb-serif); }
+.cs-lock__note { margin: 0; color: var(--hb-soft); font-size: 14px; }
+.cs-lock__row { display: flex; gap: 8px; width: 100%; margin-top: 10px; }
+.cs-lock input {
+  flex: 1;
+  min-width: 0;
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid var(--hb-rule);
+  border-radius: 999px;
+  background: #fffdf6;
+  color: var(--hb-ink);
+  font: inherit;
+}
+.cs-lock input:focus-visible { outline: 2px solid var(--hb-ink); outline-offset: 1px; }
+.cs-lock .dk-btn { flex: none; }
+.cs-lock__err { margin: 2px 0 0; color: #a2321f; font-size: 13px; }
+.cs-lock[data-wrong] .cs-lock__row { animation: cs-shake 0.35s; }
+@keyframes cs-shake { 25% { transform: translateX(-6px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-3px); } }
+@media (prefers-reduced-motion: reduce) { .cs-lock[data-wrong] .cs-lock__row { animation: none; } }
 
 /* a project's images: a carousel that opens each one large in a modal */
 .gl { margin-top: clamp(32px, 5vw, 64px); }
