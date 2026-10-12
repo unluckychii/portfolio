@@ -68,6 +68,31 @@ export function ProjectPage({
     ref.current?.focus({ preventScroll: true })
   }, [project])
 
+  // how far through the page the visitor has read, shown as a thin bar under the header
+  const bar = useRef<HTMLSpanElement>(null)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    let raf = 0
+    const update = () => {
+      raf = 0
+      const room = el.scrollHeight - el.clientHeight
+      bar.current?.style.setProperty('--read', String(room > 0 ? Math.min(1, el.scrollTop / room) : 0))
+    }
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update)
+    }
+    update()
+    el.addEventListener('scroll', onScroll, { passive: true })
+    const ro = new ResizeObserver(onScroll) // images loading in change how far there is to go
+    ro.observe(el.firstElementChild ?? el)
+    return () => {
+      el.removeEventListener('scroll', onScroll)
+      ro.disconnect()
+      cancelAnimationFrame(raf)
+    }
+  }, [project])
+
   // written by the site's editors in the CMS (repo write access), so it is trusted markdown
   const html = useMemo(() => marked.parse(project.body, { async: false }) as string, [project])
 
@@ -86,6 +111,7 @@ export function ProjectPage({
         <button type="button" className="cs__back" onClick={onClose}>
           <span aria-hidden="true">←</span> {backLabel}
         </button>
+        <span ref={bar} className="cs__progress" aria-hidden="true" />
       </div>
 
       <header className="cs__hero">

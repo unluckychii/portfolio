@@ -440,6 +440,18 @@ body { font-family: var(--hb-sans); -webkit-font-smoothing: antialiased; }
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--hb-rule);
 }
+/* reading progress: a thin line along the header's bottom edge that fills as the page scrolls */
+.cs__progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--hb-ink);
+  transform: scaleX(var(--read, 0));
+  transform-origin: left;
+  pointer-events: none;
+}
 .cs__back {
   padding: 0;
   border: 0;
