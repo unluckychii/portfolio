@@ -2,6 +2,8 @@
   "title": "Formula 1 - TCDS",
   "slug": "tcds",
   "order": 5,
+  "locked": true,
+  "password": "pidge",
   "subtitle": "",
   "cover": "/uploads/books/Screenshot 2026-10-12 at 15.07.03.png",
   "spine": "",
