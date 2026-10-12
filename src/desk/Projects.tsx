@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { marked } from 'marked'
 import { PROJECTS, projectHref, type Project } from './projects'
+import Gallery from './Gallery'
 
 /** a book in CSS 3D: the cover, with its spine turned towards the viewer */
 export function Book({ project, size }: { project: Project; size: 'shelf' | 'hero' }) {
@@ -122,16 +123,7 @@ export function ProjectPage({
       {project.intro && <p className="cs__intro">{project.intro}</p>}
       {html.trim() && <div className="cs__body dk-body" dangerouslySetInnerHTML={{ __html: html }} />}
 
-      {project.gallery.length > 0 && (
-        <section className="cs__gallery" aria-label="Images">
-          {project.gallery.map((g, n) => (
-            <figure key={n} className="cs__plate">
-              <img src={g.image} alt={g.caption || `${project.title}, image ${n + 1}`} loading="lazy" />
-              {g.caption && <figcaption>{g.caption}</figcaption>}
-            </figure>
-          ))}
-        </section>
-      )}
+      {project.gallery.length > 0 && <Gallery key={project.slug} images={project.gallery} title={project.title} />}
 
       {next && next !== project && (
         <a

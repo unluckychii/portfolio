@@ -455,7 +455,7 @@ body { font-family: var(--hb-sans); -webkit-font-smoothing: antialiased; }
 .cs__hero,
 .cs__intro,
 .cs__body,
-.cs__gallery,
+.gl,
 .cs__next { max-width: 1120px; margin-inline: auto; }
 .cs__hero {
   display: grid;
@@ -489,17 +489,123 @@ body { font-family: var(--hb-sans); -webkit-font-smoothing: antialiased; }
 .cs__intro { max-width: min(1120px, 34em); margin-inline: auto; }
 .cs__body { max-width: 68ch; margin-top: 24px; border-top: 0; }
 
-.cs__gallery {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(16px, 2vw, 28px);
-  margin-top: clamp(32px, 5vw, 64px);
+/* a project's images: a carousel that opens each one large in a modal */
+.gl { margin-top: clamp(32px, 5vw, 64px); }
+.gl__track {
+  position: relative; /* slides measure their offsets from the track */
+  display: flex;
+  gap: clamp(12px, 2vw, 24px);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+  /* the slides run to the page's edges, so the next one peeks in */
+  margin-inline: calc(-1 * var(--cs-pad));
+  padding-inline: var(--cs-pad);
+  scroll-padding-inline: var(--cs-pad);
 }
-.cs__plate { margin: 0; display: grid; gap: 10px; }
-.cs__plate:first-child { grid-column: 1 / -1; }
-.cs__plate:only-child { max-width: 720px; justify-self: center; }
-.cs__plate img { display: block; width: 100%; height: auto; border-radius: 4px; background: #e2dac4; }
-.cs__plate figcaption { font: 500 10.5px/1.5 var(--hb-mono); letter-spacing: 0.06em; color: var(--hb-soft); }
+.gl__track::-webkit-scrollbar { display: none; }
+.gl__slide { flex: 0 0 auto; width: 100%; margin: 0; display: grid; gap: 10px; scroll-snap-align: center; }
+.gl__track[data-many] .gl__slide { width: min(78%, 880px); }
+.gl__open {
+  display: block;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: #e2dac4;
+  overflow: hidden;
+  cursor: zoom-in;
+}
+.gl__open img {
+  display: block;
+  width: 100%;
+  height: clamp(220px, 52vh, 600px);
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.gl__track:not([data-many]) .gl__open img { height: auto; max-height: 70vh; object-fit: contain; }
+.gl__open:hover img { transform: scale(1.02); }
+.gl__open:focus-visible { outline: 2px solid var(--hb-ink); outline-offset: 3px; }
+.gl__slide figcaption { font: 500 10.5px/1.5 var(--hb-mono); letter-spacing: 0.06em; color: var(--hb-soft); }
+.gl__bar { display: flex; align-items: center; gap: 16px; margin-top: 16px; }
+.gl__count { font: 500 10px/1 var(--hb-mono); letter-spacing: 0.16em; color: var(--hb-soft); }
+.gl__dots { display: flex; gap: 6px; flex: 1; }
+.gl__dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--hb-rule); transition: background 0.2s, transform 0.2s; }
+.gl__dots i[data-on] { background: var(--hb-ink); transform: scale(1.25); }
+.gl__arrows { display: flex; gap: 8px; }
+.gl__arrow, .gl-modal__nav {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--hb-rule);
+  border-radius: 50%;
+  background: rgba(246, 242, 230, 0.85);
+  color: var(--hb-ink);
+  font-size: 18px;
+  cursor: pointer;
+}
+.gl__arrow:disabled { opacity: 0.35; cursor: default; }
+.gl__arrow:not(:disabled):hover, .gl__arrow:focus-visible,
+.gl-modal__nav:hover, .gl-modal__nav:focus-visible { background: var(--hb-lime); outline: none; }
+
+.gl-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 8; /* over the case study */
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(8px, 3vw, 40px);
+  padding: 64px clamp(12px, 4vw, 56px) 32px;
+  background: rgba(240, 235, 221, 0.78);
+  backdrop-filter: blur(18px) saturate(0.8);
+  -webkit-backdrop-filter: blur(18px) saturate(0.8);
+  animation: rl-in 0.3s ease-out;
+}
+.gl-modal__close {
+  position: absolute;
+  top: clamp(14px, 1.8vw, 22px);
+  left: clamp(16px, 3vw, 44px);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--hb-ink);
+  font: 500 10.5px/1.4 var(--hb-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.gl-modal__close:hover, .gl-modal__close:focus-visible { background: var(--hb-lime); outline: none; }
+.gl-modal__nav--prev { grid-column: 1; }
+.gl-modal__nav--next { grid-column: 3; }
+.gl-modal__fig {
+  grid-column: 2;
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  margin: 0;
+  touch-action: pan-y;
+  animation: rl-zoom-in 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.gl-modal__fig img {
+  display: block;
+  max-width: 100%;
+  max-height: calc(100vh - 170px);
+  border-radius: 4px;
+  box-shadow: 0 24px 60px rgba(29, 33, 23, 0.22);
+  user-select: none;
+}
+.gl-modal__fig figcaption { display: grid; justify-items: center; gap: 6px; text-align: center; font: 500 10.5px/1.5 var(--hb-mono); letter-spacing: 0.06em; color: var(--hb-soft); }
+.gl-modal__count { letter-spacing: 0.16em; }
+@media (max-width: 759px) {
+  .gl__track[data-many] .gl__slide { width: 86%; }
+  .gl-modal { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr auto; padding-top: 72px; }
+  .gl-modal__fig { grid-column: 1 / -1; grid-row: 1; }
+  .gl-modal__nav--prev { grid-column: 1; grid-row: 2; justify-self: end; }
+  .gl-modal__nav--next { grid-column: 2; grid-row: 2; justify-self: start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gl-modal, .gl-modal__fig, .gl__open img { animation: none; transition: none; }
+}
 
 .cs__next {
   display: flex;
@@ -524,7 +630,6 @@ body { font-family: var(--hb-sans); -webkit-font-smoothing: antialiased; }
   .pb { --h: 170px; }
   .pb--hero { --h: 300px; }
   .cs__hero { grid-template-columns: 1fr; }
-  .cs__gallery { grid-template-columns: 1fr; }
   .cs__title { font-size: 46px; }
 }
 
