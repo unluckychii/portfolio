@@ -12,6 +12,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  actions: read # to see GitHub's own Pages build, below
 
 # one deploy at a time; a newer push replaces a queued one
 concurrency:
@@ -51,5 +52,19 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      # If Settings → Pages → Source is "Deploy from a branch", GitHub also publishes the
+      # raw, unbuilt files on every push ("pages build and deployment"), and whichever
+      # deploy finishes last is what visitors see. Wait for that one, so this build lands last.
+      - name: Wait for GitHub's branch publish to finish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for i in $(seq 1 60); do
+            busy=$(gh api "repos/${{ github.repository }}/actions/runs?head_sha=${{ github.sha }}&per_page=20" \
+              --jq '[.workflow_runs[] | select(.name == "pages build and deployment" and .status != "completed")] | length')
+            [ "$busy" = "0" ] && break
+            echo "GitHub's branch publish is still running; waiting…"
+            sleep 5
+          done
       - id: deployment
         uses: actions/deploy-pages@v4
