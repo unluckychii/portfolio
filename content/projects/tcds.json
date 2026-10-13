@@ -2,20 +2,20 @@
   "title": "Formula 1 - TCDS",
   "slug": "tcds",
   "order": 5,
-  "locked": true,
+  "locked": false,
   "password": "pidge",
   "subtitle": "",
-  "cover": "/uploads/books/tcds-cover.webp",
-  "spine": "",
+  "cover": "/uploads/books/ee1.png",
+  "spine": "/uploads/books/ee2.png",
   "year": "2026",
   "client": "Formula 1",
   "role": "Lead Designer",
-  "intro": "",
+  "intro": "Reinventing",
   "body": "Formula 1 App",
   "gallery": [
     {
       "image": "/uploads/books/tcds-cover.webp",
-      "caption": ""
+      "caption": "Heres me talking"
     }
   ],
   "link": {
