@@ -494,8 +494,6 @@ body { font-family: var(--hb-sans); -webkit-font-smoothing: antialiased; }
   display: grid;
   place-items: center;
   padding: clamp(28px, 5vw, 64px) 16px;
-  border-radius: 6px;
-  background: radial-gradient(120% 90% at 50% 30%, #f1ebdb, #e2dac4);
 }
 .cs__lede { display: grid; gap: 18px; justify-items: start; min-width: 0; }
 .cs__lede .dk-kicker { margin: 0; }
@@ -569,7 +567,9 @@ body { font-family: var(--hb-sans); -webkit-font-smoothing: antialiased; }
 }
 .gl__track::-webkit-scrollbar { display: none; }
 .gl__slide { flex: 0 0 auto; width: 100%; margin: 0; display: grid; gap: 10px; scroll-snap-align: center; }
-.gl__track[data-many] .gl__slide { width: min(78%, 880px); }
+/* every slide shares one height and is as wide as its picture: no cropping, whatever its shape */
+.gl__track[data-many] .gl__slide { width: fit-content; max-width: min(86%, 1100px); }
+.gl__track[data-many] .gl__slide figcaption { width: 0; min-width: 100%; } /* wraps to the picture's width */
 .gl__open {
   display: block;
   padding: 0;
@@ -581,12 +581,14 @@ body { font-family: var(--hb-sans); -webkit-font-smoothing: antialiased; }
 }
 .gl__open img {
   display: block;
-  width: 100%;
+  width: auto;
+  max-width: 100%;
   height: clamp(220px, 52vh, 600px);
-  object-fit: cover;
+  object-fit: contain;
   transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.gl__track:not([data-many]) .gl__open img { height: auto; max-height: 70vh; object-fit: contain; }
+.gl__track[data-many] .gl__open { background: none; } /* a squeezed wide picture keeps its shape, with clear space above and below */
+.gl__track:not([data-many]) .gl__open img { width: 100%; height: auto; max-height: 70vh; }
 .gl__open:hover img { transform: scale(1.02); }
 .gl__open:focus-visible { outline: 2px solid var(--hb-ink); outline-offset: 3px; }
 .gl__slide figcaption { font: 500 10.5px/1.5 var(--hb-mono); letter-spacing: 0.06em; color: var(--hb-soft); }
@@ -660,7 +662,9 @@ body { font-family: var(--hb-sans); -webkit-font-smoothing: antialiased; }
 .gl-modal__fig figcaption { display: grid; justify-items: center; gap: 6px; text-align: center; font: 500 10.5px/1.5 var(--hb-mono); letter-spacing: 0.06em; color: var(--hb-soft); }
 .gl-modal__count { letter-spacing: 0.16em; }
 @media (max-width: 759px) {
-  .gl__track[data-many] .gl__slide { width: 86%; }
+  /* on a phone each slide takes most of the width, and the picture is as tall as its shape needs */
+  .gl__track[data-many] .gl__slide { width: 86%; max-width: none; }
+  .gl__track[data-many] .gl__open img { width: 100%; height: auto; max-height: 62vh; }
   .gl-modal { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr auto; padding-top: 72px; }
   .gl-modal__fig { grid-column: 1 / -1; grid-row: 1; }
   .gl-modal__nav--prev { grid-column: 1; grid-row: 2; justify-self: end; }

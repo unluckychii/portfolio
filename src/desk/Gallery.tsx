@@ -109,7 +109,7 @@ export default function Gallery({ images, title }: { images: GalleryImage[]; tit
               onClick={() => setOpen(n)}
               aria-label={`${alt(n)}: view larger`}
             >
-              <img src={g.image} alt={alt(n)} loading={n < 2 ? 'eager' : 'lazy'} draggable={false} />
+              <img src={g.image} alt={alt(n)} loading="eager" draggable={false} />
             </button>
             {g.caption && <figcaption>{g.caption}</figcaption>}
           </figure>
