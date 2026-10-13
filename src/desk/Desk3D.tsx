@@ -5,9 +5,11 @@ import { BASE, DESK_OBJECTS, deskHref, idFromPathname, type DeskId } from './obj
 import { assetUrl, projectFromPathname, projectHref, type Project } from './projects'
 import { ProjectPage, Shelf } from './Projects'
 import Music, { onMusicState, toggleMusic } from './Music'
+import { RECORDS } from './records'
 import TimePicker, { startingTime } from './TimePicker'
 import { useHoverSound } from './hoverSound'
 import Rail from './Rail'
+import RecordPlayer from './RecordPlayer'
 import { SITE } from './site'
 
 /** the object a page address opens; a project's address (/books/<project>) opens the books */
@@ -46,7 +48,7 @@ const panelCover = (): Cover => {
 const LABELS: Record<Pickable, { name: string; hint: string }> = {
   ...Object.fromEntries(DESK_OBJECTS.map((o) => [o.id, { name: o.label, hint: o.hint }])),
   lamp: { name: SITE.lampName, hint: SITE.lampHint },
-  speakers: { name: SITE.speakersName, hint: SITE.music ? SITE.speakersHint : '' },
+  speakers: { name: SITE.speakersName, hint: RECORDS.length ? SITE.speakersHint : '' },
 } as Record<Pickable, { name: string; hint: string }>
 
 /**
@@ -243,7 +245,7 @@ export default function Desk3D() {
             </>
           )}
           {!noGl && <TimePicker value={hour} onChange={setHour} />}
-          {SITE.music && <Music src={assetUrl(SITE.music)} />}
+          {RECORDS.length > 0 && <Music records={RECORDS} />}
         </span>
       </header>
 
@@ -272,7 +274,7 @@ export default function Desk3D() {
         ))}
       </nav>
 
-      {/* required by the licences of the laptop, cup, lamp, plant, speaker, window, floor lamp and cat models */}
+      {/* required by the licences of the laptop, cup, lamp, plant, speaker, window, floor lamp, cat and record player models */}
       <details className="dk-credit">
         <summary>{SITE.credits}</summary>
         <p>
@@ -313,6 +315,21 @@ export default function Desk3D() {
             by{' '}
             <a href="https://sketchfab.com/meerschaumdigital" target="_blank" rel="noopener noreferrer">
               Meerschaum Digital
+            </a>
+            ,{' '}
+            <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">
+              CC BY 4.0
+            </a>
+            , modified
+          </span>
+          <span>
+            Record player:{' '}
+            <a href="https://sketchfab.com/3d-models/vinyl-record-player-8160bab73e484ba58ca1740d8c913728" target="_blank" rel="noopener noreferrer">
+              Vinyl / Record Player
+            </a>{' '}
+            by{' '}
+            <a href="https://sketchfab.com/phaedrus" target="_blank" rel="noopener noreferrer">
+              Phaedrus
             </a>
             ,{' '}
             <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">
@@ -432,6 +449,7 @@ export default function Desk3D() {
                   </h2>
                 )}
                 {x.rail && <Rail />}
+                {x.player && <RecordPlayer />}
                 {sectionHtml[i]?.trim() && <div className="dk-body dk-section__body" dangerouslySetInnerHTML={{ __html: sectionHtml[i] }} />}
               </section>
             ))}

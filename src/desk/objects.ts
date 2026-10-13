@@ -5,8 +5,8 @@
 
 export type DeskId = 'laptop' | 'coffee' | 'books' | 'pigeon'
 export type DeskLink = { label: string; url: string }
-/** a titled part of a page: its own text (and pictures), and on the Break page, the clothes rail */
-export type DeskSection = { title: string; body: string; rail: boolean }
+/** a titled part of a page: its own text (and pictures), and optionally the clothes rail or the record player */
+export type DeskSection = { title: string; body: string; rail: boolean; player: boolean }
 
 export type DeskObject = {
   id: DeskId
@@ -42,8 +42,8 @@ const normalise = (f: DeskFile, id: DeskId): DeskObject => ({
   intro: f.intro ?? '',
   body: f.body ?? '',
   sections: (f.sections ?? [])
-    .filter((x) => x && (x.title?.trim() || x.body?.trim() || x.rail))
-    .map((x) => ({ title: x.title?.trim() ?? '', body: x.body ?? '', rail: !!x.rail })),
+    .filter((x) => x && (x.title?.trim() || x.body?.trim() || x.rail || x.player))
+    .map((x) => ({ title: x.title?.trim() ?? '', body: x.body ?? '', rail: !!x.rail, player: !!x.player })),
   links: (f.links ?? [])
     .filter((l) => l?.url?.trim())
     .map((l) => ({ label: l.label?.trim() || l.url!.trim(), url: l.url!.trim() })),

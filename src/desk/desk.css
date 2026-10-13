@@ -879,3 +879,60 @@ body { font-family: var(--hb-sans); -webkit-font-smoothing: antialiased; }
   .rl__slot, .rl__piece { transition: none; }
   .rl__slot[data-open] .rl__swing, .rl-zoom, .rl-zoom__fig, .rl-zoom__fig figcaption { animation: none; }
 }
+
+/* ---------------------------------------------------------- the record player (Music section) */
+.rp { display: grid; gap: 16px; }
+.rp__3d { width: 100%; aspect-ratio: 16 / 9; }
+.rp__3d canvas { display: block; }
+.rp__now {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 16px;
+  border: 1px solid var(--hb-rule);
+  border-radius: 8px;
+  background: rgba(246, 242, 230, 0.75);
+}
+.rp__now-text { display: grid; gap: 3px; min-width: 0; }
+.rp__now-title { font: italic 400 24px/1.1 var(--hb-serif); }
+.rp__now-artist { color: var(--hb-soft); font-size: 13px; }
+.rp__play { flex: none; }
+.rp__crate {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 18px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.rp__item {
+  display: grid;
+  gap: 3px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--hb-ink);
+  text-align: left;
+  cursor: pointer;
+}
+.rp__art {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 3px;
+  margin-bottom: 6px;
+  box-shadow: 0 8px 18px rgba(29, 33, 23, 0.16);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s;
+}
+.rp__art--plain { display: grid; place-items: end start; padding: 8px; color: #fff; font: italic 400 16px/1.05 var(--hb-serif); }
+.rp__item:hover .rp__art { transform: translateY(-4px); }
+.rp__item[data-on] .rp__art { box-shadow: 0 0 0 2px var(--hb-ink), 0 8px 18px rgba(29, 33, 23, 0.16); }
+.rp__item:focus-visible { outline: none; }
+.rp__item:focus-visible .rp__art { outline: 2px solid var(--hb-ink); outline-offset: 3px; }
+.rp__name { font: 400 16px/1.15 var(--hb-serif); }
+.rp__item[data-on] .rp__name::before { content: '● '; color: #6f7d2a; font-size: 10px; vertical-align: 2px; }
+.rp__artist { color: var(--hb-soft); font-size: 12px; }
+@media (prefers-reduced-motion: reduce) { .rp__art { transition: none; } }

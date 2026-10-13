@@ -110,7 +110,7 @@ function projectFront(mesh: THREE.Mesh, box: THREE.Box3) {
 }
 
 /** a transparent renderer with the rail's soft studio light, in `host` */
-function makeStage(host: HTMLElement) {
+export function makeStage(host: HTMLElement) {
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
   renderer.toneMapping = THREE.ACESFilmicToneMapping
@@ -129,7 +129,7 @@ function makeStage(host: HTMLElement) {
   return { renderer, scene, env }
 }
 
-function disposeStage(renderer: THREE.WebGLRenderer, scene: THREE.Scene) {
+export function disposeStage(renderer: THREE.WebGLRenderer, scene: THREE.Scene) {
   scene.environment?.dispose()
   scene.traverse((o) => {
     const m = o as THREE.Mesh
@@ -143,7 +143,7 @@ function disposeStage(renderer: THREE.WebGLRenderer, scene: THREE.Scene) {
   renderer.domElement.remove()
 }
 
-function loadImage(src: string) {
+export function loadImage(src: string) {
   return new Promise<HTMLImageElement>((res, rej) => {
     const img = new Image()
     img.crossOrigin = 'anonymous'

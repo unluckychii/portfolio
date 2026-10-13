@@ -11,12 +11,14 @@
     {
       "title": "Clothing",
       "rail": true,
-      "body": ""
+      "body": "",
+      "player": false
     },
     {
       "title": "Music",
       "rail": false,
-      "body": ""
+      "body": "",
+      "player": true
     }
   ],
   "links": []

@@ -1,12 +1,46 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import type { Vinyl } from './records'
 
 const PREF = 'desk-music' // remembers a visitor who turned the music off
 
-/** events between the music button and the rest of the page (the speakers on the desk) */
+/** events between the music button and the rest of the page (the speakers, the turntable) */
 const TOGGLE = 'desk-music-toggle'
 const STATE = 'desk-music-state'
+const PICK = 'desk-music-pick'
 /** play or pause the music, as the header button does */
 export const toggleMusic = () => window.dispatchEvent(new Event(TOGGLE))
+/** put another record on, and play it */
+export const pickRecord = (index: number) => window.dispatchEvent(new CustomEvent(PICK, { detail: index }))
+
+/** which record is on and whether it's playing, for anything on the page that shows it */
+type MusicState = { playing: boolean; index: number }
+let state: MusicState = { playing: false, index: 0 }
+const listeners = new Set<() => void>()
+const setState = (next: Partial<MusicState>) => {
+  state = { ...state, ...next }
+  listeners.forEach((l) => l())
+}
+const subscribe = (l: () => void) => {
+  listeners.add(l)
+  return () => listeners.delete(l)
+}
+export const useMusicState = () => useSyncExternalStore(subscribe, () => state)
+
+const RECORD = 'desk-record' // the record a visitor last picked
+const readRecord = () => {
+  try {
+    return localStorage.getItem(RECORD)
+  } catch {
+    return null
+  }
+}
+const writeRecord = (src: string) => {
+  try {
+    localStorage.setItem(RECORD, src)
+  } catch {
+    /* private mode */
+  }
+}
 /** hear when the music starts or stops */
 export function onMusicState(fn: (playing: boolean) => void) {
   const h = (e: Event) => fn((e as CustomEvent<boolean>).detail)
@@ -36,24 +70,29 @@ const writePref = (v: 'on' | 'off') => {
  * It tries to start straight away; browsers usually block sound until the visitor
  * interacts with the page, so in that case it starts on their first click, tap or key.
  */
-export default function Music({ src }: { src: string }) {
+export default function Music({ records }: { records: Vinyl[] }) {
   const audio = useRef<HTMLAudioElement | null>(null)
   const [playing, setPlaying] = useState(false)
   /** when the first click on the page started the music */
   const autoStarted = useRef(0)
+  // the record a visitor last picked, if it's still on the list; otherwise the first
+  const [first] = useState(() => Math.max(0, records.findIndex((r) => r.src === readRecord())))
 
   useEffect(() => {
-    const a = new Audio(src)
+    const a = new Audio(records[first].src)
+    setState({ index: first })
     a.loop = true
     a.volume = VOLUME
     a.preload = 'auto'
     audio.current = a
     const onPlay = () => {
       setPlaying(true)
+      setState({ playing: true })
       announce(true)
     }
     const onPause = () => {
       setPlaying(false)
+      setState({ playing: false })
       announce(false)
     }
     a.addEventListener('play', onPlay)
@@ -80,7 +119,7 @@ export default function Music({ src }: { src: string }) {
       a.src = ''
       audio.current = null
     }
-  }, [src])
+  }, [records, first])
 
   const toggle = () => {
     const a = audio.current
@@ -93,6 +132,25 @@ export default function Music({ src }: { src: string }) {
       a.pause()
     }
   }
+
+  // a record picked from the turntable's crate goes straight on
+  useEffect(() => {
+    const h = (e: Event) => {
+      const a = audio.current
+      const i = (e as CustomEvent<number>).detail
+      const r = records[i]
+      if (!a || !r) return
+      if (i !== state.index) {
+        a.src = r.src
+        setState({ index: i })
+        writeRecord(r.src)
+      }
+      writePref('on')
+      a.play().catch(() => {})
+    }
+    window.addEventListener(PICK, h)
+    return () => window.removeEventListener(PICK, h)
+  }, [records])
 
   // the speakers on the desk; a first click on them has just started the music, so it shouldn't stop it again
   const toggleRef = useRef(toggle)
