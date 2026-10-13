@@ -11,7 +11,7 @@
   "client": "PIDGE",
   "role": "Creative Director",
   "intro": "Wanted to try a new thing",
-  "body": "## The brief\n\nUnderstand the fashion industry, understand the process, understand the love.",
+  "body": "## The brief\n\nI love clothes. I love fashion brands. I love streetwear. I wanted to understand the industry a bit more. From a commerce point of view. The design process was the easy part. I wanted to understand logistics from creating a supply chain, developing prototypes and making an online store.\n\nPidge was born from my love of London. Inspired by the critters who inhabit it. Think pigeons, rats and foxes.",
   "gallery": [
     {
       "image": "/uploads/books/im1.webp",
@@ -24,6 +24,10 @@
     {
       "image": "/uploads/books/im3.webp",
       "caption": "Sample Hoodie"
+    },
+    {
+      "image": "/uploads/books/Screenshot 2026-10-13 at 12.51.01.png",
+      "caption": "Pidge.store"
     }
   ],
   "link": {
