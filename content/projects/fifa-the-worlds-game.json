@@ -1,7 +1,9 @@
 {
+  "title": "FIFA: The World's Game",
   "slug": "fifa-the-worlds-game",
   "order": 4,
-  "title": "FIFA: The World's Game",
+  "locked": true,
+  "password": "Pidge",
   "subtitle": "A project subtitle in one line",
   "cover": "/uploads/books/fifa-the-worlds-game-cover.webp",
   "spine": "/uploads/books/fifa-the-worlds-game-spine.webp",
