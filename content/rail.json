@@ -1,9 +1,9 @@
 {
-  "title": "On the rail",
+  "title": "Samples from the Collection",
   "items": [
     {
-      "name": "Pidge Tee",
-      "note": "Stone, small chest logo",
+      "name": "Holiday Pidge Tee",
+      "note": "Pidge went on his summer holidays",
       "image": "/uploads/rail/pidge-tee-design.webp",
       "design": "/uploads/rail/pidge-tee-design.webp",
       "colour": "#ffffff",
@@ -11,17 +11,17 @@
     },
     {
       "name": "Smoking Ain't Cool Tee",
-      "note": "White, front print",
+      "note": "Fly with the London crew this season",
       "image": "/uploads/rail/smoking-aint-cool-tee-design.webp",
       "design": "/uploads/rail/smoking-aint-cool-tee-design.webp",
       "colour": "#0f0f0f",
       "front": null
     },
     {
-      "name": "Pigeon Gang Hoodie",
+      "name": "Pigeon Gang Tee",
       "note": "Black, front print",
-      "image": "/uploads/rail/pigeon-gang-design.webp",
-      "design": "/uploads/rail/pigeon-gang-design.webp",
+      "image": "/uploads/rail/Frame 41.webp",
+      "design": "/uploads/rail/Frame 41.webp",
       "colour": "#c2c2c2",
       "front": null
     }
