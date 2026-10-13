@@ -1,13 +1,13 @@
 {
-  "title": "FIFA - Wf",
+  "title": "Sanctuary",
   "slug": "flying-high",
   "order": 5,
   "locked": true,
   "password": "pidge",
-  "subtitle": "Flying High",
-  "cover": "/uploads/books/flying-high-cover.webp",
-  "spine": "/uploads/books/flying-high-spine.webp",
-  "year": "2026",
+  "subtitle": "Genuinely Helping Residents",
+  "cover": "/uploads/books/Sanctuary_-_22082023_Worcester_Office_2023_0823_10362200.jpg",
+  "spine": "",
+  "year": "2024",
   "client": "Client name",
   "role": "Lead UX designer",
   "intro": "Developed for the FIFA World Cup™ 2026 to captivate fans, grow football in North America, and deliver a world-class tournament while driving revenue and fostering global sport participation",
@@ -18,8 +18,5 @@
       "caption": "Sample image: replace with screens, sketches or photos from the project"
     }
   ],
-  "link": {
-    "label": "test",
-    "url": "tester"
-  }
+  "link": null
 }
