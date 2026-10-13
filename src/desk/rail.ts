@@ -1,5 +1,5 @@
 /**
- * The clothes rail on the laptop's page. Lives in /content/rail.json and is edited
+ * The clothes rail on the coffee cup's page. Lives in /content/rail.json and is edited
  * in the CMS at /admin under "Clothes rail"; images upload to /public/uploads/rail.
  */
 import file from '../../content/rail.json'

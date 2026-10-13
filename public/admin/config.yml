@@ -102,7 +102,7 @@ collections:
 
   - name: rail
     label: Clothes rail
-    description: The clothes hanging on the rail on the laptop's page. Each piece turns to face the visitor on hover and opens up close on click.
+    description: The clothes hanging on the rail on the coffee cup's page. Each piece turns to face the visitor on hover and opens up close on click.
     media_folder: /public/uploads/rail
     public_folder: /uploads/rail
     editor:

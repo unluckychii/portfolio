@@ -28,7 +28,7 @@ npm run dev
   starting on the visitor's first click, tap or key press (browsers block sound before that), and
   the music button in the header pauses and resumes it. A visitor who pauses it stays paused on
   later visits. With no file set, the button is hidden.
-- The laptop's page has a 3D clothes rail (`public/models/clothes-rail.glb`), with each piece hung
+- The coffee cup's page has a 3D clothes rail (`public/models/clothes-rail.glb`), with each piece hung
   on the same t-shirt model (`public/models/tshirt.glb`, on its own wooden hanger). Shirts hang
   side-on; the hovered one turns to face the visitor with its photo printed on the front, and a
   click opens the photo up close (arrow keys move along the rail, Escape closes). The torso of each
