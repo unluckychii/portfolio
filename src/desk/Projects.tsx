@@ -202,7 +202,6 @@ export function ProjectPage({
           <Book project={project} size="hero" />
         </div>
         <div className="cs__lede">
-          <p className="dk-kicker">Case study{project.year && <> · {project.year}</>}</p>
           <h1 id="cs-title" className="cs__title">
             {project.title}
           </h1>
