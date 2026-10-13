@@ -1,10 +1,10 @@
 {
   "id": "laptop",
-  "order": 1,
-  "label": "Current",
+  "order": 4,
+  "label": "Future",
   "hint": "the Mac",
   "kicker": "On the screen",
-  "title": "Current",
+  "title": "Future",
   "intro": "Little things I'm a part of.",
   "body": "## What I'm working on\n\n- Building my first mobile app (its a secret)\n- Making MRR",
   "sections": [],
