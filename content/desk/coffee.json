@@ -6,19 +6,19 @@
   "kicker": "Side Events",
   "title": "Break",
   "intro": "Who I am, in the time it takes to finish a coffee.",
-  "body": "## Hello\n\nOutside of work, I make [music](https://open.spotify.com/artist/6KnbNwkGBiAo9ERQoHT2Yr?si=U5mFdNZMSdaUp-fBE8xdOg) and have a [clothing brand](https://pidge.store/)\n\n### Things I like\n\n- Pigeons\n- GREAT coffee\n- East London\n\n### Things I don't like\n\n- Streamers\n- Queueing\n- Coffee Shop Squatters",
+  "body": "## Hello\n\nOutside of work, I make \n\n{{< anchor test >}}\n\n and have a [clothing brand](https://pidge.store/)\n\n### Things I like\n\n- Pigeons\n- GREAT coffee\n- East London\n\n### Things I don't like\n\n- Streamers\n- Queueing\n- Coffee Shop Squatters",
   "sections": [
     {
       "title": "Clothing",
+      "player": false,
       "rail": true,
-      "body": "",
-      "player": false
+      "body": "Pidge Clothing is a streetwear brand inspired by London and all the characters inside it."
     },
     {
       "title": "Music",
+      "player": true,
       "rail": false,
-      "body": "",
-      "player": true
+      "body": "Pigeon Boy is the music producer specialising if lo-fi hip hop"
     }
   ],
   "links": []
