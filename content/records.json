@@ -4,15 +4,15 @@
       "title": "8am",
       "artist": "",
       "audio": "/uploads/8am.mp3",
-      "cover": "",
+      "cover": "/uploads/records/hhh.png",
       "colour": "#c9a227"
     },
     {
-      "title": "Untitled 3",
+      "title": "Peru",
       "artist": "",
-      "audio": "/uploads/untitleddd 3.mp3",
-      "cover": "",
-      "colour": "#b5452f"
+      "audio": "/uploads/records/Peru.mp3",
+      "cover": "/uploads/records/800x800-771719--3ECD3709-6A24-482A-998641AA024AA94C--0--919934--pigar.jpg",
+      "colour": "#d1d1d1"
     }
   ]
 }
