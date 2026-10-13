@@ -224,7 +224,7 @@ export class RecordPlayerScene {
   private resize() {
     const w = Math.max(1, this.host.clientWidth)
     const h = Math.max(1, this.host.clientHeight)
-    this.renderer.setSize(w, h)
+    this.renderer.setSize(w, h, false) // the canvas follows its box (CSS), so it never holds the page wider than the screen
     this.camera.aspect = w / h
     // from the front and above, the whole player (lid open) and its sleeve in view
     const fit = this.size * 0.33
