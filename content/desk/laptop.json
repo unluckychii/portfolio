@@ -4,8 +4,9 @@
   "label": "Current",
   "hint": "the Mac",
   "kicker": "On the screen",
-  "title": "Current work",
-  "intro": "Sample page. Replace this text and the links from the CMS at /admin.",
-  "body": "## What I'm working on\n\nA short paragraph about the kind of work you make and who it is for.\n\n- **Project one** — one line about it.\n- **Project two** — one line about it.\n- **Project three** — one line about it.",
+  "title": "Current",
+  "intro": "Little things I'm a part of.",
+  "body": "## What I'm working on\n\n- Building my first mobile app (its a secret)\n- Making MRR",
+  "sections": [],
   "links": []
 }
