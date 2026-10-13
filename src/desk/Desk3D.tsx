@@ -407,7 +407,7 @@ export default function Desk3D() {
               {current.title}
             </h1>
             {current.intro && <p className="dk-intro">{current.intro}</p>}
-            {current.id === 'laptop' && <Rail />}
+            {current.id === 'coffee' && <Rail />}
             {current.id === 'books' && (
               <Shelf
                 onOpen={(p, from) => {
