@@ -332,7 +332,7 @@ export class RailScene {
   private resize() {
     const w = Math.max(1, this.host.clientWidth)
     const h = Math.max(1, this.host.clientHeight)
-    this.renderer.setSize(w, h)
+    this.renderer.setSize(w, h, false) // the canvas follows its box (CSS), so it never holds the page wider than the screen
     this.camera.aspect = w / h
     // fit the whole rail (about 1.25 m wide, 1.6 m tall) whatever the shape of the box
     const fitH = 1.86
@@ -493,7 +493,7 @@ export class TeeViewer {
   private resize() {
     const w = Math.max(1, this.host.clientWidth)
     const h = Math.max(1, this.host.clientHeight)
-    this.renderer.setSize(w, h)
+    this.renderer.setSize(w, h, false) // the canvas follows its box (CSS), so it never holds the page wider than the screen
     this.camera.aspect = w / h
     // the shirt fills the box with a little room around it, whatever its shape
     const fit = Math.max(this.height * 1.02, (this.height * 0.9) / this.camera.aspect)

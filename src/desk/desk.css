@@ -946,3 +946,10 @@ body { font-family: var(--hb-sans); -webkit-font-smoothing: antialiased; }
 .rp__item[data-on] .rp__name::before { content: '● '; color: #6f7d2a; font-size: 10px; vertical-align: 2px; }
 .rp__artist { color: var(--hb-soft); font-size: 12px; }
 @media (prefers-reduced-motion: reduce) { .rp__art { transition: none; } }
+
+/* the 3D views (clothes rail, record player, close-ups) fill their box and never push the page wider */
+.rl__3d, .rp__3d, .rl-zoom__3d { min-width: 0; overflow: hidden; }
+.rl__3d canvas, .rp__3d canvas, .rl-zoom__3d canvas { display: block; width: 100% !important; height: 100% !important; }
+/* nothing in a page's column is allowed to make it wider than the panel */
+.dk-panel__inner > * { min-width: 0; max-width: 100%; }
+.dk-body { overflow-wrap: anywhere; }
