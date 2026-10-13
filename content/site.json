@@ -1,9 +1,9 @@
 {
   "name": "Aaron's Desk",
   "favicon": "/uploads/favicon.png",
-  "heading": "The desk",
+  "heading": "Aaron's desk",
   "hint": "Drag to look around · click an object",
-  "hintTouch": "Drag · tap an object",
+  "hintTouch": "tap an object",
   "hintNo3d": "Pick an object",
   "back": "Back",
   "next": "Next",
