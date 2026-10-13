@@ -7,5 +7,17 @@
   "title": "Break",
   "intro": "Who I am, in the time it takes to finish a coffee.",
   "body": "## Hello\n\nOutside of work, I make [music](https://open.spotify.com/artist/6KnbNwkGBiAo9ERQoHT2Yr?si=U5mFdNZMSdaUp-fBE8xdOg) and have a [clothing brand](https://pidge.store/)\n\n### Things I like\n\n- Pigeons\n- GREAT coffee\n- East London\n\n### Things I don't like\n\n- Streamers\n- Queueing\n- Coffee Shop Squatters",
+  "sections": [
+    {
+      "title": "Clothing",
+      "rail": true,
+      "body": ""
+    },
+    {
+      "title": "Music",
+      "rail": false,
+      "body": ""
+    }
+  ],
   "links": []
 }

@@ -40,6 +40,16 @@ collections:
       - { label: Page title, name: title, widget: string }
       - { label: Intro, name: intro, widget: text, required: false, hint: 'One or two sentences under the title, in italics' }
       - { label: Body, name: body, widget: markdown, required: false, buttons: [bold, italic, link, heading-two, heading-three, quote, bulleted-list, numbered-list], editor_components: [] }
+      - label: Sections
+        name: sections
+        widget: list
+        required: false
+        summary: '{{fields.title}}'
+        hint: 'Titled parts further down the page, in this order (e.g. Clothing, Music). Add, remove or reorder them freely.'
+        fields:
+          - { label: Title, name: title, widget: string }
+          - { label: Show the clothes rail, name: rail, widget: boolean, required: false, default: false, hint: 'The 3D clothes rail (edited under Clothes rail) appears at the top of this section' }
+          - { label: Content, name: body, widget: markdown, required: false, buttons: [bold, italic, link, heading-three, quote, bulleted-list, numbered-list], editor_components: [image], hint: 'Text, links and pictures' }
       - label: Links
         name: links
         widget: list

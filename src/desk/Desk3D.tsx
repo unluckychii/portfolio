@@ -49,6 +49,13 @@ const LABELS: Record<Pickable, { name: string; hint: string }> = {
   speakers: { name: SITE.speakersName, hint: SITE.music ? SITE.speakersHint : '' },
 } as Record<Pickable, { name: string; hint: string }>
 
+/**
+ * The CMS's markdown as HTML, with pictures uploaded through the CMS pointed at where the site
+ * lives (e.g. /portfolio/uploads/…). Written by the site's editors, so it is trusted.
+ */
+const markdown = (md: string) =>
+  (marked.parse(md, { async: false }) as string).replace(/(<img[^>]*\ssrc=")([^"]+)"/g, (_, pre: string, src: string) => `${pre}${assetUrl(src)}" loading="lazy"`)
+
 export default function Desk3D() {
   const hostRef = useRef<HTMLDivElement>(null)
   const labelRef = useRef<HTMLDivElement>(null)
@@ -194,7 +201,8 @@ export default function Desk3D() {
   }, [current])
 
   // body is written by the site's editors in the CMS (repo write access), so it is trusted markdown
-  const html = useMemo(() => (current ? (marked.parse(current.body, { async: false }) as string) : ''), [current])
+  const html = useMemo(() => (current ? markdown(current.body) : ''), [current])
+  const sectionHtml = useMemo(() => (current ? current.sections.map((x) => markdown(x.body)) : []), [current])
 
   const pos = current ? DESK_OBJECTS.indexOf(current) : -1
   const next = pos >= 0 ? DESK_OBJECTS[(pos + 1) % DESK_OBJECTS.length] : null
@@ -407,7 +415,6 @@ export default function Desk3D() {
               {current.title}
             </h1>
             {current.intro && <p className="dk-intro">{current.intro}</p>}
-            {current.id === 'coffee' && <Rail />}
             {current.id === 'books' && (
               <Shelf
                 onOpen={(p, from) => {
@@ -417,6 +424,17 @@ export default function Desk3D() {
               />
             )}
             {html.trim() && <div className="dk-body" dangerouslySetInnerHTML={{ __html: html }} />}
+            {current.sections.map((x, i) => (
+              <section key={i} className="dk-section" aria-labelledby={x.title ? `dk-sec-${i}` : undefined}>
+                {x.title && (
+                  <h2 id={`dk-sec-${i}`} className="dk-section__title">
+                    {x.title}
+                  </h2>
+                )}
+                {x.rail && <Rail />}
+                {sectionHtml[i]?.trim() && <div className="dk-body dk-section__body" dangerouslySetInnerHTML={{ __html: sectionHtml[i] }} />}
+              </section>
+            ))}
             {current.links.length > 0 && (
               <div className="dk-links">
                 {current.links.map((l, i) => {
