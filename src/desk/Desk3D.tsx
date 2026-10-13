@@ -6,6 +6,9 @@ import { ProjectPage, Shelf } from './Projects'
 import Music, { onMusicState, toggleMusic } from './Music'
 import { RECORDS } from './records'
 import TimePicker, { startingTime } from './TimePicker'
+
+/** show the time-of-day menu in the header */
+const SHOW_TIME_PICKER = false
 import { useHoverSound } from './hoverSound'
 import Rail from './Rail'
 import { followAnchor, markdown, slug } from './markdown'
@@ -237,7 +240,8 @@ export default function Desk3D() {
               <span className="dk-narrow">{SITE.hintTouch}</span>
             </>
           )}
-          {!noGl && <TimePicker value={hour} onChange={setHour} />}
+          {/* the time-of-day menu, hidden for now: the room follows the visitor's clock (?hour=21 still previews a time) */}
+          {SHOW_TIME_PICKER && !noGl && <TimePicker value={hour} onChange={setHour} />}
           {RECORDS.length > 0 && <Music records={RECORDS} />}
         </span>
       </header>
