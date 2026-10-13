@@ -494,8 +494,6 @@ body { font-family: var(--hb-sans); -webkit-font-smoothing: antialiased; }
   display: grid;
   place-items: center;
   padding: clamp(28px, 5vw, 64px) 16px;
-  border-radius: 6px;
-  background: radial-gradient(120% 90% at 50% 30%, #f1ebdb, #e2dac4);
 }
 .cs__lede { display: grid; gap: 18px; justify-items: start; min-width: 0; }
 .cs__lede .dk-kicker { margin: 0; }
