@@ -5,6 +5,8 @@
 
 export type DeskId = 'laptop' | 'coffee' | 'books' | 'pigeon'
 export type DeskLink = { label: string; url: string }
+/** a titled part of a page: its own text (and pictures), and optionally the clothes rail or the record player */
+export type DeskSection = { title: string; body: string; rail: boolean; player: boolean }
 
 export type DeskObject = {
   id: DeskId
@@ -17,10 +19,14 @@ export type DeskObject = {
   title: string
   intro: string
   body: string
+  sections: DeskSection[]
   links: DeskLink[]
 }
 
-type DeskFile = Partial<Omit<DeskObject, 'links'>> & { links?: Partial<DeskLink>[] }
+type DeskFile = Partial<Omit<DeskObject, 'links' | 'sections'>> & {
+  links?: Partial<DeskLink>[]
+  sections?: Partial<DeskSection>[]
+}
 
 const files = import.meta.glob<DeskFile>('../../content/desk/*.json', { eager: true, import: 'default' })
 
@@ -35,6 +41,9 @@ const normalise = (f: DeskFile, id: DeskId): DeskObject => ({
   title: f.title?.trim() || f.label?.trim() || id,
   intro: f.intro ?? '',
   body: f.body ?? '',
+  sections: (f.sections ?? [])
+    .filter((x) => x && (x.title?.trim() || x.body?.trim() || x.rail || x.player))
+    .map((x) => ({ title: x.title?.trim() ?? '', body: x.body ?? '', rail: !!x.rail, player: !!x.player })),
   links: (f.links ?? [])
     .filter((l) => l?.url?.trim())
     .map((l) => ({ label: l.label?.trim() || l.url!.trim(), url: l.url!.trim() })),

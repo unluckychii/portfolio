@@ -1,0 +1,18 @@
+{
+  "records": [
+    {
+      "title": "8am",
+      "artist": "",
+      "audio": "/uploads/8am.mp3",
+      "cover": "",
+      "colour": "#c9a227"
+    },
+    {
+      "title": "Untitled 3",
+      "artist": "",
+      "audio": "/uploads/untitleddd 3.mp3",
+      "cover": "",
+      "colour": "#b5452f"
+    }
+  ]
+}

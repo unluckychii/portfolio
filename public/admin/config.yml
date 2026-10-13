@@ -39,7 +39,18 @@ collections:
       - { label: Kicker, name: kicker, widget: string, required: false, hint: 'Small line above the page title' }
       - { label: Page title, name: title, widget: string }
       - { label: Intro, name: intro, widget: text, required: false, hint: 'One or two sentences under the title, in italics' }
-      - { label: Body, name: body, widget: markdown, required: false, buttons: [bold, italic, link, heading-two, heading-three, quote, bulleted-list, numbered-list], editor_components: [] }
+      - { label: Body, name: body, widget: markdown, required: false, buttons: [bold, italic, link, heading-two, heading-three, quote, bulleted-list, numbered-list], editor_components: [image, youtube, anchor] }
+      - label: Sections
+        name: sections
+        widget: list
+        required: false
+        summary: '{{fields.title}}'
+        hint: 'Titled parts further down the page, in this order (e.g. Clothing, Music). Add, remove or reorder them freely.'
+        fields:
+          - { label: Title, name: title, widget: string }
+          - { label: Show the record player, name: player, widget: boolean, required: false, default: false, hint: 'The 3D record player with the records (edited under Records) appears at the top of this section' }
+          - { label: Show the clothes rail, name: rail, widget: boolean, required: false, default: false, hint: 'The 3D clothes rail (edited under Clothes rail) appears at the top of this section' }
+          - { label: Content, name: body, widget: markdown, required: false, buttons: [bold, italic, link, heading-three, quote, bulleted-list, numbered-list], editor_components: [image, youtube, anchor], hint: 'Text, links, pictures, YouTube videos and anchors (the + button). Link to an anchor or heading with #its-name' }
       - label: Links
         name: links
         widget: list
@@ -81,7 +92,7 @@ collections:
       - { label: Client, name: client, widget: string, required: false }
       - { label: Role, name: role, widget: string, required: false }
       - { label: Intro, name: intro, widget: text, required: false, hint: 'A sentence or two, set large under the title' }
-      - { label: Case study, name: body, widget: markdown, required: false, buttons: [bold, italic, link, heading-two, heading-three, quote, bulleted-list, numbered-list], editor_components: [] }
+      - { label: Case study, name: body, widget: markdown, required: false, buttons: [bold, italic, link, heading-two, heading-three, quote, bulleted-list, numbered-list], editor_components: [image, youtube, anchor] }
       - label: Images
         name: gallery
         widget: list
@@ -137,6 +148,31 @@ collections:
                   - { label: Top, name: y0, widget: number, value_type: float, min: 0, max: 1, step: 0.01, required: false }
                   - { label: Bottom, name: y1, widget: number, value_type: float, min: 0, max: 1, step: 0.01, required: false }
 
+  - name: records
+    label: Records
+    description: The records for the record player in the Music section of the Break page. Visitors pick one to put on; the first one plays when the site opens. The music button in the header plays and pauses whichever is on.
+    media_folder: /public/uploads/records
+    public_folder: /uploads/records
+    editor:
+      preview: false
+    files:
+      - name: records
+        label: Records
+        file: content/records.json
+        format: json
+        fields:
+          - label: Records
+            name: records
+            widget: list
+            summary: '{{fields.title}}'
+            hint: 'As many as you like, in this order; the first plays when someone opens the site'
+            fields:
+              - { label: Title, name: title, widget: string }
+              - { label: Artist, name: artist, widget: string, required: false }
+              - { label: Audio, name: audio, widget: file, hint: 'An MP3 (a few MB at most). It plays quietly on a loop.' }
+              - { label: Album art, name: cover, widget: image, required: false, hint: 'Square cover art, shown on the sleeve and the record label. Leave empty for a plain sleeve in the colour below.' }
+              - { label: Colour, name: colour, widget: color, required: false, hint: 'Used for the sleeve and label when there is no album art' }
+
   - name: site
     label: Site settings
     description: The site's name and the interface text around the desk.
@@ -161,6 +197,6 @@ collections:
           - { label: Speakers name, name: speakersName, widget: string, hint: 'Shown when hovering the speakers either side of the laptop' }
           - { label: Speakers hint, name: speakersHint, widget: string, required: false, hint: 'Clicking the speakers plays or pauses the music' }
           - { label: Laptop screen, name: laptopScreen, widget: file, required: false, hint: 'What the laptop shows: a picture (JPG, PNG, WebP), an animated GIF, or a short video (MP4 or WebM, played silently on a loop). Landscape, about 3:2 (e.g. 1500 × 1000); it is cropped to fill the screen. For animations a video is best: far smaller than a GIF. Keep it under about 5 MB. Leave empty to show the code editor.' }
-          - { label: Music, name: music, widget: file, required: false, hint: 'Background music: an MP3 (a few MB at most), played quietly on a loop. It starts with the first click on the page, and the music button in the header pauses it. Leave empty to hide the button.' }
+          - { label: Music, name: music, widget: file, required: false, hint: 'Only used when the Records list (its own section) is empty: one MP3 played quietly on a loop.' }
           - { label: Hover sound, name: hoverSound, widget: file, required: false, hint: 'A short sound (WAV or MP3, under a second is best) played when an object on the desk is hovered. Browsers only allow it after the first click on the page, and muting the music silences it too. Leave empty for no sound.' }
           - { label: Credits button, name: credits, widget: string, hint: 'Opens the 3D model credits (the licences require them to stay on the page)' }

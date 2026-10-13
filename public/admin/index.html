@@ -13,5 +13,54 @@
       locally, "Work with Local Repository" edits the files on this computer (Chrome/Edge).
     -->
     <script src="https://unpkg.com/@sveltia/cms@0.227.2/dist/sveltia-cms.js"></script>
+    <script>
+      // Extra buttons in the rich-text editor's "+" menu. Each writes a line the site turns into
+      // the real thing (see src/desk/markdown.ts); keep the two formats in step.
+      const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
+      const youtubeId = (s) => {
+        s = String(s ?? '').trim()
+        if (/^[\w-]{11}$/.test(s)) return s
+        try {
+          const u = new URL(s.startsWith('http') ? s : 'https://' + s)
+          const id = u.hostname.endsWith('youtu.be')
+            ? u.pathname.slice(1)
+            : u.searchParams.get('v') || (u.pathname.match(/\/(?:embed|shorts|live|v)\/([\w-]{11})/) || [])[1] || ''
+          return /^[\w-]{11}$/.test(id) ? id : ''
+        } catch {
+          return ''
+        }
+      }
+      const slug = (s) =>
+        String(s ?? '').toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+
+      CMS.registerEditorComponent({
+        id: 'youtube',
+        label: 'YouTube video',
+        fields: [
+          { name: 'url', label: 'YouTube link', widget: 'string', hint: 'Paste the video’s address, e.g. https://www.youtube.com/watch?v=… or https://youtu.be/…' },
+        ],
+        pattern: /^\{\{<\s*youtube\s+(\S+)\s*>\}\}$/m,
+        fromBlock: (m) => ({ url: m[1] }),
+        toBlock: ({ url } = {}) => (url ? `{{< youtube ${String(url).trim()} >}}` : ''),
+        toPreview: ({ url } = {}) => {
+          const id = youtubeId(url)
+          return id
+            ? `<img src="https://i.ytimg.com/vi/${id}/hqdefault.jpg" alt="YouTube video" style="max-width:100%;border-radius:6px">`
+            : '<p>YouTube video: paste a link</p>'
+        },
+      })
+
+      CMS.registerEditorComponent({
+        id: 'anchor',
+        label: 'Anchor',
+        fields: [
+          { name: 'name', label: 'Anchor name', widget: 'string', hint: 'A short name, e.g. latest-release. Link to it from anywhere on the page with a link to #latest-release. Headings and section titles are anchors already (“Things I like” → #things-i-like).' },
+        ],
+        pattern: /^\{\{<\s*anchor\s+([^>]+?)\s*>\}\}$/m,
+        fromBlock: (m) => ({ name: m[1] }),
+        toBlock: ({ name } = {}) => (slug(name) ? `{{< anchor ${slug(name)} >}}` : ''),
+        toPreview: ({ name } = {}) => `<p style="opacity:.6">⚓ #${esc(slug(name))}</p>`,
+      })
+    </script>
   </body>
 </html>
