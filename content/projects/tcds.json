@@ -5,8 +5,8 @@
   "locked": false,
   "password": "pidge",
   "subtitle": "Making Fast Faster",
-  "cover": "/uploads/books/ee1.png",
-  "spine": "/uploads/books/ee2.png",
+  "cover": "/uploads/books/tcds-cover-2.webp",
+  "spine": "/uploads/books/tcds-spine.webp",
   "year": "2025",
   "client": "Formula 1",
   "role": "Lead Designer",
@@ -22,7 +22,7 @@
       "caption": "Our Product in Action"
     },
     {
-      "image": "/uploads/books/Screenshot 2026-10-13 at 15.08.50.png",
+      "image": "/uploads/books/tcds-shot.webp",
       "caption": "Example UI"
     },
     {

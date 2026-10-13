@@ -8,13 +8,14 @@ export function Book({ project, size }: { project: Project; size: 'shelf' | 'her
   return (
     <span className={`pb pb--${size}`} aria-hidden="true">
       <span className="pb__book">
+        {/* loaded straight away: iPhone Safari never starts "lazy" images inside 3D-turned elements like these */}
         {project.spine ? (
-          <img className="pb__spine" src={project.spine} alt="" loading="lazy" />
+          <img className="pb__spine" src={project.spine} alt="" decoding="async" />
         ) : (
           <span className="pb__spine pb__spine--plain" />
         )}
         {project.cover ? (
-          <img className="pb__cover" src={project.cover} alt="" loading={size === 'hero' ? 'eager' : 'lazy'} />
+          <img className="pb__cover" src={project.cover} alt="" decoding="async" />
         ) : (
           <span className="pb__cover pb__cover--plain">{project.title}</span>
         )}

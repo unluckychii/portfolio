@@ -174,7 +174,7 @@ export default function Rail() {
                 <span className="rl__swing">
                   <span className="rl__piece">
                     <Hanger />
-                    <img className="rl__img" src={g.image} alt="" loading="lazy" draggable={false} />
+                    <img className="rl__img" src={g.image} alt="" draggable={false} />
                   </span>
                 </span>
               </button>
