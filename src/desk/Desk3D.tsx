@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { marked } from 'marked'
 import { DeskScene, type Cover, type Pickable } from './DeskScene'
 import { BASE, DESK_OBJECTS, deskHref, idFromPathname, type DeskId } from './objects'
 import { assetUrl, projectFromPathname, projectHref, type Project } from './projects'
@@ -9,6 +8,7 @@ import { RECORDS } from './records'
 import TimePicker, { startingTime } from './TimePicker'
 import { useHoverSound } from './hoverSound'
 import Rail from './Rail'
+import { followAnchor, markdown, slug } from './markdown'
 import RecordPlayer from './RecordPlayer'
 import { SITE } from './site'
 
@@ -50,13 +50,6 @@ const LABELS: Record<Pickable, { name: string; hint: string }> = {
   lamp: { name: SITE.lampName, hint: SITE.lampHint },
   speakers: { name: SITE.speakersName, hint: RECORDS.length ? SITE.speakersHint : '' },
 } as Record<Pickable, { name: string; hint: string }>
-
-/**
- * The CMS's markdown as HTML, with pictures uploaded through the CMS pointed at where the site
- * lives (e.g. /portfolio/uploads/…). Written by the site's editors, so it is trusted.
- */
-const markdown = (md: string) =>
-  (marked.parse(md, { async: false }) as string).replace(/(<img[^>]*\ssrc=")([^"]+)"/g, (_, pre: string, src: string) => `${pre}${assetUrl(src)}" loading="lazy"`)
 
 export default function Desk3D() {
   const hostRef = useRef<HTMLDivElement>(null)
@@ -423,7 +416,7 @@ export default function Desk3D() {
         inert={!current}
       >
         {current && (
-          <div className="dk-panel__inner" key={current.id}>
+          <div className="dk-panel__inner" key={current.id} onClick={followAnchor}>
             <button type="button" className="dk-close" onClick={() => hide(true)}>
               <span aria-hidden="true">←</span> {SITE.back}
             </button>
@@ -442,7 +435,7 @@ export default function Desk3D() {
             )}
             {html.trim() && <div className="dk-body" dangerouslySetInnerHTML={{ __html: html }} />}
             {current.sections.map((x, i) => (
-              <section key={i} className="dk-section" aria-labelledby={x.title ? `dk-sec-${i}` : undefined}>
+              <section key={i} id={x.title ? slug(x.title) || undefined : undefined} className="dk-section" aria-labelledby={x.title ? `dk-sec-${i}` : undefined}>
                 {x.title && (
                   <h2 id={`dk-sec-${i}`} className="dk-section__title">
                     {x.title}

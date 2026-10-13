@@ -263,12 +263,18 @@ body { font-family: var(--hb-sans); -webkit-font-smoothing: antialiased; }
 .dk-body a { color: var(--hb-ink); text-decoration-thickness: 1px; text-underline-offset: 3px; }
 .dk-body a:hover { background: var(--hb-lime); }
 
+/* a YouTube video from the CMS, full width at 16:9 */
+.dk-video { position: relative; margin: 1em 0 1.2em; aspect-ratio: 16 / 9; border-radius: 6px; overflow: hidden; background: #111; }
+.dk-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+/* anchors (and headings) stop a little below the page's top edge when jumped to */
+.dk-anchor { display: block; height: 0; }
+.dk-body [id], .dk-section { scroll-margin-top: 72px; }
 .dk-body img { display: block; max-width: 100%; height: auto; margin: 0.6em 0; border-radius: 4px; }
 /* titled sections further down a page (Clothing, Music…) */
 .dk-section { margin-top: clamp(28px, 4vw, 44px); padding-top: 18px; border-top: 1px solid var(--hb-rule); }
 .dk-section__title { margin: 0 0 14px; font: 400 clamp(30px, 3.2vw, 40px)/1 var(--hb-serif); letter-spacing: -0.01em; }
 .dk-section__body { border-top: 0; padding-top: 0; }
-.dk-section .rl + .dk-section__body { margin-top: 18px; }
+.dk-section .rl + .dk-section__body, .dk-section .rp + .dk-section__body { margin-top: 22px; }
 .dk-links { display: flex; flex-wrap: wrap; gap: 10px; }
 .dk-btn {
   display: inline-flex;

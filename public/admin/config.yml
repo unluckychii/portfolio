@@ -39,7 +39,7 @@ collections:
       - { label: Kicker, name: kicker, widget: string, required: false, hint: 'Small line above the page title' }
       - { label: Page title, name: title, widget: string }
       - { label: Intro, name: intro, widget: text, required: false, hint: 'One or two sentences under the title, in italics' }
-      - { label: Body, name: body, widget: markdown, required: false, buttons: [bold, italic, link, heading-two, heading-three, quote, bulleted-list, numbered-list], editor_components: [] }
+      - { label: Body, name: body, widget: markdown, required: false, buttons: [bold, italic, link, heading-two, heading-three, quote, bulleted-list, numbered-list], editor_components: [image, youtube, anchor] }
       - label: Sections
         name: sections
         widget: list
@@ -50,7 +50,7 @@ collections:
           - { label: Title, name: title, widget: string }
           - { label: Show the record player, name: player, widget: boolean, required: false, default: false, hint: 'The 3D record player with the records (edited under Records) appears at the top of this section' }
           - { label: Show the clothes rail, name: rail, widget: boolean, required: false, default: false, hint: 'The 3D clothes rail (edited under Clothes rail) appears at the top of this section' }
-          - { label: Content, name: body, widget: markdown, required: false, buttons: [bold, italic, link, heading-three, quote, bulleted-list, numbered-list], editor_components: [image], hint: 'Text, links and pictures' }
+          - { label: Content, name: body, widget: markdown, required: false, buttons: [bold, italic, link, heading-three, quote, bulleted-list, numbered-list], editor_components: [image, youtube, anchor], hint: 'Text, links, pictures, YouTube videos and anchors (the + button). Link to an anchor or heading with #its-name' }
       - label: Links
         name: links
         widget: list
@@ -92,7 +92,7 @@ collections:
       - { label: Client, name: client, widget: string, required: false }
       - { label: Role, name: role, widget: string, required: false }
       - { label: Intro, name: intro, widget: text, required: false, hint: 'A sentence or two, set large under the title' }
-      - { label: Case study, name: body, widget: markdown, required: false, buttons: [bold, italic, link, heading-two, heading-three, quote, bulleted-list, numbered-list], editor_components: [] }
+      - { label: Case study, name: body, widget: markdown, required: false, buttons: [bold, italic, link, heading-two, heading-three, quote, bulleted-list, numbered-list], editor_components: [image, youtube, anchor] }
       - label: Images
         name: gallery
         widget: list

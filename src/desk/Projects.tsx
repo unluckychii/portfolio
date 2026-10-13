@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { marked } from 'marked'
 import { PROJECTS, projectHref, type Project } from './projects'
 import Gallery from './Gallery'
+import { followAnchor, markdown } from './markdown'
 
 /** a book in CSS 3D: the cover, with its spine turned towards the viewer */
 export function Book({ project, size }: { project: Project; size: 'shelf' | 'hero' }) {
@@ -177,7 +177,7 @@ export function ProjectPage({
   }, [project])
 
   // written by the site's editors in the CMS (repo write access), so it is trusted markdown
-  const html = useMemo(() => marked.parse(project.body, { async: false }) as string, [project])
+  const html = useMemo(() => markdown(project.body), [project])
 
   const i = PROJECTS.indexOf(project)
   const next = PROJECTS.length > 1 ? PROJECTS[(i + 1) % PROJECTS.length] : null
@@ -189,7 +189,7 @@ export function ProjectPage({
   const external = project.link && /^https?:\/\//.test(project.link.url)
 
   return (
-    <div ref={ref} className="cs" role="dialog" aria-modal="true" aria-labelledby="cs-title" tabIndex={-1}>
+    <div ref={ref} className="cs" role="dialog" aria-modal="true" aria-labelledby="cs-title" tabIndex={-1} onClick={followAnchor}>
       <div className="cs__bar">
         <button type="button" className="cs__back" onClick={onClose}>
           <span aria-hidden="true">←</span> {backLabel}
