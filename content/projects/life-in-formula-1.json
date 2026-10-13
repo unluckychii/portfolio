@@ -22,5 +22,8 @@
       "caption": "Field Research at Silverstone"
     }
   ],
-  "link": null
+  "link": {
+    "label": "App Store Link",
+    "url": "https://apps.apple.com/us/app/formula-1/id835022598"
+  }
 }
