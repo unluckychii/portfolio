@@ -11,11 +11,15 @@
   "client": "Formula 1",
   "role": "Lead Designer",
   "intro": "Reinventing",
-  "body": "#### The F1® Team Content Delivery System enables a synchronized video and audio view so that Formula 1® teams can elevate their race strategy in near real-time.\n\n#### The new solution will:\n\n- Deliver faster video and audio feeds through a resilient, well-managed, and highly available platform.\n- Contain new features developed with a user-centric approach to empower pit crews with novel capabilities.\n- \n- \n- **Latency Reduction:** Dramatically reduced video and data latency from 12 seconds to under 5 seconds.\n- **Global Scalability:** Supporting 24 events around the world with over 7,500 hours of cataloged video.\n- **Operational Excellence:** Enabled engineers and strategists to make split-second decisions with higher confidence by evaluating incidents and tire behavior in real time.",
+  "body": "#### The F1® Team Content Delivery System enables a synchronised video and audio view so that Formula 1® teams can elevate their race strategy in near real-time.\n\n#### The new solution will:\n\nIf you ever watch a formula 1 race, you will always see team race engineers at a Pitwall. They are watching live video, listening to team audio and looking at car telemetry data. TCDS is the video system that allows teams to see video feeds of all drivers and timing pages. Its a cornerstone of every race weekend.\n\n- Deliver faster video and audio feeds through a resilient, well-managed, and highly available platform.\n- Contain new features developed with a user-centric approach to empower pit crews with novel capabilities.\n- \n- \n- **Latency Reduction:** Dramatically reduced video and data latency from 12 seconds to under 5 seconds.\n- **Global Scalability:** Supporting 24 events around the world with over 7,500 hours of cataloged video.\n- **Operational Excellence:** Enabled engineers and strategists to make split-second decisions with higher confidence by evaluating incidents and tire behavior in real time.",
   "gallery": [
     {
       "image": "/uploads/books/tcds-cover.webp",
       "caption": "Heres me talking"
+    },
+    {
+      "image": "/uploads/books/Screenshot 2026-10-13 at 14.33.05.webp",
+      "caption": "Our Product in Action"
     }
   ],
   "link": {
