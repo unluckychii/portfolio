@@ -2,34 +2,32 @@
   "title": "Rock The Pidge",
   "slug": "rock-the-pidge",
   "order": 1,
-  "subtitle": "Creative Directin",
+  "locked": false,
+  "password": "",
+  "subtitle": "Creative Direction",
   "cover": "/uploads/books/rock-the-pidge-cover.webp",
   "spine": "/uploads/books/rock-the-pidge-spine.webp",
   "year": "2026",
-  "client": "PIDGR",
-  "role": "Lead UX designer",
-  "intro": "Sample case study. A sentence or two on the problem, who it was for and what changed. Replace it, the details and the images in the CMS under Projects.",
-  "body": "## The brief\n\nWhat the client needed, and the constraints you worked within.\n\n## The approach\n\nHow you got from the brief to the solution: research, ideas you tried, decisions you made.\n\n## The outcome\n\nWhat shipped, and what it changed. Numbers help, if you have them.",
+  "client": "PIDGE",
+  "role": "Creative Director",
+  "intro": "Wanted to try a new thing",
+  "body": "## The brief\n\nUnderstand the fashion industry, understand the process, understand the love.",
   "gallery": [
     {
-      "image": "/uploads/books/rock-the-pidge-cover.webp",
-      "caption": "Sample image: replace with screens, sketches or photos from the project"
+      "image": "/uploads/books/im1.webp",
+      "caption": "Identity"
     },
     {
-      "image": "/uploads/books/tcds-cover.webp",
-      "caption": "Test 2"
+      "image": "/uploads/books/im2.webp",
+      "caption": "Sample Tee"
     },
     {
-      "image": "/uploads/books/flying-high-cover.webp",
-      "caption": "Test 3"
-    },
-    {
-      "image": "/uploads/books/life-in-formula-1-cover.webp",
-      "caption": "Test 4"
+      "image": "/uploads/books/im3.webp",
+      "caption": "Sample Hoodie"
     }
   ],
   "link": {
-    "label": "",
-    "url": ""
+    "label": "Online Shop",
+    "url": "https://pidge.store/"
   }
 }
