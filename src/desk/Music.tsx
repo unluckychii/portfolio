@@ -83,7 +83,7 @@ export default function Music({ records }: { records: Vinyl[] }) {
     setState({ index: first })
     a.loop = true
     a.volume = VOLUME
-    a.preload = 'auto'
+    a.preload = 'none' // a track is several MB: fetched (and streamed) only once it plays, not with the page
     audio.current = a
     const onPlay = () => {
       setPlaying(true)

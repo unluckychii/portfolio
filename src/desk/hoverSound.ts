@@ -22,15 +22,17 @@ export function useHoverSound(src: string, key: unknown) {
 
   useEffect(() => {
     if (!src) return
-    // two copies, so a quick move from one object to the next doesn't cut the first short
-    pool.current = [0, 1].map(() => {
+    // one copy to start with (fetched once, only after the visitor's first click); a second is
+    // added from the browser's cache when a quick move would otherwise cut the first short
+    const make = () => {
       const a = new Audio(src)
       a.preload = 'auto'
       a.volume = VOLUME
       return a
-    })
+    }
     const events = ['pointerdown', 'keydown', 'touchstart'] as const
     const unlock = () => {
+      if (!pool.current.length) pool.current = [make()] // sound can't play before this anyway
       unlocked.current = true
       events.forEach((n) => window.removeEventListener(n, unlock, true))
     }
@@ -44,8 +46,13 @@ export function useHoverSound(src: string, key: unknown) {
 
   useEffect(() => {
     if (key == null || !unlocked.current || muted()) return
-    const a = pool.current.find((x) => x.paused) ?? pool.current[0]
-    if (!a) return
+    if (!pool.current.length) return
+    let a = pool.current.find((x) => x.paused)
+    if (!a) {
+      if (pool.current.length < 2) pool.current.push((a = new Audio(pool.current[0].src)))
+      else a = pool.current[0]
+      a.volume = VOLUME
+    }
     a.currentTime = 0
     a.play().catch(() => {})
   }, [key])

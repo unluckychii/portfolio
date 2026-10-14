@@ -6,7 +6,8 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js'
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import { decompressFrames, parseGIF, type ParsedFrame } from 'gifuct-js'
+import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js'
+import type { ParsedFrame } from 'gifuct-js'
 import type { DeskId } from './objects'
 import { currentHour, isDark, lightAt } from './daylight'
 import { DeskWindow, WALL_Z, wallGeometry } from './window'
@@ -150,6 +151,7 @@ class ScreenCanvas {
     try {
       const res = await fetch(url)
       if (!res.ok) throw new Error(`${res.status}`)
+      const { parseGIF, decompressFrames } = await import('gifuct-js') // only when a GIF is on the screen
       const gif = parseGIF(await res.arrayBuffer())
       const frames = decompressFrames(gif, true)
       if (!frames.length) throw new Error('no frames')
@@ -508,7 +510,7 @@ type PigeonRig = { head: THREE.Group; wings: THREE.Mesh[]; body: THREE.Group }
  * and the models then show up with no colour.
  */
 function gltfLoader() {
-  return new GLTFLoader().register((parser) => {
+  return new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).register((parser) => {
     parser.textureLoader = new THREE.TextureLoader(parser.options.manager).setCrossOrigin('anonymous')
     return { name: 'desk_img_element_textures' }
   })
@@ -1111,7 +1113,6 @@ export class DeskScene {
     buildDesk(this.scene)
     // the window is above the home view; zoomed out, the moon sits in its upper panes
     this.window = new DeskWindow(this.scene, new THREE.Vector3(0.35, 1.5, 4.2))
-    this.window.load(gltfLoader()).catch((err) => console.warn('The window model failed to load; the opening stays bare.', err))
     const puff = puffTexture()
     this.add('laptop', buildMonitor(this.screen), new THREE.Vector3(0, 0.98, -0.3), 1.9, 0.012)
     this.add('coffee', buildCoffee(puff), new THREE.Vector3(0.98, 0.26, 0.18), 0.85, 0.03)
@@ -1132,22 +1133,14 @@ export class DeskScene {
     this.useSpeakerModels()
     this.useBooksModel()
     this.usePlantModel(plant)
-    loadCat()
-      .then((cat) => {
-        if (this.disposed) return
-        this.scene.add(cat.group)
-        this.cat = cat
-        this.lightCheck = 0 // up onto the desk now if it's already night
-      })
-      .catch((err) => console.warn('The cat model failed to load.', err))
-    loadFloorLamp()
-      .then((lamp) => {
-        if (this.disposed) return
-        this.scene.add(lamp)
-        this.floorLamp = lamp.userData.rig as FloorLampRig
-        this.lightCheck = 0 // switch it on now if it's already evening
-      })
-      .catch((err) => console.warn('The floor lamp model failed to load; the corner stays dark.', err))
+    // the desk's own models come first; what's out of the opening view (the window above,
+    // the cat and floor lamp below) and the laptop's screen media follow once they're in
+    this.deskReady = Promise.allSettled(this.mainLoads).then(() => undefined)
+    this.deskReady.then(() => {
+      if (this.disposed) return
+      this.window.load(gltfLoader()).catch((err) => console.warn('The window model failed to load; the opening stays bare.', err))
+      this.loadExtras()
+    })
 
     // hover outline, rendered into a multisampled target so edges stay smooth
     const rt = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: 4 })
@@ -1508,7 +1501,9 @@ export class DeskScene {
   private useSpeakerModels() {
     const pair = this.items.filter((i) => i.id === 'speakers')
     pair.forEach((i) => (i.group.visible = false))
-    loadSpeakerModel()
+    const loading = loadSpeakerModel()
+    this.mainLoads.push(loading)
+    loading
       .then((model) => {
         if (this.disposed) return
         pair.forEach((item, n) => {
@@ -1536,10 +1531,37 @@ export class DeskScene {
    * Swap a hand-built object for a model. The object stays hidden while the
    * model loads; if it can't load, the hand-built one is shown instead.
    */
+  /** the models loaded first, before the ones out of the opening view */
+  private mainLoads: Promise<unknown>[] = []
+  /** resolves once the desk's own models are in (or have failed) */
+  deskReady: Promise<void> = Promise.resolve()
+
+  /** the cat and the floor lamp, below the opening view */
+  private loadExtras() {
+    loadCat()
+      .then((cat) => {
+        if (this.disposed) return
+        this.scene.add(cat.group)
+        this.cat = cat
+        this.lightCheck = 0 // up onto the desk now if it's already night
+      })
+      .catch((err) => console.warn('The cat model failed to load.', err))
+    loadFloorLamp()
+      .then((lamp) => {
+        if (this.disposed) return
+        this.scene.add(lamp)
+        this.floorLamp = lamp.userData.rig as FloorLampRig
+        this.lightCheck = 0 // switch it on now if it's already evening
+      })
+      .catch((err) => console.warn('The floor lamp model failed to load; the corner stays dark.', err))
+  }
+
   private useModel<T>(id: Pickable, load: () => Promise<T>, apply: (item: DeskItem, loaded: T) => void) {
     const item = this.items.find((i) => i.id === id)!
     item.group.visible = false
-    load()
+    const loading = load()
+    this.mainLoads.push(loading)
+    loading
       .then((loaded) => {
         if (this.disposed) return
         apply(item, loaded)
@@ -1565,7 +1587,9 @@ export class DeskScene {
   /** the plant is decoration, not a page, so it swaps in on its own */
   private usePlantModel(plant: THREE.Group) {
     plant.visible = false
-    loadPlantModel()
+    const loading = loadPlantModel()
+    this.mainLoads.push(loading)
+    loading
       .then((model) => {
         if (this.disposed) return
         for (const old of [...plant.children]) {
@@ -1652,7 +1676,10 @@ export class DeskScene {
 
   /** put a picture, GIF or video on the laptop's screen (the stand-in monitor's too) */
   showScreenMedia(url: string) {
-    this.screen.showMedia(url)
+    // a video or GIF can be large: let the desk's models load first
+    this.deskReady.then(() => {
+      if (!this.disposed) this.screen.showMedia(url)
+    })
   }
 
   pigeonHop() {

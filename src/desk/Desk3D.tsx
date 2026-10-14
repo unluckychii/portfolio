@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { DeskScene, type Cover, type Pickable } from './DeskScene'
 import { BASE, DESK_OBJECTS, deskHref, idFromPathname, type DeskId } from './objects'
 import { assetUrl, projectFromPathname, projectHref, type Project } from './projects'
@@ -10,10 +10,12 @@ import TimePicker, { startingTime } from './TimePicker'
 /** show the time-of-day menu in the header */
 const SHOW_TIME_PICKER = false
 import { useHoverSound } from './hoverSound'
-import Rail from './Rail'
 import { followAnchor, markdown, slug } from './markdown'
-import RecordPlayer from './RecordPlayer'
 import { SITE } from './site'
+
+// the clothes rail and the record player (and their 3D) load only when a page shows them
+const Rail = lazy(() => import('./Rail'))
+const RecordPlayer = lazy(() => import('./RecordPlayer'))
 
 /** the object a page address opens; a project's address (/books/<project>) opens the books */
 const idFromPath = (): DeskId | null => {
@@ -445,8 +447,10 @@ export default function Desk3D() {
                     {x.title}
                   </h2>
                 )}
-                {x.rail && <Rail />}
-                {x.player && <RecordPlayer />}
+                <Suspense fallback={null}>
+                  {x.rail && <Rail />}
+                  {x.player && <RecordPlayer />}
+                </Suspense>
                 {sectionHtml[i]?.trim() && <div className="dk-body dk-section__body" dangerouslySetInnerHTML={{ __html: sectionHtml[i] }} />}
               </section>
             ))}
