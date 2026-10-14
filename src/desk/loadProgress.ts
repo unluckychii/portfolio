@@ -125,7 +125,7 @@ export function reveal() {
   else setTimeout(done, run + 30)
 }
 
-/** the bar is full: the cat trots off, the screen lifts, and the desk settles into view */
+/** the bar is full: the cat stops at the end and stands, the screen lifts, and the desk settles into view */
 function done() {
   const loader = el()
   const settle = () => delete document.documentElement.dataset.loading
@@ -140,6 +140,6 @@ function done() {
   setTimeout(() => {
     loader.dataset.gone = ''
     settle()
-  }, 450)
-  setTimeout(() => loader.remove(), 1600)
+  }, 600) // a moment to see the cat at the end
+  setTimeout(() => loader.remove(), 1800)
 }
