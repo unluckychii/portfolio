@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js'
 import { disposeStage, loadImage, makeStage } from './RailScene'
 
 /** a suitcase record player (CC BY 4.0, Phaedrus on Sketchfab — credited on the page) */
@@ -112,7 +113,7 @@ export class RecordPlayerScene {
   }
 
   private async build() {
-    const loader = new GLTFLoader().register((parser) => {
+    const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).register((parser) => {
       parser.textureLoader = new THREE.TextureLoader(parser.options.manager).setCrossOrigin('anonymous')
       return { name: 'player_img_element_textures' }
     })

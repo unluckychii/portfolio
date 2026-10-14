@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 
 const RAIL_MODEL = `${import.meta.env.BASE_URL}models/clothes-rail.glb`
@@ -159,7 +160,7 @@ export function loadImage(src: string) {
  * faces +X (side-on along the rail); turn it -90° about Y to face the viewer.
  */
 async function loadShirts(images: ShirtLook[], withRail: boolean) {
-  const loader = new GLTFLoader().register((parser) => {
+  const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).register((parser) => {
     // decode textures through <img>, which strict Content-Security-Policies allow
     parser.textureLoader = new THREE.TextureLoader(parser.options.manager).setCrossOrigin('anonymous')
     return { name: 'rail_img_element_textures' }
