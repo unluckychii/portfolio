@@ -144,11 +144,17 @@ export default function Desk3D() {
       reveal()
       return
     }
-    // the loading screen lifts once everything on the desk is in, a frame after so it's drawn;
-    // a case study opened directly covers the desk, so it needn't wait, and nobody waits forever
-    if (projectFromPath()) reveal()
-    engine.allReady.then(() => requestAnimationFrame(() => engineRef.current === engine && reveal()))
-    const giveUp = window.setTimeout(reveal, REVEAL_AFTER)
+    // the loading screen lifts once everything on the desk is in. Until then the desk isn't drawn,
+    // leaving the page free to load; then it draws a couple of frames (readying its shaders) before
+    // the reveal. A case study opened directly covers the desk, so it needn't wait; nobody waits forever.
+    engine.holding = true
+    const lift = () => {
+      engine.holding = false
+      requestAnimationFrame(() => requestAnimationFrame(() => engineRef.current === engine && reveal()))
+    }
+    if (projectFromPath()) lift()
+    engine.allReady.then(lift)
+    const giveUp = window.setTimeout(lift, REVEAL_AFTER)
     engineRef.current = engine
     engine.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     engine.onHover = setHovered

@@ -1728,11 +1728,13 @@ export class DeskScene {
 
   /** stop drawing while something covers the whole desk (a case study page) */
   paused = false
+  /** hold off drawing while the loading screen covers the desk, leaving the page free to load */
+  holding = false
 
   private loop = () => {
     this.raf = requestAnimationFrame(this.loop)
     this.timer.update()
-    if (this.paused) return
+    if (this.paused || this.holding) return
     const dt = Math.min(this.timer.getDelta(), 0.05)
     const t = this.timer.getElapsed()
 
