@@ -7,8 +7,35 @@
     <link rel="apple-touch-icon" href="/uploads/favicon.png" />
     <meta name="theme-color" content="#e7e1cf" />
     <title>Aaron's Desks</title>
+    <style>
+      /* the loading screen: shown before any script runs, faded away once the desk is in (src/desk/loadProgress.ts) */
+      #loader {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        display: grid;
+        place-content: center;
+        justify-items: center;
+        gap: 18px;
+        background: #e7e1cf;
+        color: #1d2117;
+        transition: opacity 0.6s ease, visibility 0.6s;
+      }
+      #loader[data-gone] { opacity: 0; visibility: hidden; }
+      #loader .ld-name { margin: 0; font: italic 400 clamp(32px, 6vw, 52px) / 1 'Instrument Serif', Georgia, 'Times New Roman', serif; }
+      #loader .ld-bar { width: min(240px, 60vw); height: 2px; background: rgba(29, 33, 23, 0.16); overflow: hidden; }
+      #loader .ld-bar i { display: block; height: 100%; background: #1d2117; transform-origin: left; transform: scaleX(var(--loaded, 0.06)); transition: transform 0.25s ease-out; }
+      #loader .ld-pct { font: 500 11px/1 'IBM Plex Mono', ui-monospace, monospace; letter-spacing: 0.08em; color: rgba(29, 33, 23, 0.62); font-variant-numeric: tabular-nums; }
+      #loader .ld-pct::after { counter-reset: p var(--pct, 6); content: counter(p) '%'; }
+      @media (prefers-reduced-motion: reduce) { #loader, #loader .ld-bar i { transition: none; } }
+    </style>
   </head>
   <body>
+    <div id="loader">
+      <p class="ld-name">Aaron's desk</p>
+      <div class="ld-bar" role="progressbar" aria-label="Loading the desk" aria-valuemin="0" aria-valuemax="100" aria-valuenow="6"><i></i></div>
+      <span class="ld-pct" aria-hidden="true"></span>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

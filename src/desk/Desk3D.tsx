@@ -9,9 +9,12 @@ import TimePicker, { startingTime } from './TimePicker'
 
 /** show the time-of-day menu in the header */
 const SHOW_TIME_PICKER = false
+/** the loading screen lifts after this long whatever is still on its way */
+const REVEAL_AFTER = 25_000
 import { useHoverSound } from './hoverSound'
 import { followAnchor, markdown, slug } from './markdown'
 import { SITE } from './site'
+import { reveal } from './loadProgress'
 
 // the clothes rail and the record player (and their 3D) load only when a page shows them
 const Rail = lazy(() => import('./Rail'))
@@ -138,8 +141,14 @@ export default function Desk3D() {
     } catch (err) {
       console.error('The 3D desk could not start; showing the list of objects instead.', err)
       setNoGl(true) // no WebGL: the list of objects still works
+      reveal()
       return
     }
+    // the loading screen lifts once everything on the desk is in, a frame after so it's drawn;
+    // a case study opened directly covers the desk, so it needn't wait, and nobody waits forever
+    if (projectFromPath()) reveal()
+    engine.allReady.then(() => requestAnimationFrame(() => engineRef.current === engine && reveal()))
+    const giveUp = window.setTimeout(reveal, REVEAL_AFTER)
     engineRef.current = engine
     engine.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     engine.onHover = setHovered
@@ -154,6 +163,7 @@ export default function Desk3D() {
     const ro = new ResizeObserver(() => engine.resize(host.clientWidth, host.clientHeight))
     ro.observe(host)
     return () => {
+      window.clearTimeout(giveUp)
       ro.disconnect()
       engine.dispose()
       engineRef.current = null

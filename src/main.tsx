@@ -8,6 +8,10 @@ import './desk/desk.css'
 import Desk3D from './desk/Desk3D'
 import { SITE } from './desk/site'
 import { assetUrl } from './desk/projects'
+import { nameLoader } from './desk/loadProgress'
+
+// the loading screen carries the heading set in the CMS
+nameLoader(SITE.heading || SITE.name)
 
 // the tab icon set in the CMS (index.html carries the default until this runs)
 if (SITE.favicon) {
