@@ -62,6 +62,8 @@ function update() {
 }
 
 const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
+/** a repeat visit this session (index.html sets the flag): the screen lifts quickly */
+const quick = () => 'quick' in document.documentElement.dataset
 
 /*
  * The line and the cat glide by animations the browser runs on its own, so they keep moving
@@ -162,8 +164,15 @@ export function nameLoader(name: string) {
 export function reveal() {
   if (revealed) return
   revealed = true
+  try {
+    sessionStorage.setItem('desk-seen', '1') // a refresh later this visit gets the quick lift
+  } catch {
+    // storage blocked: every visit gets the full screen
+  }
   window.clearInterval(timer)
   const from = position()
+  // a repeat visit lifts straight away, leaving the line and cat where they are
+  if (quick()) return done()
   for (const a of moves) a.cancel()
   moves = []
   el()?.removeAttribute('data-waiting')
@@ -188,10 +197,10 @@ function done() {
   const loader = el()
   const settle = () => delete document.documentElement.dataset.loading
   if (!loader) return settle()
-  if (reduced()) {
+  if (reduced() || quick()) {
     loader.dataset.gone = ''
     settle()
-    setTimeout(() => loader.remove(), 400)
+    setTimeout(() => loader.remove(), 450)
     return
   }
   loader.dataset.done = ''

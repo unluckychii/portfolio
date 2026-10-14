@@ -71,6 +71,10 @@
       #loader[data-gone] { opacity: 0; visibility: hidden; }
       #loader[data-gone] .ld-name, #loader[data-gone] .ld-track { opacity: 0; transform: translateY(-10px); }
 
+      /* a repeat visit: a quick fade, no run to the end or pause */
+      html[data-quick] #loader { transition: opacity 0.35s ease, visibility 0s linear 0.35s; }
+      html[data-quick] #loader[data-gone] .ld-name, html[data-quick] #loader[data-gone] .ld-track { transform: none; }
+
       @media (prefers-reduced-motion: reduce) {
         #loader { transition: opacity 0.3s ease, visibility 0s linear 0.3s; }
         #loader * { transition: none !important; }
@@ -81,6 +85,10 @@
     <script>
       // until the loading screen lifts, the desk waits underneath it, ready to settle into view
       document.documentElement.dataset.loading = ''
+      // seen it already this visit (a refresh, say): the screen lifts as soon as the desk is in
+      try {
+        if (sessionStorage.getItem('desk-seen')) document.documentElement.dataset.quick = ''
+      } catch (e) {}
     </script>
   </head>
   <body>
