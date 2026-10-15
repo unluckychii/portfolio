@@ -7,8 +7,99 @@
     <link rel="apple-touch-icon" href="/uploads/favicon.png" />
     <meta name="theme-color" content="#e7e1cf" />
     <title>Aaron's Desks</title>
+    <link rel="preload" as="image" href="/loader-cat.webp" type="image/webp" />
+    <style>
+      /* the loading screen: shown before any script runs, lifted once the desk is in (src/desk/loadProgress.ts) */
+      #loader {
+        --tw: min(280px, 72vw); /* the bar's length */
+        --cw: 68px; /* the cat's width (a frame of loader-cat.webp, at half size) */
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        display: grid;
+        place-content: center;
+        justify-items: center;
+        gap: 22px;
+        overflow: hidden;
+        background: #e7e1cf;
+        color: #1d2117;
+        transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.15s, visibility 0s linear 0.85s;
+      }
+      #loader .ld-name {
+        margin: 0;
+        font: italic 400 clamp(32px, 6vw, 52px) / 1 'Instrument Serif', Georgia, 'Times New Roman', serif;
+        transition: opacity 0.45s ease, transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+      }
+      #loader .ld-track { position: relative; width: var(--tw); padding-top: 46px; transition: opacity 0.45s ease 0.08s, transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) 0.08s; }
+      #loader .ld-bar { position: relative; height: 2px; background: rgba(29, 33, 23, 0.16); overflow: hidden; border-radius: 2px; }
+      /*
+       * The line fills to under the cat's middle, as if it's drawing it. The fill and the cat are moved
+       * by animations the browser runs on its own (src/desk/loadProgress.ts), so they glide even while
+       * the page is busy; until the script is in they wait at 6%.
+       */
+      #loader .ld-fill {
+        position: absolute;
+        inset: 0 auto 0 calc(var(--cw) / 2);
+        width: calc(var(--tw) - var(--cw));
+        background: #1d2117;
+        transform-origin: left;
+        transform: scaleX(0.06);
+      }
+      /* the line's two ends, beyond where the cat's middle can go: dark from the start, and at the end once done */
+      #loader .ld-bar::before, #loader .ld-bar::after { content: ''; position: absolute; top: 0; bottom: 0; width: calc(var(--cw) / 2); background: #1d2117; }
+      #loader .ld-bar::before { left: 0; }
+      #loader .ld-bar::after { right: 0; opacity: 0; transition: opacity 0.2s ease; }
+      #loader[data-done] .ld-bar::after { opacity: 1; }
+      /* the cat's path: the track less a cat's width, so translateX(n%) puts the cat n% of the way along */
+      #loader .ld-path { position: absolute; left: 0; bottom: 1px; width: calc(var(--tw) - var(--cw)); height: 48px; transform: translateX(6%); }
+      /* the cat walks along the bar; its legs are a 12-frame strip stepped through (the 13th frame, standing, is for the end) */
+      #loader .ld-cat { width: var(--cw); height: 100%; overflow: hidden; }
+      #loader .ld-cat i {
+        display: block;
+        width: calc(var(--cw) * 13);
+        height: 100%;
+        background: url(/loader-cat.webp) 0 0 / 100% 100% no-repeat;
+        animation: ld-walk 0.95s steps(12) infinite;
+      }
+      @keyframes ld-walk { to { transform: translateX(calc(var(--cw) * -12)); } }
+      #loader .ld-pct { font: 500 11px/1 'IBM Plex Mono', ui-monospace, monospace; letter-spacing: 0.08em; color: rgba(29, 33, 23, 0.62); font-variant-numeric: tabular-nums; transition: opacity 0.3s ease; }
+      #loader .ld-pct::after { counter-reset: p var(--pct, 6); content: counter(p) '%'; }
+
+      /* done (or at the end early, waiting on the desk): the cat stops at the end of the bar and stands, then everything lifts away */
+      #loader[data-done] .ld-cat i, #loader[data-waiting] .ld-cat i { animation: none; transform: translateX(calc(var(--cw) * -12)); }
+      #loader[data-done] .ld-pct { opacity: 0; }
+      #loader[data-gone] { opacity: 0; visibility: hidden; }
+      #loader[data-gone] .ld-name, #loader[data-gone] .ld-track { opacity: 0; transform: translateY(-10px); }
+
+      /* a repeat visit: a quick fade, no run to the end or pause */
+      html[data-quick] #loader { transition: opacity 0.35s ease, visibility 0s linear 0.35s; }
+      html[data-quick] #loader[data-gone] .ld-name, html[data-quick] #loader[data-gone] .ld-track { transform: none; }
+
+      @media (prefers-reduced-motion: reduce) {
+        #loader { transition: opacity 0.3s ease, visibility 0s linear 0.3s; }
+        #loader * { transition: none !important; }
+        #loader .ld-cat i { animation: none; transform: translateX(calc(var(--cw) * -12)); } /* standing */
+        #loader[data-gone] .ld-name, #loader[data-gone] .ld-track { transform: none; }
+      }
+    </style>
+    <script>
+      // until the loading screen lifts, the desk waits underneath it, ready to settle into view
+      document.documentElement.dataset.loading = ''
+      // seen it already this visit (a refresh, say): the screen lifts as soon as the desk is in
+      try {
+        if (sessionStorage.getItem('desk-seen')) document.documentElement.dataset.quick = ''
+      } catch (e) {}
+    </script>
   </head>
   <body>
+    <div id="loader">
+      <p class="ld-name">Aaron's desk</p>
+      <div class="ld-track">
+        <div class="ld-bar" role="progressbar" aria-label="Loading the desk" aria-valuemin="0" aria-valuemax="100" aria-valuenow="6"><i class="ld-fill"></i></div>
+        <div class="ld-path" aria-hidden="true"><div class="ld-cat"><i></i></div></div>
+      </div>
+      <span class="ld-pct" aria-hidden="true"></span>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

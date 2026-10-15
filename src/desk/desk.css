@@ -953,3 +953,16 @@ body { font-family: var(--hb-sans); -webkit-font-smoothing: antialiased; }
 /* nothing in a page's column is allowed to make it wider than the panel */
 .dk-panel__inner > * { min-width: 0; max-width: 100%; }
 .dk-body { overflow-wrap: anywhere; }
+
+/* ------------------------------------------------------------ loading */
+/* under the loading screen the desk waits a touch large and soft, then settles into focus as it lifts */
+.dk-root { transition: opacity 0.9s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.dk-canvas { transition: transform 1.3s cubic-bezier(0.2, 0.7, 0.2, 1), filter 1s cubic-bezier(0.2, 0.7, 0.2, 1); }
+html[data-loading] .dk-root { opacity: 0; }
+html[data-loading] .dk-canvas { transform: scale(1.04); filter: blur(8px); }
+html[data-quick] .dk-root { transition-duration: 0.5s; }
+html[data-quick] .dk-canvas { transition-duration: 0.5s; }
+@media (prefers-reduced-motion: reduce) {
+  .dk-canvas { transition: none; }
+  html[data-loading] .dk-canvas { transform: none; filter: none; }
+}

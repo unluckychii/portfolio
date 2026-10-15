@@ -10,7 +10,8 @@ import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.j
 import type { ParsedFrame } from 'gifuct-js'
 import type { DeskId } from './objects'
 import { currentHour, isDark, lightAt } from './daylight'
-import { DeskWindow, WALL_Z, wallGeometry } from './window'
+import { DeskWindow, WALL_Z, WINDOW_MODEL, wallGeometry } from './window'
+import { expect, tracked } from './loadProgress'
 
 /** everything the pointer can pick: the four pages, the lamp switch and the speakers (music on/off) */
 export type Pickable = DeskId | 'lamp' | 'speakers'
@@ -328,7 +329,14 @@ function buildDesk(scene: THREE.Scene) {
   scene.add(floor, wall, skirting)
 
   // two framed paintings on the wall, one either side of the laptop (both Caravaggio, public domain)
-  for (const p of PAINTINGS) scene.add(hangPainting(p))
+  // the paintings arrive on their own; the loading screen waits for them
+  const loads: Promise<unknown>[] = []
+  for (const p of PAINTINGS) {
+    const { art, loaded } = hangPainting(p)
+    scene.add(art)
+    loads.push(loaded)
+  }
+  return loads
 }
 
 /** the paintings on the wall: image, its size in pixels, and where it hangs (x, y of its centre) */
@@ -349,16 +357,27 @@ function hangPainting({ file, px, at }: (typeof PAINTINGS)[number]) {
   const canvasMat = std('#2a1d14', 0.75) // dark until the picture arrives
   const painting = new THREE.Mesh(new THREE.PlaneGeometry(w, ART_H), canvasMat)
   painting.position.z = 0.0185
-  new THREE.TextureLoader().load(`${import.meta.env.BASE_URL}${file}`, (tex) => {
-    tex.colorSpace = THREE.SRGBColorSpace
-    tex.anisotropy = 8
-    canvasMat.map = tex
-    canvasMat.color.set(0xffffff)
-    canvasMat.needsUpdate = true
-  })
+  const url = `${import.meta.env.BASE_URL}${file}`
+  const loaded = tracked(url, (onProgress) =>
+    new Promise<void>((resolve, reject) =>
+      new THREE.TextureLoader().load(
+        url,
+        (tex) => {
+          tex.colorSpace = THREE.SRGBColorSpace
+          tex.anisotropy = 8
+          canvasMat.map = tex
+          canvasMat.color.set(0xffffff)
+          canvasMat.needsUpdate = true
+          resolve()
+        },
+        onProgress,
+        reject,
+      ),
+    ),
+  ).catch((err) => console.warn(`A painting (${file}) failed to load.`, err))
   art.add(frame, mat, painting)
   art.position.set(at[0], at[1], -1.23)
-  return shadowed(art)
+  return { art: shadowed(art), loaded }
 }
 
 function buildMonitor(screen: ScreenCanvas) {
@@ -516,6 +535,11 @@ function gltfLoader() {
   })
 }
 
+/** load a model, its bytes counted on the loading screen's bar */
+function loadModel(url: string) {
+  return tracked(url, (onProgress) => gltfLoader().loadAsync(url, onProgress))
+}
+
 /** the pigeon model in public/models: a rigged bird with its own idle animation */
 const PIGEON_MODEL = `${import.meta.env.BASE_URL}models/pigeon.glb`
 /** the model is 0.63 tall; this brings it to the size of the other things on the desk */
@@ -528,7 +552,7 @@ const LAPTOP_SCALE = 0.25
 
 /** the laptop, with the code-editor screen laid over its display */
 async function loadLaptopModel(screen: ScreenCanvas) {
-  const gltf = await gltfLoader().loadAsync(LAPTOP_MODEL)
+  const gltf = await loadModel(LAPTOP_MODEL)
   const model = gltf.scene
   let keys: THREE.MeshStandardMaterial | null = null
   model.traverse((o) => {
@@ -600,7 +624,7 @@ const COFFEE_MODEL = `${import.meta.env.BASE_URL}models/coffee.glb`
 const COFFEE_SCALE = 0.055
 
 async function loadCoffeeModel() {
-  const gltf = await gltfLoader().loadAsync(COFFEE_MODEL)
+  const gltf = await loadModel(COFFEE_MODEL)
   const model = gltf.scene
   model.traverse((o) => {
     const m = o as THREE.Mesh
@@ -622,7 +646,7 @@ const LAMP_GLOW = 1.9
 
 /** the salt lamp, lit from inside by a warm point light */
 async function loadLampModel() {
-  const gltf = await gltfLoader().loadAsync(LAMP_MODEL)
+  const gltf = await loadModel(LAMP_MODEL)
   const model = gltf.scene
   let rock: THREE.MeshStandardMaterial | undefined
   model.traverse((o) => {
@@ -653,7 +677,7 @@ const PLANT_MODEL = `${import.meta.env.BASE_URL}models/plant.glb`
 const PLANT_SCALE = 0.016
 
 async function loadPlantModel() {
-  const gltf = await gltfLoader().loadAsync(PLANT_MODEL)
+  const gltf = await loadModel(PLANT_MODEL)
   const model = shadowed(gltf.scene)
   model.scale.setScalar(PLANT_SCALE)
   model.rotation.y = 0.6
@@ -671,7 +695,7 @@ const FLOOR_LAMP_POS = new THREE.Vector3(-1.95, -0.06 - LEG_H, -0.55)
 type FloorLampRig = { spot: THREE.SpotLight; fill: THREE.PointLight; bulb: THREE.MeshStandardMaterial[] }
 
 async function loadFloorLamp() {
-  const gltf = await gltfLoader().loadAsync(FLOOR_LAMP_MODEL)
+  const gltf = await loadModel(FLOOR_LAMP_MODEL)
   const model = shadowed(gltf.scene)
   const bulb: THREE.MeshStandardMaterial[] = []
   let head: THREE.Box3 | null = null
@@ -725,7 +749,7 @@ const CAT_DESK_YAW = -0.7
 type CatRig = { group: THREE.Group; mixer: THREE.AnimationMixer; idle: THREE.AnimationAction; sitting: THREE.AnimationAction }
 
 async function loadCat() {
-  const gltf = await gltfLoader().loadAsync(CAT_MODEL)
+  const gltf = await loadModel(CAT_MODEL)
   const model = gltf.scene
   model.traverse((o) => {
     const m = o as THREE.Mesh
@@ -753,12 +777,27 @@ async function loadCat() {
 }
 
 /** four upright books with their cover textures (public/models/books.glb) */
+/** every file the loading screen waits for */
+const deskFiles = () => [
+  ...PAINTINGS.map((p) => `${import.meta.env.BASE_URL}${p.file}`),
+  PIGEON_MODEL,
+  LAPTOP_MODEL,
+  COFFEE_MODEL,
+  LAMP_MODEL,
+  PLANT_MODEL,
+  BOOKS_MODEL,
+  SPEAKER_MODEL,
+  WINDOW_MODEL,
+  CAT_MODEL,
+  FLOOR_LAMP_MODEL,
+]
+
 const BOOKS_MODEL = `${import.meta.env.BASE_URL}models/books.glb`
 /** height on the desk; the model is scaled to it, whatever units it was exported in */
 const BOOKS_HEIGHT = 0.42
 
 async function loadBooksModel() {
-  const gltf = await gltfLoader().loadAsync(BOOKS_MODEL)
+  const gltf = await loadModel(BOOKS_MODEL)
   const model = shadowed(gltf.scene)
   // centre it over its spot with its base on the desk
   const box = new THREE.Box3().setFromObject(model)
@@ -801,7 +840,7 @@ function buildSpeaker(side: number) {
 }
 
 async function loadSpeakerModel() {
-  const gltf = await gltfLoader().loadAsync(SPEAKER_MODEL)
+  const gltf = await loadModel(SPEAKER_MODEL)
   const model = shadowed(gltf.scene)
   model.updateMatrixWorld(true)
   // the cones' rest positions, and which way is "out" for each (the model faces +Z)
@@ -833,7 +872,7 @@ type ModelPigeonRig = {
 }
 
 async function loadPigeonModel(): Promise<ModelPigeonRig> {
-  const gltf = await gltfLoader().loadAsync(PIGEON_MODEL)
+  const gltf = await loadModel(PIGEON_MODEL)
   const model = gltf.scene
   model.scale.setScalar(PIGEON_SCALE)
   model.traverse((o) => {
@@ -1110,7 +1149,9 @@ export class DeskScene {
     this.controls.update()
 
     this.lights()
-    buildDesk(this.scene)
+    // the loading screen's bar counts every file the desk waits for from the start
+    expect(...deskFiles())
+    this.mainLoads.push(...buildDesk(this.scene))
     // the window is above the home view; zoomed out, the moon sits in its upper panes
     this.window = new DeskWindow(this.scene, new THREE.Vector3(0.35, 1.5, 4.2))
     const puff = puffTexture()
@@ -1133,14 +1174,12 @@ export class DeskScene {
     this.useSpeakerModels()
     this.useBooksModel()
     this.usePlantModel(plant)
-    // the desk's own models come first; what's out of the opening view (the window above,
-    // the cat and floor lamp below) and the laptop's screen media follow once they're in
-    this.deskReady = Promise.allSettled(this.mainLoads).then(() => undefined)
-    this.deskReady.then(() => {
-      if (this.disposed) return
-      this.window.load(gltfLoader()).catch((err) => console.warn('The window model failed to load; the opening stays bare.', err))
-      this.loadExtras()
-    })
+    // the loading screen hides the desk until all of it is in, so the window, cat and floor
+    // lamp load alongside the desk's own models; only the laptop's screen media waits (below)
+    const windowLoad = tracked(WINDOW_MODEL, (onProgress) => this.window.load(gltfLoader(), onProgress)).catch((err) =>
+      console.warn('The window model failed to load; the opening stays bare.', err),
+    )
+    this.allReady = Promise.allSettled([...this.mainLoads, windowLoad, ...this.loadExtras()]).then(() => undefined)
 
     // hover outline, rendered into a multisampled target so edges stay smooth
     const rt = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: 4 })
@@ -1527,18 +1566,14 @@ export class DeskScene {
       .finally(() => pair.forEach((i) => (i.group.visible = true)))
   }
 
-  /**
-   * Swap a hand-built object for a model. The object stays hidden while the
-   * model loads; if it can't load, the hand-built one is shown instead.
-   */
-  /** the models loaded first, before the ones out of the opening view */
+  /** the desk's own models and paintings, loading */
   private mainLoads: Promise<unknown>[] = []
-  /** resolves once the desk's own models are in (or have failed) */
-  deskReady: Promise<void> = Promise.resolve()
+  /** resolves once the desk and everything around it (window, cat, floor lamp) are in, or have failed */
+  allReady: Promise<void> = Promise.resolve()
 
   /** the cat and the floor lamp, below the opening view */
   private loadExtras() {
-    loadCat()
+    const cat = loadCat()
       .then((cat) => {
         if (this.disposed) return
         this.scene.add(cat.group)
@@ -1546,7 +1581,7 @@ export class DeskScene {
         this.lightCheck = 0 // up onto the desk now if it's already night
       })
       .catch((err) => console.warn('The cat model failed to load.', err))
-    loadFloorLamp()
+    const lamp = loadFloorLamp()
       .then((lamp) => {
         if (this.disposed) return
         this.scene.add(lamp)
@@ -1554,8 +1589,13 @@ export class DeskScene {
         this.lightCheck = 0 // switch it on now if it's already evening
       })
       .catch((err) => console.warn('The floor lamp model failed to load; the corner stays dark.', err))
+    return [cat, lamp]
   }
 
+  /**
+   * Swap a hand-built object for a model. The object stays hidden while the
+   * model loads; if it can't load, the hand-built one is shown instead.
+   */
   private useModel<T>(id: Pickable, load: () => Promise<T>, apply: (item: DeskItem, loaded: T) => void) {
     const item = this.items.find((i) => i.id === id)!
     item.group.visible = false
@@ -1676,8 +1716,8 @@ export class DeskScene {
 
   /** put a picture, GIF or video on the laptop's screen (the stand-in monitor's too) */
   showScreenMedia(url: string) {
-    // a video or GIF can be large: let the desk's models load first
-    this.deskReady.then(() => {
+    // a video or GIF can be large: it comes once everything else is in, not holding up the loading screen
+    this.allReady.then(() => {
       if (!this.disposed) this.screen.showMedia(url)
     })
   }
@@ -1688,11 +1728,13 @@ export class DeskScene {
 
   /** stop drawing while something covers the whole desk (a case study page) */
   paused = false
+  /** hold off drawing while the loading screen covers the desk, leaving the page free to load */
+  holding = false
 
   private loop = () => {
     this.raf = requestAnimationFrame(this.loop)
     this.timer.update()
-    if (this.paused) return
+    if (this.paused || this.holding) return
     const dt = Math.min(this.timer.getDelta(), 0.05)
     const t = this.timer.getElapsed()
 

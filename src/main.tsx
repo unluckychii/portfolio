@@ -8,6 +8,11 @@ import './desk/desk.css'
 import Desk3D from './desk/Desk3D'
 import { SITE } from './desk/site'
 import { assetUrl } from './desk/projects'
+import { nameLoader } from './desk/loadProgress'
+import { startAnalytics } from './desk/analytics'
+
+// the loading screen carries the heading set in the CMS
+nameLoader(SITE.heading || SITE.name)
 
 // the tab icon set in the CMS (index.html carries the default until this runs)
 if (SITE.favicon) {
@@ -21,6 +26,9 @@ if (SITE.favicon) {
     link.href = assetUrl(SITE.favicon)
   }
 }
+
+// visitor stats, when a GoatCounter code is set in the CMS
+if (SITE.goatcounter) startAnalytics(SITE.goatcounter)
 
 // the desk is the whole site: / is the desk, /coffee etc. open an object's page over it
 createRoot(document.getElementById('root')!).render(

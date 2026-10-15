@@ -3,7 +3,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { Light } from './daylight'
 
 /** a sash window with curtains (CC BY 4.0, jesseroberts on Sketchfab — credited on the page) in public/models */
-const WINDOW_MODEL = `${import.meta.env.BASE_URL}models/window.glb`
+export const WINDOW_MODEL = `${import.meta.env.BASE_URL}models/window.glb`
 
 /** the back wall's surface */
 export const WALL_Z = -1.25
@@ -161,8 +161,8 @@ export class DeskWindow {
   }
 
   /** the window frame and curtains; until they load the opening is simply a hole */
-  async load(loader: GLTFLoader) {
-    const gltf = await loader.loadAsync(WINDOW_MODEL)
+  async load(loader: GLTFLoader, onProgress?: (e: ProgressEvent) => void) {
+    const gltf = await loader.loadAsync(WINDOW_MODEL, onProgress)
     const model = gltf.scene
     const paint = new THREE.MeshStandardMaterial({ color: '#efeae0', roughness: 0.55 })
     const linen = new THREE.MeshStandardMaterial({ color: '#ddd3c1', roughness: 1, side: THREE.DoubleSide })
