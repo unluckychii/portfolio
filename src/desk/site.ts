@@ -27,6 +27,8 @@ export type Site = {
   music: string
   /** short sound played when an object on the desk is hovered; empty for none */
   hoverSound: string
+  /** the GoatCounter code for visitor stats (the part before .goatcounter.com); empty turns them off */
+  goatcounter: string
 }
 
 const DEFAULTS: Site = {
@@ -46,6 +48,7 @@ const DEFAULTS: Site = {
   laptopScreen: '',
   music: '',
   hoverSound: '',
+  goatcounter: '',
 }
 
 const f = file as Partial<Record<keyof Site, unknown>>
@@ -72,4 +75,5 @@ export const SITE: Site = {
   laptopScreen: text('laptopScreen', true),
   music: text('music', true),
   hoverSound: text('hoverSound', true),
+  goatcounter: text('goatcounter', true),
 }

@@ -15,6 +15,7 @@ import { useHoverSound } from './hoverSound'
 import { followAnchor, markdown, slug } from './markdown'
 import { SITE } from './site'
 import { reveal } from './loadProgress'
+import { countPage } from './analytics'
 
 // the clothes rail and the record player (and their 3D) load only when a page shows them
 const Rail = lazy(() => import('./Rail'))
@@ -34,6 +35,7 @@ const go = (path: string) => {
   } catch {
     /* keep going without a URL change */
   }
+  countPage()
 }
 
 /** "The desk" → The <em>desk</em>, the header's serif flourish */
@@ -184,6 +186,7 @@ export default function Desk3D() {
   /* ------------------------------------------------ history & keys */
   useEffect(() => {
     const onPop = () => {
+      countPage()
       const id = idFromPath()
       const p = projectFromPath()
       if (id && id !== open) show(id, false)
