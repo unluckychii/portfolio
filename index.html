@@ -8,6 +8,9 @@
     <meta name="theme-color" content="#e7e1cf" />
     <title>Aaron's Desks</title>
     <link rel="preload" as="image" href="/loader-cat.webp" type="image/webp" />
+    <!-- the loading screen's name, in its own font from the first paint -->
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/node_modules/@fontsource-variable/figtree/files/figtree-latin-wght-normal.woff2" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/node_modules/@fontsource-variable/figtree/files/figtree-latin-wght-italic.woff2" />
     <style>
       /* the loading screen: shown before any script runs, lifted once the desk is in (src/desk/loadProgress.ts) */
       #loader {
@@ -27,9 +30,11 @@
       }
       #loader .ld-name {
         margin: 0;
-        font: italic 400 clamp(32px, 6vw, 52px) / 1 'Instrument Serif', Georgia, 'Times New Roman', serif;
+        font: 650 clamp(30px, 5vw, 46px) / 1 'Figtree Variable', 'Figtree', system-ui, sans-serif;
+        letter-spacing: -0.03em;
         transition: opacity 0.45s ease, transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
       }
+      #loader .ld-name em { font-style: italic; }
       #loader .ld-track { position: relative; width: var(--tw); padding-top: 46px; transition: opacity 0.45s ease 0.08s, transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) 0.08s; }
       #loader .ld-bar { position: relative; height: 2px; background: rgba(29, 33, 23, 0.16); overflow: hidden; border-radius: 2px; }
       /*
@@ -62,7 +67,7 @@
         animation: ld-walk 0.95s steps(12) infinite;
       }
       @keyframes ld-walk { to { transform: translateX(calc(var(--cw) * -12)); } }
-      #loader .ld-pct { font: 500 11px/1 'IBM Plex Mono', ui-monospace, monospace; letter-spacing: 0.08em; color: rgba(29, 33, 23, 0.62); font-variant-numeric: tabular-nums; transition: opacity 0.3s ease; }
+      #loader .ld-pct { font: 500 11px/1 'Geist Mono Variable', 'Geist Mono', ui-monospace, monospace; letter-spacing: 0.08em; color: rgba(29, 33, 23, 0.62); font-variant-numeric: tabular-nums; transition: opacity 0.3s ease; }
       #loader .ld-pct::after { counter-reset: p var(--pct, 6); content: counter(p) '%'; }
 
       /* done (or at the end early, waiting on the desk): the cat stops at the end of the bar and stands, then everything lifts away */
