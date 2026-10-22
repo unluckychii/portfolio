@@ -157,7 +157,12 @@ function show(p: number) {
 /** show the site's heading (set in the CMS) on the screen in place of the page's built-in one */
 export function nameLoader(name: string) {
   const p = el()?.querySelector('.ld-name')
-  if (p && name) p.textContent = name
+  if (!p || !name) return
+  // its last word in italics, like the header's
+  const i = name.lastIndexOf(' ')
+  const em = document.createElement('em')
+  em.textContent = name.slice(i + 1)
+  p.replaceChildren(name.slice(0, i + 1), em)
 }
 
 /** run the line and the cat to the end from wherever they are, then lift the screen */

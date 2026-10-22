@@ -47,7 +47,7 @@ function artFor(look: RecordLook, img: HTMLImageElement | null) {
     g.fillStyle = look.colour
     g.fillRect(0, 0, 512, 512)
     g.fillStyle = '#fff'
-    g.font = 'italic 64px "Instrument Serif", Georgia, serif'
+    g.font = 'italic 600 58px "Figtree Variable", system-ui, sans-serif'
     g.textBaseline = 'bottom'
     g.fillText(look.title, 36, 470, 440)
   }

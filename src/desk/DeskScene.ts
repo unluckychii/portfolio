@@ -236,7 +236,7 @@ class ScreenCanvas {
       g.fill()
     })
     g.fillStyle = '#8b949e'
-    g.font = '500 20px "IBM Plex Mono", ui-monospace, monospace'
+    g.font = '500 20px "Geist Mono Variable", ui-monospace, monospace'
     g.fillText('portfolio — desk.ts', 380, 29)
     // sidebar
     g.fillStyle = '#1b2029'
@@ -247,7 +247,7 @@ class ScreenCanvas {
       g.fillText(f, 18, 88 + i * 34)
     })
     // code
-    g.font = '500 26px "IBM Plex Mono", ui-monospace, monospace'
+    g.font = '500 26px "Geist Mono Variable", ui-monospace, monospace'
     let lastX = 0
     let lastY = 0
     this.lines.forEach(([indent, col, text], i) => {
@@ -268,7 +268,7 @@ class ScreenCanvas {
     g.fillStyle = '#d6f06b'
     g.fillRect(0, h - 30, w, 30)
     g.fillStyle = '#1d2117'
-    g.font = '500 17px "IBM Plex Mono", ui-monospace, monospace'
+    g.font = '500 17px "Geist Mono Variable", ui-monospace, monospace'
     g.fillText('● main    desk.ts    TypeScript', 16, h - 9)
     this.texture.needsUpdate = true
   }
